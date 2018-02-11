@@ -13,4 +13,4 @@ setInterval(function(){
 	{
 		html_hit_count.textContent=hit_count.Formated;
 }	);
-},100);
+},33);
