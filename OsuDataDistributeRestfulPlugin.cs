@@ -18,7 +18,7 @@ namespace OsuDataDistributeRestful
     [SyncPluginID("4b045b1c-7ab2-41a7-9f80-7e79c0d7768a", VERSION)]
     public class OsuDataDistributeRestfulPlugin : Plugin
     {
-        public const string PLUGIN_NAME = "OsuDataDistribute-Restful";
+        public const string PLUGIN_NAME = "OsuDataDistributeRestful";
         public const string PLUGIN_AUTHOR = "KedamavOvO";
         public const string VERSION = "0.0.1";
 
@@ -59,6 +59,8 @@ namespace OsuDataDistributeRestful
 
         public override async void OnEnable()
         {
+            Sync.Tools.IO.CurrentIO.WriteColor(PLUGIN_NAME + " By " + PLUGIN_AUTHOR, ConsoleColor.DarkCyan);
+
             Initialize();
             if(Setting.AllowLAN)
                 m_httpd.Prefixes.Add(@"http://+:10800/");
