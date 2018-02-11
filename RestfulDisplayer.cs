@@ -29,6 +29,9 @@ namespace OsuDataDistributeRestful
             m_speed = PPTuple.Empty;
             m_current_pp = PPTuple.Empty;
             m_target_pp = PPTuple.Empty;
+
+            StringPP = string.Empty;
+            StringHitCount = string.Empty;
         }
 
         public override void OnUpdateHitCount(HitCountTuple tuple)
