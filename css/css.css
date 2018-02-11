@@ -1,0 +1,16 @@
+body
+{
+	background-color:#00FF00;
+}
+
+.text
+{
+	color:#FFFFFF;
+	text-align:center;
+	font-size:48px;
+}
+
+.text-hit-count
+{
+	font-size:24px;
+}
