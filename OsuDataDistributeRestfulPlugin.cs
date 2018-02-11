@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -44,7 +45,7 @@ namespace OsuDataDistribute_Restful
                 RegisterResource("/api/hit_count_formated", () => new { Formated = m_displayer.StringHitCount });
             }
             else
-                IO.CurrentIO.WriteColor($"Not Founf RealTimePPDisplayer", ConsoleColor.Red);
+                IO.CurrentIO.WriteColor($"Not Found RealTimePPDisplayer", ConsoleColor.Red);
         }
 
         private void RegisterResource(string uri,Func<object> c)
@@ -55,7 +56,8 @@ namespace OsuDataDistribute_Restful
         public override async void OnEnable()
         {
             Initialize();
-            m_httpd.Prefixes.Add(@"http://localhost:10800/");
+            m_httpd.Prefixes.Add(@"http://+:10800/");
+
             m_httpd.Start();
             while (true)
             {
