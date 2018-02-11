@@ -1,17 +1,16 @@
-var pp;
-var hit_count;
+var html_hit_count=document.querySelector("#hit-count-lable");;
+var html_pp=document.querySelector("#pp-lable");
 
-$.get("http://locathost:10800/api/pp",function(data)
-{
-	pp=JSON.parse(data);
-});
 
-$.get("http://locathost:10800/api/hit_count",function(data)
-{
-	hitcount=JSON.parse(data);
-});
 
 setInterval(function(){
-	var html_pp=document.querySelector("#pp-lable");
-	html_pp.innerHTML=pp.rtpp.toFixed(2)+"pp";
-},33);
+	$.get("http://localhost:10800/api/pp",function(pp)
+	{
+		html_pp.textContent=pp.RealTimePP.toFixed(2)+"pp";
+	});
+	
+	$.get("http://localhost:10800/api/hit_count",function(hit_count)
+	{
+		html_hit_count.textContent=hit_count.Count100+"x100 "+hit_count.Count50+"x50 "+hit_count.CountMiss+"xMiss";
+}	);
+},100);
