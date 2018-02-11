@@ -40,6 +40,8 @@ namespace OsuDataDistribute_Restful
                 RegisterResource("/api/is_play", () => m_displayer.IsPlay);
                 RegisterResource("/api/pp", () => m_displayer.PPTuple);
                 RegisterResource("/api/hit_count", () => m_displayer.HitCountTuple);
+                RegisterResource("/api/pp_formated",()=>new {Formated=m_displayer.StringPP});
+                RegisterResource("/api/hit_count_formated", () => new { Formated = m_displayer.StringHitCount });
             }
             else
                 IO.CurrentIO.WriteColor($"Not Founf RealTimePPDisplayer", ConsoleColor.Red);

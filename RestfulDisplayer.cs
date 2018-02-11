@@ -13,6 +13,9 @@ namespace OsuDataDistribute_Restful
         public HitCountTuple HitCountTuple { get; private set; }
         public PPTuple PPTuple { get; private set; }
 
+        public string StringPP { get; private set; }
+        public string StringHitCount { get;private set; }
+
         public override void Clear()
         {
             IsPlay = false;
@@ -23,12 +26,14 @@ namespace OsuDataDistribute_Restful
         public override void OnUpdateHitCount(HitCountTuple tuple)
         {
             HitCountTuple = tuple;
+            StringHitCount=base.GetFormattedHitCount(tuple).ToString();
         }
 
         public override void OnUpdatePP(PPTuple tuple)
         {
             IsPlay = true;
             PPTuple = tuple;
+            StringPP=base.GetFormattedPP(tuple).ToString();
         }
     }
 }
