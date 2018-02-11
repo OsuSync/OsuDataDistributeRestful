@@ -8,7 +8,8 @@ body
 	color:#FFFFFF;
 	text-align:center;
 	font-size:48px;
-	text-shadow:2px 2px 2px #000000
+	text-shadow:2px 2px 2px #000000;
+	font-family:sans-serif;
 }
 
 .text-hit-count
