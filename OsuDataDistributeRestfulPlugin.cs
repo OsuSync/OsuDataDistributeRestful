@@ -12,7 +12,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OsuDataDistribute_Restful
+namespace OsuDataDistributeRestful
 {
     [SyncPluginDependency("8eb9e8e0-7bca-4a96-93f7-6408e76898a9", Version = "^1.2.3", Require = true)]
     [SyncPluginID("4b045b1c-7ab2-41a7-9f80-7e79c0d7768a", VERSION)]
@@ -26,6 +26,7 @@ namespace OsuDataDistribute_Restful
         private Dictionary<string, Func<object>> m_url_dict = new Dictionary<string, Func<object>>();
 
         private RestfulDisplayer m_displayer;
+        private PluginConfigurationManager m_config_manager;
 
         public OsuDataDistributeRestfulPlugin() : base(PLUGIN_NAME, PLUGIN_AUTHOR)
         {
@@ -34,6 +35,9 @@ namespace OsuDataDistribute_Restful
 
         private void Initialize()
         {
+            m_config_manager = new PluginConfigurationManager(this);
+            m_config_manager.AddItem(new SettingIni());
+
             var plugin=getHoster().EnumPluings().Where(p => p.Name == "RealTimePPDisplayer").FirstOrDefault();
             if (plugin is RealTimePPDisplayerPlugin rtppd)
             {
@@ -56,7 +60,10 @@ namespace OsuDataDistribute_Restful
         public override async void OnEnable()
         {
             Initialize();
-            m_httpd.Prefixes.Add(@"http://+:10800/");
+            if(Setting.AllowLAN)
+                m_httpd.Prefixes.Add(@"http://+:10800/");
+            else
+                m_httpd.Prefixes.Add(@"http://localhost:10800/");
 
             m_httpd.Start();
             while (true)
