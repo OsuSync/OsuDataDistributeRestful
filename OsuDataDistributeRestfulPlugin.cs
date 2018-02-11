@@ -42,11 +42,11 @@ namespace OsuDataDistributeRestful
             if (plugin is RealTimePPDisplayerPlugin rtppd)
             {
                 rtppd.RegisterDisplayer("restful", (id) => m_displayer = new RestfulDisplayer());
-                RegisterResource("/api/is_play", () => new { IsPlay=m_displayer.IsPlay });
-                RegisterResource("/api/pp", () => m_displayer.PPTuple);
-                RegisterResource("/api/hit_count", () => m_displayer.HitCountTuple);
-                RegisterResource("/api/pp_formated",()=>new {Formated=m_displayer.StringPP});
-                RegisterResource("/api/hit_count_formated", () => new { Formated = m_displayer.StringHitCount });
+                RegisterResource("/api/is_play", () => new { IsPlay=m_displayer?.IsPlay });
+                RegisterResource("/api/pp", () => m_displayer?.PPTuple);
+                RegisterResource("/api/hit_count", () => m_displayer?.HitCountTuple);
+                RegisterResource("/api/pp_formated",()=>new {Formated=m_displayer?.StringPP});
+                RegisterResource("/api/hit_count_formated", () => new { Formated = m_displayer?.StringHitCount });
             }
             else
                 IO.CurrentIO.WriteColor($"Not Found RealTimePPDisplayer", ConsoleColor.Red);
