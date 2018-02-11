@@ -58,7 +58,7 @@
       <Project>{666b0891-c401-4060-a6aa-84c57469b6d8}</Project>
       <Name>RealTimePPDisplayer</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Sync\Sync.csproj">
+    <ProjectReference Include="..\..\osuSync\Sync\Sync.csproj">
       <Project>{fbd514c2-2830-479e-b050-d1c383028456}</Project>
       <Name>Sync</Name>
     </ProjectReference>
