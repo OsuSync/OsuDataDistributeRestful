@@ -60,6 +60,9 @@ namespace OsuDataDistribute_Restful
                 var ctx = await m_httpd.GetContextAsync();
                 var request = ctx.Request;
                 var response = ctx.Response;
+                response.AppendHeader("Access-Control-Allow-Origin","*");
+                response.AppendHeader("Access-Control-Allow-Methods", "GET");
+                response.AppendHeader("Access-Control-Allow-Headers", "x-requested-with,content-type");
 
                 response.ContentEncoding = Encoding.UTF8;
                 response.ContentType = "text/json; charset=UTF-8";
