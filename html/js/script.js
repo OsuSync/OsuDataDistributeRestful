@@ -10,7 +10,7 @@ if(port==null)port="10800";
 
 
 setInterval(function(){
-	var web="http://"+host+":"+10800;
+	var web="http://"+host+":"+port;
 	
 	$.get(web+"/api/pp_formated",function(pp)
 	{
