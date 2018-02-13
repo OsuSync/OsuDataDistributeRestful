@@ -64,6 +64,10 @@
       <Project>{fbd514c2-2830-479e-b050-d1c383028456}</Project>
       <Name>Sync</Name>
     </ProjectReference>
+    <ProjectReference Include="..\OsuLiveStatusPanel\OsuLiveStatusPanel\OsuLiveStatusPanel.csproj">
+      <Project>{e02fb65d-e428-46aa-8774-6fab675d1fee}</Project>
+      <Name>OsuLiveStatusPanel</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

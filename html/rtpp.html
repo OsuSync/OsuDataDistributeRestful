@@ -4,13 +4,107 @@
 		<meta charset="utf-8" />
 		<title>Displayer</title>
 		<script src="https://cdn.bootcss.com/jquery/2.2.0/jquery.min.js"></script>
-		<link rel="stylesheet" href="css/css.css"/>
+		<script src="js/Smoother.js"></script>
+		<script src="js/rtppd/Formatter.js"></script>
+		<style type="text/css">
+		body
+		{
+			background-color:#66CCFF;
+		}
+
+		.text
+		{
+			color:#FFFFFF;
+			text-align:center;
+			font-size:48px;
+			text-shadow:2px 2px 2px #000000;
+			font-family:sans-serif;
+		}
+
+		.text-hit-count
+		{
+			font-size:24px;
+		}
+		</style>
 	</head>
 	
 	<body>
 		<pre id="pp-lable" class="text">0.00pp</pre>
 		<pre id="hit-count-lable" class="text text-hit-count">0x100 0x50 0xMiss</pre>
 		
-		<script src="js/script.js"></script>
+		<script>
+		var html_hit_count=document.querySelector("#hit-count-lable");;
+		var html_pp=document.querySelector("#pp-lable");
+		
+		var _url=new URL(window.location.href);
+		var host=_url.searchParams.get('host');
+		var port=_url.searchParams.get('port');
+		
+		const st=0.2;
+		const dt=0.033;
+
+		if(host==null)host="localhost";
+		if(port==null)port="10800";
+		
+		var web="http://"+host+":"+port;
+		var current_pp=null;
+		var target_pp=null;
+		
+		var hit_count=null;
+		
+		var smoothers={};
+		var pp_formatter=null;
+		var hit_count_formatter=null;
+		
+		$.get(web+"/api/rtppd/pp/format",function(format_json)
+		{
+			pp_formatter=new Formatter(format_json.Format);
+		});
+		
+		$.get(web+"/api/rtppd/hit_count/format",function(format_json)
+		{
+			hit_count_formatter=new Formatter(format_json.Format);
+		});
+		
+		function SmoothObject(previous,target)
+		{
+			for(let prop in target)
+			{
+				if(smoothers[prop]==undefined)
+					smoothers[prop]=new Smoother(st,dt);
+				previous[prop]=smoothers[prop].SmoothDamp(previous[prop],target[prop]);
+			}
+			return previous;
+		}
+		
+		setInterval(function(){
+			$.get(web+"/api/rtppd/pp",function(data)
+			{
+				target_pp=data;
+				if(current_pp==null)
+					current_pp=target_pp;
+			});
+			
+			$.get(web+"/api/rtppd/hit_count",function(data)
+			{
+				hit_count=data;
+			});
+		},150);
+		
+		function render()
+		{
+			if(current_pp!=null)
+			{
+				current_pp.Data=SmoothObject(current_pp.Data,target_pp.Data);
+				if(pp_formatter!=null)
+					html_pp.textContent=pp_formatter.Format(current_pp.Data,2);
+				if(hit_count_formatter!=null)
+					html_hit_count.textContent=hit_count_formatter.Format(hit_count.Data,0);
+			}
+			setTimeout(render,33);
+		}
+		
+		render();
+		</script>
 	</body>
 </html>

@@ -49,16 +49,16 @@ namespace OsuDataDistributeRestful
                 return displayer;
             }
 
-            RegisterResource("/api/is_play", (p) => {
+            RegisterResource("/api/rtppd/playing", (p) => {
                 RestfulDisplayer displayer = GetDisplayer(p.GetInt("client_id") ?? 0);
                 return new
                 {
                     ClientID = displayer?.ClientID,
-                    IsPlay = displayer?.IsPlay
+                    Playing = displayer?.IsPlay
                 };
             });
 
-            RegisterResource("/api/pp", (p) =>
+            RegisterResource("/api/rtppd/pp", (p) =>
             {
                 RestfulDisplayer displayer = GetDisplayer(p.GetInt("client_id") ?? 0);
 
@@ -69,7 +69,7 @@ namespace OsuDataDistributeRestful
                 };
             });
 
-            RegisterResource("/api/hit_count", (p) =>
+            RegisterResource("/api/rtppd/hit_count", (p) =>
             {
                 RestfulDisplayer displayer = GetDisplayer(p.GetInt("client_id") ?? 0);
 
@@ -80,21 +80,25 @@ namespace OsuDataDistributeRestful
                 };
             });
 
-            RegisterResource("/api/pp_formated", (p) => {
+            RegisterResource("/api/rtppd/pp/format",(p) =>new { StringFormatter.GetPPFormatter().Format });
+
+            RegisterResource("/api/rtppd/hit_count/format", (p) => new { StringFormatter.GetHitCountFormatter().Format });
+
+            RegisterResource("/api/rtppd/pp/formatted_content", (p) => {
                 RestfulDisplayer displayer = GetDisplayer(p.GetInt("client_id") ?? 0);
                 return new
                 {
                     displayer?.ClientID,
-                    Formated = displayer?.StringPP
+                    Content = displayer?.StringPP
                 };
             });
 
-            RegisterResource("/api/hit_count_formated", (p) => {
+            RegisterResource("/api/rtppd/hit_count/formatted_content", (p) => {
                 RestfulDisplayer displayer = GetDisplayer(p.GetInt("client_id") ?? 0);
                 return new
                 {
                     displayer?.ClientID,
-                    Formated = displayer?.StringHitCount
+                    Content = displayer?.StringHitCount
                 };
             });
         }
@@ -152,6 +156,11 @@ namespace OsuDataDistributeRestful
         private void RegisterResource(string uri,Func<ParamCollection,object> c)
         {
             m_url_dict.Add(uri, c);
+        }
+
+        private void RemappingResource(string uri,string target_uri)
+        {
+            m_url_dict[target_uri] = m_url_dict[uri];
         }
 
         public override async void OnEnable()
