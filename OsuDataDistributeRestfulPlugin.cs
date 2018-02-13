@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using OsuLiveStatusPanel;
 using RealTimePPDisplayer;
 using Sync.Command;
 using Sync.Plugins;
@@ -33,6 +34,10 @@ namespace OsuDataDistributeRestful
         {
 
         }
+
+        #region Initializtion
+
+        #region RTPPD
 
         private void RegisterRtppdResource()
         {
@@ -94,12 +99,9 @@ namespace OsuDataDistributeRestful
             });
         }
 
-        private void Initialize()
+        private void RTPPD_Initialize()
         {
-            m_config_manager = new PluginConfigurationManager(this);
-            m_config_manager.AddItem(new SettingIni());
-
-            var plugin=getHoster().EnumPluings().Where(p => p.Name == "RealTimePPDisplayer").FirstOrDefault();
+            var plugin = getHoster().EnumPluings().Where(p => p.Name == "RealTimePPDisplayer").FirstOrDefault();
             if (plugin is RealTimePPDisplayerPlugin rtppd)
             {
                 rtppd.RegisterDisplayer("restful", (id) => m_restfuile_displayers[id ?? 0] = new RestfulDisplayer(id));
@@ -107,6 +109,44 @@ namespace OsuDataDistributeRestful
             }
             else
                 IO.CurrentIO.WriteColor($"Not Found RealTimePPDisplayer", ConsoleColor.Red);
+        }
+
+        #endregion
+
+        #region OLSP
+
+        private void OLSP_Initialize()
+        {
+            var plugin = getHoster().EnumPluings().Where(p => p is OsuLiveStatusPanelPlugin).FirstOrDefault();
+            if (plugin is OsuLiveStatusPanelPlugin olsp)
+            {
+                foreach (var providable_data_name in olsp.EnumProvidableDataName())
+                {
+                    RegisterResource($"/api/olsp/{providable_data_name}", (param_collection) => 
+                    {
+                        var result = olsp.GetData(providable_data_name);
+                        return new {
+                            status = result != null,
+                            value = result
+                        };
+                    });
+                }
+            }
+            else
+                IO.CurrentIO.WriteColor($"Not Found RealTimePPDisplayer", ConsoleColor.Red);
+        }
+
+        #endregion
+
+        #endregion
+
+        private void Initialize()
+        {
+            m_config_manager = new PluginConfigurationManager(this);
+            m_config_manager.AddItem(new SettingIni());
+
+            RTPPD_Initialize();
+            OLSP_Initialize();
         }
 
         private void RegisterResource(string uri,Func<ParamCollection,object> c)
