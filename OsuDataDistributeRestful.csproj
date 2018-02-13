@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="OsuDataDistributeRestfulPlugin.cs" />
+    <Compile Include="ParamCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RestfulDisplayer.cs" />
     <Compile Include="Setting.cs" />

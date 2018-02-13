@@ -5,6 +5,7 @@ using Sync.Plugins;
 using Sync.Tools;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -14,8 +15,6 @@ using System.Threading.Tasks;
 
 namespace OsuDataDistributeRestful
 {
-    using ParamCollection = Dictionary<string, string>;
-
     [SyncPluginDependency("8eb9e8e0-7bca-4a96-93f7-6408e76898a9", Version = "^1.2.3", Require = true)]
     [SyncPluginID("4b045b1c-7ab2-41a7-9f80-7e79c0d7768a", VERSION)]
     public class OsuDataDistributeRestfulPlugin : Plugin
@@ -27,12 +26,72 @@ namespace OsuDataDistributeRestful
         private HttpListener m_httpd=new HttpListener();
         private Dictionary<string, Func<ParamCollection, object>> m_url_dict = new Dictionary<string, Func<ParamCollection,object>>();
 
-        private RestfulDisplayer m_displayer;
+        private RestfulDisplayer[] m_restfuile_displayers=new RestfulDisplayer[16];
         private PluginConfigurationManager m_config_manager;
 
         public OsuDataDistributeRestfulPlugin() : base(PLUGIN_NAME, PLUGIN_AUTHOR)
         {
 
+        }
+
+        private void RegisterRtppdResource()
+        {
+            RestfulDisplayer GetDisplayer(int i)
+            {
+                if (i < 0 || i > 16) return null;
+
+                var displayer = m_restfuile_displayers[i];
+                return displayer;
+            }
+
+            RegisterResource("/api/is_play", (p) => {
+                RestfulDisplayer displayer = GetDisplayer(p.GetInt("client_id") ?? 0);
+                return new
+                {
+                    ClientID = displayer?.ClientID,
+                    IsPlay = displayer?.IsPlay
+                };
+            });
+
+            RegisterResource("/api/pp", (p) =>
+            {
+                RestfulDisplayer displayer = GetDisplayer(p.GetInt("client_id") ?? 0);
+
+                return new
+                {
+                    displayer?.ClientID,
+                    Data = displayer?.PPTuple
+                };
+            });
+
+            RegisterResource("/api/hit_count", (p) =>
+            {
+                RestfulDisplayer displayer = GetDisplayer(p.GetInt("client_id") ?? 0);
+
+                return new
+                {
+                    displayer?.ClientID,
+                    Data = displayer?.HitCountTuple
+                };
+            });
+
+            RegisterResource("/api/pp_formated", (p) => {
+                RestfulDisplayer displayer = GetDisplayer(p.GetInt("client_id") ?? 0);
+                return new
+                {
+                    displayer?.ClientID,
+                    Formated = displayer?.StringPP
+                };
+            });
+
+            RegisterResource("/api/hit_count_formated", (p) => {
+                RestfulDisplayer displayer = GetDisplayer(p.GetInt("client_id") ?? 0);
+                return new
+                {
+                    displayer?.ClientID,
+                    Formated = displayer?.StringHitCount
+                };
+            });
         }
 
         private void Initialize()
@@ -43,13 +102,8 @@ namespace OsuDataDistributeRestful
             var plugin=getHoster().EnumPluings().Where(p => p.Name == "RealTimePPDisplayer").FirstOrDefault();
             if (plugin is RealTimePPDisplayerPlugin rtppd)
             {
-                rtppd.RegisterDisplayer("restful", (id) => m_displayer = new RestfulDisplayer());
-
-                RegisterResource("/api/is_play", (p) => new { IsPlay=m_displayer?.IsPlay });
-                RegisterResource("/api/pp", (p) => m_displayer?.PPTuple);
-                RegisterResource("/api/hit_count", (p) => m_displayer?.HitCountTuple);
-                RegisterResource("/api/pp_formated",(p)=>new {Formated=m_displayer?.StringPP});
-                RegisterResource("/api/hit_count_formated", (p) => new { Formated = m_displayer?.StringHitCount });
+                rtppd.RegisterDisplayer("restful", (id) => m_restfuile_displayers[id ?? 0] = new RestfulDisplayer(id));
+                RegisterRtppdResource();
             }
             else
                 IO.CurrentIO.WriteColor($"Not Found RealTimePPDisplayer", ConsoleColor.Red);
@@ -113,18 +167,24 @@ namespace OsuDataDistributeRestful
 
         private ParamCollection ParseUriParams(Uri uri)
         {
-            string[] @params = uri.Query.Remove(0, 1).Split('&');
             ParamCollection dictionary = new ParamCollection();
-            foreach(var param in @params)
+            var params_str = uri.Query;
+
+            if (!string.IsNullOrWhiteSpace(params_str))
             {
-                var t=param.Split('=');
-                try
+                string[] @params = params_str.Remove(0, 1).Split('&');
+
+                foreach (var param in @params)
                 {
-                    dictionary[t[0]]=t[1];
-                }
-                catch(IndexOutOfRangeException e)
-                {
-                    dictionary[t[0]] = null;
+                    var t = param.Split('=');
+                    try
+                    {
+                        dictionary[t[0]] = t[1];
+                    }
+                    catch (IndexOutOfRangeException e)
+                    {
+                        dictionary[t[0]] = null;
+                    }
                 }
             }
             return dictionary;

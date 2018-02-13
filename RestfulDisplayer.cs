@@ -21,6 +21,13 @@ namespace OsuDataDistributeRestful
         public string StringPP { get; private set; }
         public string StringHitCount { get;private set; }
 
+        public int ClientID { get; private set; }
+
+        public RestfulDisplayer(int? id)
+        {
+            ClientID = id ?? 0;
+        }
+
         public override void Clear()
         {
             IsPlay = false;
