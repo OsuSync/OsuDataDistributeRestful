@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 
 namespace OsuDataDistributeRestful
 {
+    using ParamCollection = Dictionary<string, string>;
+
     [SyncPluginDependency("8eb9e8e0-7bca-4a96-93f7-6408e76898a9", Version = "^1.2.3", Require = true)]
     [SyncPluginID("4b045b1c-7ab2-41a7-9f80-7e79c0d7768a", VERSION)]
     public class OsuDataDistributeRestfulPlugin : Plugin
@@ -23,7 +25,7 @@ namespace OsuDataDistributeRestful
         public const string VERSION = "0.0.2";
 
         private HttpListener m_httpd=new HttpListener();
-        private Dictionary<string, Func<object>> m_url_dict = new Dictionary<string, Func<object>>();
+        private Dictionary<string, Func<ParamCollection, object>> m_url_dict = new Dictionary<string, Func<ParamCollection,object>>();
 
         private RestfulDisplayer m_displayer;
         private PluginConfigurationManager m_config_manager;
@@ -42,17 +44,18 @@ namespace OsuDataDistributeRestful
             if (plugin is RealTimePPDisplayerPlugin rtppd)
             {
                 rtppd.RegisterDisplayer("restful", (id) => m_displayer = new RestfulDisplayer());
-                RegisterResource("/api/is_play", () => new { IsPlay=m_displayer?.IsPlay });
-                RegisterResource("/api/pp", () => m_displayer?.PPTuple);
-                RegisterResource("/api/hit_count", () => m_displayer?.HitCountTuple);
-                RegisterResource("/api/pp_formated",()=>new {Formated=m_displayer?.StringPP});
-                RegisterResource("/api/hit_count_formated", () => new { Formated = m_displayer?.StringHitCount });
+
+                RegisterResource("/api/is_play", (p) => new { IsPlay=m_displayer?.IsPlay });
+                RegisterResource("/api/pp", (p) => m_displayer?.PPTuple);
+                RegisterResource("/api/hit_count", (p) => m_displayer?.HitCountTuple);
+                RegisterResource("/api/pp_formated",(p)=>new {Formated=m_displayer?.StringPP});
+                RegisterResource("/api/hit_count_formated", (p) => new { Formated = m_displayer?.StringHitCount });
             }
             else
                 IO.CurrentIO.WriteColor($"Not Found RealTimePPDisplayer", ConsoleColor.Red);
         }
 
-        private void RegisterResource(string uri,Func<object> c)
+        private void RegisterResource(string uri,Func<ParamCollection,object> c)
         {
             m_url_dict.Add(uri, c);
         }
@@ -84,7 +87,8 @@ namespace OsuDataDistributeRestful
                 {
                     if (m_url_dict.TryGetValue(request.Url.AbsolutePath, out var func))
                     {
-                        var json=JsonConvert.SerializeObject(func());
+                        var @params = ParseUriParams(request.Url);
+                        var json=JsonConvert.SerializeObject(func(@params));
                         ctx.Response.StatusCode = 200;
 
                         using (var sw = new StreamWriter(response.OutputStream))
@@ -105,6 +109,25 @@ namespace OsuDataDistributeRestful
                 }
                 response.OutputStream.Close();
             }
+        }
+
+        private ParamCollection ParseUriParams(Uri uri)
+        {
+            string[] @params = uri.Query.Remove(0, 1).Split('&');
+            ParamCollection dictionary = new ParamCollection();
+            foreach(var param in @params)
+            {
+                var t=param.Split('=');
+                try
+                {
+                    dictionary[t[0]]=t[1];
+                }
+                catch(IndexOutOfRangeException e)
+                {
+                    dictionary[t[0]] = null;
+                }
+            }
+            return dictionary;
         }
     }
 }
