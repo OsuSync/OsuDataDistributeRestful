@@ -38,13 +38,18 @@
 		var _url=new URL(window.location.href);
 		var host=_url.searchParams.get('host');
 		var port=_url.searchParams.get('port');
+		var digits=_url.searchParams.get('digits');
+		
+		if(host===null)host="localhost";
+		if(port===null)port="10800";
+		if(digits===null)digits="2";
+		
+		digits=Number.parseInt(digits);
 		
 		const st=0.2;
 		const dt=0.033;
 
-		if(host==null)host="localhost";
-		if(port==null)port="10800";
-		
+
 		var web="http://"+host+":"+port;
 		var current_pp=null;
 		var target_pp=null;
@@ -118,10 +123,12 @@
 			{
 				current_pp.Data=SmoothObject(current_pp.Data,target_pp.Data);
 				if(pp_formatter!=null)
-					html_pp.textContent=pp_formatter.Format(current_pp.Data,2);
+					html_pp.textContent=pp_formatter.Format(current_pp.Data,digits);
+			}
+			
+			if(hit_count!==null)
 				if(hit_count_formatter!=null)
 					html_hit_count.textContent=hit_count_formatter.Format(hit_count.Data,0);
-			}
 			setTimeout(display_content,33);
 		}
 		
