@@ -7,7 +7,7 @@
     <ProjectGuid>{BA95C72B-CB60-4E81-91F9-3A408FB4425C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>OsuDataDistribute_Restful</RootNamespace>
+    <RootNamespace>OsuDataDistributeRestful</RootNamespace>
     <AssemblyName>OsuDataDistribute-Restful</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -45,10 +45,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Olsp\OlspResourceInitializer.cs" />
     <Compile Include="OsuDataDistributeRestfulPlugin.cs" />
     <Compile Include="ParamCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RestfulDisplayer.cs" />
+    <Compile Include="Rtppd\RestfulDisplayer.cs" />
+    <Compile Include="Rtppd\RtppdResourceInitializer.cs" />
     <Compile Include="Setting.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -71,6 +73,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Ortdp\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

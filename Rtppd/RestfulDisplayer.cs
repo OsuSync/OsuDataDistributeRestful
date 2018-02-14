@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OsuDataDistributeRestful
+namespace OsuDataDistributeRestful.Rtppd
 {
     class RestfulDisplayer : DisplayerBase
     {

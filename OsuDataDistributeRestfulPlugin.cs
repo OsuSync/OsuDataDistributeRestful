@@ -1,7 +1,4 @@
 ﻿using Newtonsoft.Json;
-using OsuLiveStatusPanel;
-using RealTimePPDisplayer;
-using Sync.Command;
 using Sync.Plugins;
 using Sync.Tools;
 using System;
@@ -27,121 +24,34 @@ namespace OsuDataDistributeRestful
         private HttpListener m_httpd=new HttpListener();
         private Dictionary<string, Func<ParamCollection, object>> m_url_dict = new Dictionary<string, Func<ParamCollection,object>>();
 
-        private RestfulDisplayer[] m_restfuile_displayers=new RestfulDisplayer[16];
         private PluginConfigurationManager m_config_manager;
 
         public OsuDataDistributeRestfulPlugin() : base(PLUGIN_NAME, PLUGIN_AUTHOR)
         {
-
         }
 
         #region Initializtion
-
-        #region RTPPD
-
-        private void RegisterRtppdResource()
-        {
-            RestfulDisplayer GetDisplayer(int i)
-            {
-                if (i < 0 || i > 16) return null;
-
-                var displayer = m_restfuile_displayers[i];
-                return displayer;
-            }
-
-            RegisterResource("/api/rtppd/playing", (p) => {
-                RestfulDisplayer displayer = GetDisplayer(p.GetInt("client_id") ?? 0);
-                return new
-                {
-                    ClientID = displayer?.ClientID,
-                    Playing = displayer?.IsPlay
-                };
-            });
-
-            RegisterResource("/api/rtppd/pp", (p) =>
-            {
-                RestfulDisplayer displayer = GetDisplayer(p.GetInt("client_id") ?? 0);
-
-                return new
-                {
-                    displayer?.ClientID,
-                    Data = displayer?.PPTuple
-                };
-            });
-
-            RegisterResource("/api/rtppd/hit_count", (p) =>
-            {
-                RestfulDisplayer displayer = GetDisplayer(p.GetInt("client_id") ?? 0);
-
-                return new
-                {
-                    displayer?.ClientID,
-                    Data = displayer?.HitCountTuple
-                };
-            });
-
-            RegisterResource("/api/rtppd/pp/format",(p) =>new { StringFormatter.GetPPFormatter().Format });
-
-            RegisterResource("/api/rtppd/hit_count/format", (p) => new { StringFormatter.GetHitCountFormatter().Format });
-
-            RegisterResource("/api/rtppd/pp/formatted_content", (p) => {
-                RestfulDisplayer displayer = GetDisplayer(p.GetInt("client_id") ?? 0);
-                return new
-                {
-                    displayer?.ClientID,
-                    Content = displayer?.StringPP
-                };
-            });
-
-            RegisterResource("/api/rtppd/hit_count/formatted_content", (p) => {
-                RestfulDisplayer displayer = GetDisplayer(p.GetInt("client_id") ?? 0);
-                return new
-                {
-                    displayer?.ClientID,
-                    Content = displayer?.StringHitCount
-                };
-            });
-        }
-
         private void RTPPD_Initialize()
         {
             var plugin = getHoster().EnumPluings().Where(p => p.Name == "RealTimePPDisplayer").FirstOrDefault();
-            if (plugin is RealTimePPDisplayerPlugin rtppd)
+            if (plugin != null)
             {
-                rtppd.RegisterDisplayer("restful", (id) => m_restfuile_displayers[id ?? 0] = new RestfulDisplayer(id));
-                RegisterRtppdResource();
+                new Rtppd.RtppdResourceInitializer(plugin, this);
             }
             else
-                IO.CurrentIO.WriteColor($"Not Found RealTimePPDisplayer", ConsoleColor.Red);
+                IO.CurrentIO.WriteColor($"[ODDR]Not Found RealTimePPDisplayer", ConsoleColor.Red);
         }
-
-        #endregion
-
-        #region OLSP
 
         private void OLSP_Initialize()
         {
-            var plugin = getHoster().EnumPluings().Where(p => p is OsuLiveStatusPanelPlugin).FirstOrDefault();
-            if (plugin is OsuLiveStatusPanelPlugin olsp)
+            var plugin = getHoster().EnumPluings().Where(p => p.Name== "OsuLiveStatusPanelPlugin").FirstOrDefault();
+            if (plugin != null)
             {
-                foreach (var providable_data_name in olsp.EnumProvidableDataName())
-                {
-                    RegisterResource($"/api/olsp/{providable_data_name}", (param_collection) => 
-                    {
-                        var result = olsp.GetData(providable_data_name);
-                        return new {
-                            status = result != null,
-                            value = result
-                        };
-                    });
-                }
+                new Olsp.OlspResourceInitializer(plugin, this);
             }
             else
-                IO.CurrentIO.WriteColor($"Not Found RealTimePPDisplayer", ConsoleColor.Red);
+                IO.CurrentIO.WriteColor($"[ODDR]Not Found OsuLiveStatusPanel", ConsoleColor.Red);
         }
-
-        #endregion
-
         #endregion
 
         private void Initialize()
@@ -155,12 +65,12 @@ namespace OsuDataDistributeRestful
             RegisterResource("/api/help",(p)=>m_url_dict.Keys);
         }
 
-        private void RegisterResource(string uri,Func<ParamCollection,object> c)
+        public void RegisterResource(string uri,Func<ParamCollection,object> c)
         {
             m_url_dict.Add(uri, c);
         }
 
-        private void RemappingResource(string uri,string target_uri)
+        public void RemappingResource(string uri,string target_uri)
         {
             m_url_dict[target_uri] = m_url_dict[uri];
         }

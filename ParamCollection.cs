@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace OsuDataDistributeRestful
 {
-    class ParamCollection : Dictionary<string, string>
+    public class ParamCollection : Dictionary<string, string>
     {
         public int? GetInt(string key)
         {
