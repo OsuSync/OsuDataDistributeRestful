@@ -3,7 +3,6 @@
 	<head>
 		<meta charset="utf-8" />
 		<title>Displayer</title>
-		<script src="https://cdn.bootcss.com/jquery/2.2.0/jquery.min.js"></script>
 		<script src="js/Smoother.js"></script>
 		<script src="js/rtppd/Formatter.js"></script>
 		<style type="text/css">
@@ -56,44 +55,66 @@
 		var pp_formatter=null;
 		var hit_count_formatter=null;
 		
-		$.get(web+"/api/rtppd/pp/format",function(format_json)
+		//http get
+		function get(uri)
+		{
+			return new Promise(function(resolve,reject)
+			{
+				let xhr=new XMLHttpRequest();
+				
+				xhr.onload=function(e)
+				{
+					if (xhr.readyState === xhr.DONE) {
+						if (xhr.status === 200) {
+							resolve(xhr.response);
+						}
+					}
+					reject();
+				};
+				
+				xhr.open("GET",uri,true);
+				xhr.responseType="json";
+				xhr.send();
+			});
+		}
+		
+		//get pp format and hit count format
+		get(web+"/api/rtppd/pp/format").then(function(format_json)
 		{
 			pp_formatter=new Formatter(format_json.Format);
 		});
 		
-		$.get(web+"/api/rtppd/hit_count/format",function(format_json)
+		get(web+"/api/rtppd/hit_count/format").then(function(format_json)
 		{
 			hit_count_formatter=new Formatter(format_json.Format);
 		});
 		
+		//smooth function
 		function SmoothObject(previous,target)
 		{
 			for(let prop in target)
 			{
-				if(smoothers[prop]==undefined)
+				if(smoothers[prop]===undefined)
 					smoothers[prop]=new Smoother(st,dt);
 				previous[prop]=smoothers[prop].SmoothDamp(previous[prop],target[prop]);
 			}
 			return previous;
 		}
+
+		//get pp and hit count data
+		async function get_data(){
+			target_pp = await get(web+"/api/rtppd/pp");
+			if(current_pp===null)
+				current_pp=target_pp;
+
+			hit_count=await get(web+"/api/rtppd/hit_count");
+			setTimeout(get_data,150);
+		}
 		
-		setInterval(function(){
-			$.get(web+"/api/rtppd/pp",function(data)
-			{
-				target_pp=data;
-				if(current_pp==null)
-					current_pp=target_pp;
-			});
-			
-			$.get(web+"/api/rtppd/hit_count",function(data)
-			{
-				hit_count=data;
-			});
-		},150);
-		
-		function render()
+		//display function
+		function display_content()
 		{
-			if(current_pp!=null)
+			if(current_pp!==null)
 			{
 				current_pp.Data=SmoothObject(current_pp.Data,target_pp.Data);
 				if(pp_formatter!=null)
@@ -101,10 +122,11 @@
 				if(hit_count_formatter!=null)
 					html_hit_count.textContent=hit_count_formatter.Format(hit_count.Data,0);
 			}
-			setTimeout(render,33);
+			setTimeout(display_content,33);
 		}
 		
-		render();
+		get_data();
+		display_content();
 		</script>
 	</body>
 </html>
