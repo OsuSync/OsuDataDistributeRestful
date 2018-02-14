@@ -151,6 +151,8 @@ namespace OsuDataDistributeRestful
 
             RTPPD_Initialize();
             OLSP_Initialize();
+
+            RegisterResource("/api/help",(p)=>m_url_dict.Keys);
         }
 
         private void RegisterResource(string uri,Func<ParamCollection,object> c)

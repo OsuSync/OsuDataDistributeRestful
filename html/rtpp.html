@@ -60,6 +60,8 @@
 		var pp_formatter=null;
 		var hit_count_formatter=null;
 		
+		var playing=false;
+		
 		//http get
 		function get(uri)
 		{
@@ -113,22 +115,33 @@
 				current_pp=target_pp;
 
 			hit_count=await get(web+"/api/rtppd/hit_count");
+			
+			playing=(await get(web+"/api/rtppd/playing")).Playing;
+			
 			setTimeout(get_data,150);
 		}
 		
 		//display function
 		function display_content()
 		{
-			if(current_pp!==null)
+			if(playing===true)
 			{
-				current_pp.Data=SmoothObject(current_pp.Data,target_pp.Data);
-				if(pp_formatter!=null)
-					html_pp.textContent=pp_formatter.Format(current_pp.Data,digits);
+				if(current_pp!==null)
+				{
+					current_pp.Data=SmoothObject(current_pp.Data,target_pp.Data);
+					if(pp_formatter!=null)
+						html_pp.textContent=pp_formatter.Format(current_pp.Data,digits);
+				}
+				
+				if(hit_count!==null)
+					if(hit_count_formatter!=null)
+						html_hit_count.textContent=hit_count_formatter.Format(hit_count.Data,0);
 			}
-			
-			if(hit_count!==null)
-				if(hit_count_formatter!=null)
-					html_hit_count.textContent=hit_count_formatter.Format(hit_count.Data,0);
+			else
+			{
+				html_pp.textContent="";
+				html_hit_count.textContent="";
+			}
 			setTimeout(display_content,33);
 		}
 		
