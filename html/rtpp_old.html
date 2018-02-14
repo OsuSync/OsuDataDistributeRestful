@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Displayer</title>
+		<script src="https://cdn.bootcss.com/jquery/2.2.0/jquery.min.js"></script>
+		<style rel="stylesheet">
+		body
+		{
+			background-color:#66CCFF;
+		}
+
+		.text
+		{
+			color:#FFFFFF;
+			text-align:center;
+			font-size:48px;
+			text-shadow:2px 2px 2px #000000;
+			font-family:sans-serif;
+		}
+
+		.text-hit-count
+		{
+			font-size:24px;
+		}
+		</style>
+	</head>
+	
+	<body>
+		<pre id="pp-lable" class="text">0.00pp</pre>
+		<pre id="hit-count-lable" class="text text-hit-count">0x100 0x50 0xMiss</pre>
+		
+		<script>
+		var html_hit_count=document.querySelector("#hit-count-lable");;
+		var html_pp=document.querySelector("#pp-lable");
+
+		setInterval(function(){
+		$.get("http://localhost:10800/api/pp_formated",function(pp)
+		{
+			html_pp.textContent=pp.Formated;
+		});
+	
+		$.get("http://localhost:10800/api/hit_count_formated",function(hit_count)
+		{
+			html_hit_count.textContent=hit_count.Formated;
+		});
+		},33);
+		</script>
+		
+	</body>
+</html>
