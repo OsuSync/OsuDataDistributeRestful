@@ -47,8 +47,10 @@
 		digits=Number.parseInt(digits);
 		
 		const st=0.2;
-		const dt=0.033;
-
+		const fps=30;
+		const dt=1.0/fps;;
+		const render_interval=dt*1000;
+		const get_interval=200;
 
 		var web="http://"+host+":"+port;
 		var current_pp=null;
@@ -88,12 +90,12 @@
 		//get pp format and hit count format
 		get(web+"/api/rtppd/pp/format").then(function(format_json)
 		{
-			pp_formatter=new Formatter(format_json.Format);
+			pp_formatter=new Formatter(format_json.format);
 		});
 		
 		get(web+"/api/rtppd/hit_count/format").then(function(format_json)
 		{
-			hit_count_formatter=new Formatter(format_json.Format);
+			hit_count_formatter=new Formatter(format_json.format);
 		});
 		
 		//smooth function
@@ -116,9 +118,9 @@
 
 			hit_count=await get(web+"/api/rtppd/hit_count");
 			
-			playing=(await get(web+"/api/rtppd/playing")).Playing;
+			playing=(await get(web+"/api/rtppd/playing")).playing;
 			
-			setTimeout(get_data,150);
+			setTimeout(get_data,get_interval);
 		}
 		
 		//display function
@@ -128,21 +130,21 @@
 			{
 				if(current_pp!==null)
 				{
-					current_pp.Data=SmoothObject(current_pp.Data,target_pp.Data);
+					current_pp.tuple=SmoothObject(current_pp.tuple,target_pp.tuple);
 					if(pp_formatter!=null)
-						html_pp.textContent=pp_formatter.Format(current_pp.Data,digits);
+						html_pp.textContent=pp_formatter.Format(current_pp.tuple,digits);
 				}
 				
 				if(hit_count!==null)
 					if(hit_count_formatter!=null)
-						html_hit_count.textContent=hit_count_formatter.Format(hit_count.Data,0);
+						html_hit_count.textContent=hit_count_formatter.Format(hit_count.tuple,0);
 			}
 			else
 			{
 				html_pp.textContent="";
 				html_hit_count.textContent="";
 			}
-			setTimeout(display_content,33);
+			setTimeout(display_content,render_interval);
 		}
 		
 		get_data();

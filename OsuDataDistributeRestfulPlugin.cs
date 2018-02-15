@@ -31,6 +31,17 @@ namespace OsuDataDistributeRestful
         }
 
         #region Initializtion
+        private void ORTDP_Initialize()
+        {
+            var plugin = getHoster().EnumPluings().Where(p => p.Name == "OsuRTDataProvider").FirstOrDefault();
+            if (plugin != null)
+            {
+                new Ortdp.OrtdpResourceInitializer(plugin, this);
+            }
+            else
+                IO.CurrentIO.WriteColor($"[ODDR]Not Found RealTimePPDisplayer", ConsoleColor.Red);
+        }
+
         private void RTPPD_Initialize()
         {
             var plugin = getHoster().EnumPluings().Where(p => p.Name == "RealTimePPDisplayer").FirstOrDefault();
@@ -59,10 +70,11 @@ namespace OsuDataDistributeRestful
             m_config_manager = new PluginConfigurationManager(this);
             m_config_manager.AddItem(new SettingIni());
 
+            ORTDP_Initialize();
             RTPPD_Initialize();
             OLSP_Initialize();
 
-            RegisterResource("/api/help",(p)=>m_url_dict.Keys);
+            RegisterResource("/api",(p)=>m_url_dict.Keys);
         }
 
         public void RegisterResource(string uri,Func<ParamCollection,object> c)

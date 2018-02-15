@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Olsp\OlspResourceInitializer.cs" />
+    <Compile Include="Ortdp\OrtdpResourceInitializer.cs" />
     <Compile Include="OsuDataDistributeRestfulPlugin.cs" />
     <Compile Include="ParamCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -74,9 +75,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Ortdp\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /y $(TargetPath) $(SolutionDir)\Sync\bin\$(ConfigurationName)\Plugins</PostBuildEvent>
