@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace OsuDataDistributeRestful
 {
-    [SyncPluginDependency("8eb9e8e0-7bca-4a96-93f7-6408e76898a9", Version = "^1.2.3", Require = true)]
+    [SyncPluginDependency("8eb9e8e0-7bca-4a96-93f7-6408e76898a9", Version = "^1.2.3", Require = true)]//RTPPD
     [SyncPluginID("4b045b1c-7ab2-41a7-9f80-7e79c0d7768a", VERSION)]
     public class OsuDataDistributeRestfulPlugin : Plugin
     {
@@ -21,8 +21,11 @@ namespace OsuDataDistributeRestful
         public const string PLUGIN_AUTHOR = "KedamavOvO";
         public const string VERSION = "0.0.2";
 
+        private bool m_http_quit = false;
         private HttpListener m_httpd=new HttpListener();
         private Dictionary<string, Func<ParamCollection, object>> m_url_dict = new Dictionary<string, Func<ParamCollection,object>>();
+
+        private SongsHttpServer songsHttpServer;
 
         private PluginConfigurationManager m_config_manager;
 
@@ -75,6 +78,12 @@ namespace OsuDataDistributeRestful
             OLSP_Initialize();
 
             RegisterResource("/api",(p)=>m_url_dict.Keys);
+
+            if (Setting.EnableSongsHttpServer)
+            {
+                songsHttpServer = new SongsHttpServer();
+                songsHttpServer.Start();
+            }
         }
 
         public void RegisterResource(string uri,Func<ParamCollection,object> c)
@@ -98,12 +107,12 @@ namespace OsuDataDistributeRestful
                 m_httpd.Prefixes.Add(@"http://localhost:10800/");
 
             m_httpd.Start();
-            while (true)
+            while (!m_http_quit)
             {
                 var ctx = await m_httpd.GetContextAsync();
                 var request = ctx.Request;
                 var response = ctx.Response;
-                response.AppendHeader("Access-Control-Allow-Origin","*");
+                response.AppendHeader("Access-Control-Allow-Origin", "*");
                 response.AppendHeader("Access-Control-Allow-Methods", "GET");
                 response.AppendHeader("Access-Control-Allow-Headers", "x-requested-with,content-type");
 
@@ -161,6 +170,14 @@ namespace OsuDataDistributeRestful
                 }
             }
             return dictionary;
+        }
+
+        public override void OnExit()
+        {
+            if (Setting.EnableSongsHttpServer)
+                songsHttpServer.Stop();
+            m_http_quit = true;
+            m_httpd.Stop();
         }
     }
 }

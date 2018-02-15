@@ -53,6 +53,7 @@
     <Compile Include="Rtppd\RestfulDisplayer.cs" />
     <Compile Include="Rtppd\RtppdResourceInitializer.cs" />
     <Compile Include="Setting.cs" />
+    <Compile Include="SongsHttpServer.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\osuSync-Plugins\MemoryReader\OsuRTDataProvider.csproj">

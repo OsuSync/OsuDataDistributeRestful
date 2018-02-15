@@ -44,7 +44,8 @@ namespace OsuDataDistributeRestful.Ortdp
                     title_unicode = beatmap.TitleUnicode,
                     folder = beatmap.Folder,
                     filename = beatmap.Filename,
-                    filename_full = beatmap.FilenameFull
+                    filename_full = beatmap.FilenameFull,
+                    audio_filename = beatmap.AudioFilename
                 };
             });
 
