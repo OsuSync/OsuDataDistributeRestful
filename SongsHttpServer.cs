@@ -35,7 +35,7 @@ namespace OsuDataDistributeRestful
 
                 if (request.HttpMethod == "GET")
                 {
-                    var filename = Path.Combine(Setting.OsuSongsPath,request.Url.LocalPath.Remove(0,1));
+                    var filename = Path.Combine(Setting.OsuSongsPath,HttpUtility.UrlDecode(request.RawUrl).Remove(0,1));
                     if (File.Exists(filename))
                     {
                         var ext = Path.GetExtension(filename);
