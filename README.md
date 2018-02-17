@@ -12,6 +12,8 @@
 | EnableSongsHttpServer | False |Whether to enable the song file server(host=localhost:10801 e.g: http://localhost:10801/432822 NOMA - Brain Power Long Version/audio.mp3)|
 | OsuSongsPath| (null) |if EnableSongsHttpServer=True,Must be set|
 
+# Screenshots
+![](https://image.prntscr.com/image/09uQzDbjR2yTXqOmTbsuRw.png)
 
 # API
 * GET http://localhost:10800/api API List
