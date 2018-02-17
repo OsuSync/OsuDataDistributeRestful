@@ -9,7 +9,7 @@
 | Setting Name | Default Value | Description |
 | ----|----|----|
 | AllowLAN | False | Whether to allow LAN users to access |
-| EnableSongsHttpServer | False |Whether to enable the song file server|
+| EnableSongsHttpServer | False |Whether to enable the song file server(host=localhost:10801 e.g: http://localhost:10801/432822 NOMA - Brain Power Long Version/audio.mp3)|
 | OsuSongsPath| (null) |if EnableSongsHttpServer=True,Must be set|
 
 
