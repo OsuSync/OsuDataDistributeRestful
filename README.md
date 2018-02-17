@@ -8,7 +8,7 @@
 * GET http://localhost:10800/api/rtppd/hit_count_formated
 
 # How to use?
-1. download [zip](https://github.com/KedamaOvO/OsuDataDistributeRestful/releases) .(need [ortdp](https://github.com/KedamaOvO/OsuRTDataProvider-Release/releases) 1.3.2)
+1. download [zip](https://github.com/KedamaOvO/OsuDataDistributeRestful/releases) .(need [ortdp](https://github.com/KedamaOvO/OsuRTDataProvider-Release/releases) 1.3.2 or later)
 2. copy to Sync folder
 3. add restful to OutputMethods in config.ini 
 4. add Browser Source to scene in OBS. 
