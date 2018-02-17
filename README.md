@@ -5,6 +5,14 @@
 4. add **Browser Source** to scene in **OBS**. 
 5. type **{your sync folder}/html/rtpp.html** or **http://github.mao-yu.net/OsuDataDistributeRestful/rtpp.html** in Browser Source
 
+# Config.ini
+| Setting Name | Default Value | Description |
+| ----|----|----|
+| AllowLAN | False | Whether to allow LAN users to access |
+| EnableSongsHttpServer | False |Whether to enable the song file server|
+| OsuSongsPath| (null) |if EnableSongsHttpServer=True,Must be set|
+
+
 # API
 * GET http://localhost:10800/api API List
 
