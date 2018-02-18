@@ -13,7 +13,6 @@ namespace OsuDataDistributeRestful
         /// MIME
         /// </summary>
         public string ContentType { get; set; } = "application/octet-stream";
-        public int StatusCode { get; set; } = 200;
 
         public Stream Data { get; private set; }
 
