@@ -22,10 +22,10 @@ namespace OsuDataDistributeRestful
         public const string VERSION = "0.0.4";
 
         private bool m_http_quit = false;
-        private HttpListener m_httpd=new HttpListener();
+        private HttpListener m_httpd=new HttpListener() { IgnoreWriteExceptions=true};
         private Dictionary<string, Func<ParamCollection, object>> m_url_dict = new Dictionary<string, Func<ParamCollection,object>>();
 
-        private SongsHttpServer songsHttpServer;
+        private FileHttpServer songsHttpServer;
 
         private PluginConfigurationManager m_config_manager;
 
@@ -79,9 +79,9 @@ namespace OsuDataDistributeRestful
 
             RegisterResource("/api",(p)=>m_url_dict.Keys);
 
-            if (Setting.EnableSongsHttpServer)
+            if (Setting.EnableFileHttpServer)
             {
-                songsHttpServer = new SongsHttpServer();
+                songsHttpServer = new FileHttpServer();
                 songsHttpServer.Start();
             }
         }
@@ -101,7 +101,8 @@ namespace OsuDataDistributeRestful
             Sync.Tools.IO.CurrentIO.WriteColor(PLUGIN_NAME + " By " + PLUGIN_AUTHOR, ConsoleColor.DarkCyan);
 
             Initialize();
-            if(Setting.AllowLAN)
+
+            if (Setting.AllowLAN)
                 m_httpd.Prefixes.Add(@"http://+:10800/");
             else
                 m_httpd.Prefixes.Add(@"http://localhost:10800/");
@@ -124,17 +125,33 @@ namespace OsuDataDistributeRestful
                     if (m_url_dict.TryGetValue(request.Url.AbsolutePath, out var func))
                     {
                         var @params = ParseUriParams(request.Url);
-                        var json=JsonConvert.SerializeObject(func(@params));
-                        ctx.Response.StatusCode = 200;
 
-                        using (var sw = new StreamWriter(response.OutputStream))
-                            sw.Write(json);
+                        var result = func(@params);
+                        if(result is StreamResult sr)
+                        {
+                            if (sr.Data != null)
+                            {
+                                response.ContentType = sr.ContentType;
+                                sr.Data.CopyTo(response.OutputStream);
+                                sr.Data.Dispose();
+                            }
+                            else
+                            {
+                                Return404(response);
+                            }
+                        }
+                        else
+                        {
+                            var json = JsonConvert.SerializeObject(result);
+                            ctx.Response.StatusCode = 200;
+
+                            using (var sw = new StreamWriter(response.OutputStream))
+                                sw.Write(json);
+                        }
                     }
                     else
                     {
-                        ctx.Response.StatusCode = 404;
-                        using (var sw = new StreamWriter(response.OutputStream))
-                            sw.Write("{\"code\":404}");
+                        Return404(response);
                     }
                 }
                 else
@@ -146,6 +163,14 @@ namespace OsuDataDistributeRestful
                 response.OutputStream.Close();
             }
         }
+
+        public void Return404(HttpListenerResponse response)
+        {
+            response.StatusCode = 404;
+            using (var sw = new StreamWriter(response.OutputStream))
+                sw.Write("{\"code\":404}");
+        }
+
 
         private ParamCollection ParseUriParams(Uri uri)
         {
@@ -174,7 +199,7 @@ namespace OsuDataDistributeRestful
 
         public override void OnExit()
         {
-            if (Setting.EnableSongsHttpServer)
+            if (Setting.EnableFileHttpServer)
                 songsHttpServer.Stop();
             m_http_quit = true;
             m_httpd.Stop();

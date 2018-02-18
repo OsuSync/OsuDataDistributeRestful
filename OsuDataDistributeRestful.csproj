@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataResult.cs" />
     <Compile Include="Olsp\OlspResourceInitializer.cs" />
     <Compile Include="Ortdp\OrtdpResourceInitializer.cs" />
     <Compile Include="OsuDataDistributeRestfulPlugin.cs" />
@@ -54,7 +55,7 @@
     <Compile Include="Rtppd\RestfulDisplayer.cs" />
     <Compile Include="Rtppd\RtppdResourceInitializer.cs" />
     <Compile Include="Setting.cs" />
-    <Compile Include="SongsHttpServer.cs" />
+    <Compile Include="FileHttpServer.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\osuSync-Plugins\MemoryReader\OsuRTDataProvider.csproj">

@@ -4,6 +4,7 @@ using OsuRTDataProvider.Mods;
 using Sync.Plugins;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -46,6 +47,19 @@ namespace OsuDataDistributeRestful.Ortdp
                     filename = beatmap.Filename,
                     filename_full = beatmap.FilenameFull,
                     audio_filename = beatmap.AudioFilename
+                };
+            });
+
+            oddr.RegisterResource("/api/ortdp/audio_file",(p)=>
+            {
+                var manager = GetListenManager(ortdp, p);
+                var beatmap = manager?.GetCurrentData(ProvideDataMask.Beatmap).Beatmap;
+                string filename = Path.Combine(beatmap.Folder, beatmap.AudioFilename);
+
+                var fs = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
+                return new StreamResult(fs)
+                {
+                    ContentType="audio/mpeg"
                 };
             });
 

@@ -9,12 +9,12 @@ using System.Web;
 
 namespace OsuDataDistributeRestful
 {
-    class SongsHttpServer
+    class FileHttpServer
     {
         private HttpListener m_httpd = new HttpListener();
         private bool m_quit = false;
 
-        public SongsHttpServer()
+        public FileHttpServer()
         {
             m_httpd.Prefixes.Add(@"http://localhost:10801/");
             m_httpd.IgnoreWriteExceptions = true;
@@ -35,8 +35,8 @@ namespace OsuDataDistributeRestful
 
                 if (request.HttpMethod == "GET")
                 {
-                    var filename = Path.Combine(Setting.OsuSongsPath,HttpUtility.UrlDecode(request.RawUrl).Remove(0,1));
-                    if (File.Exists(filename))
+                    var filename = Path.Combine(Setting.FileServerRootPath, HttpUtility.UrlDecode(request.RawUrl).Remove(0,1));
+                    if (!filename.Contains("..")&&File.Exists(filename))
                     {
                         var ext = Path.GetExtension(filename);
                         response.StatusCode = 200;
