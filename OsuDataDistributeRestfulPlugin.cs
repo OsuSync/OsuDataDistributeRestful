@@ -13,13 +13,13 @@ using System.Threading.Tasks;
 
 namespace OsuDataDistributeRestful
 {
-    [SyncPluginDependency("7216787b-507b-4eef-96fb-e993722acf2e", Version = "^1.3.2", Require = true)]//ORTDP
+    [SyncPluginDependency("8eb9e8e0-7bca-4a96-93f7-6408e76898a9", Version = "^1.3.2", Require = true)]//RTPPD
     [SyncPluginID("4b045b1c-7ab2-41a7-9f80-7e79c0d7768a", VERSION)]
     public class OsuDataDistributeRestfulPlugin : Plugin
     {
         public const string PLUGIN_NAME = "OsuDataDistributeRestful";
         public const string PLUGIN_AUTHOR = "KedamavOvO";
-        public const string VERSION = "0.0.3";
+        public const string VERSION = "0.0.4";
 
         private bool m_http_quit = false;
         private HttpListener m_httpd=new HttpListener();
