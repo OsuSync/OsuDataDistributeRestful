@@ -33,6 +33,9 @@
         const MAX_HEIGTH=190;
         var context = new AudioContext();
         var play=false;
+		
+		var _url=new URL(window.location.href);
+		var has_sound=_url.searchParams.get('sound')||"false";
 
         var current_audio_buffer=null;
         var src = context.createBufferSource();
@@ -41,7 +44,8 @@
         src.connect(analyser);
 
         //链接音频输出设备
-        //analyser.connect(context.destination);
+		if(has_sound==="true")
+			analyser.connect(context.destination);
 
         //http get
         function get(uri,type){
