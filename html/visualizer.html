@@ -170,10 +170,10 @@
                 for (let i = 0; i < bufferLength; i++) {
                     let val=dataArray[i]/255.0;
                     barHeight = val*val*val;
-
-                    let r = Math.round(barHeight*230+(25 * (i/bufferLength)));
-                    let g = 128+Math.round((128*(i/bufferLength)));
-                    let b = 50;
+                    
+                    let r = 128+Math.round((128*(i/bufferLength)));
+                    let g = Math.round(barHeight*230-(25 * (i/bufferLength)));
+                    let b = 203;
 
                     ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
 
