@@ -94,7 +94,7 @@
         //play timer
         setInterval(function(){
             if(play===true)
-                timer+=0.026*last_mods.time_rate;
+                timer+=(0.026*last_mods.time_rate).toFixed(3);
         },Math.round(26*last_mods.time_rate));
         
         //http get loop
@@ -107,6 +107,7 @@
             let breaked=beatmap.folder.split('\\');
             let folder=breaked[breaked.length-1];
             let mp3=beatmap.audio_filename;
+			mp3=folder+'/'+mp3;
 
             if(folder!==""&&mp3!=="")
             {
