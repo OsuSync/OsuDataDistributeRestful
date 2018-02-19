@@ -43,9 +43,9 @@ namespace OsuDataDistributeRestful.Ortdp
                     artist_unicode=beatmap.ArtistUnicode,
                     title = beatmap.Title,
                     title_unicode = beatmap.TitleUnicode,
-                    folder = beatmap.Folder,
+
+                    folder = Path.GetFileName(beatmap.Folder),
                     filename = beatmap.Filename,
-                    filename_full = beatmap.FilenameFull,
                     audio_filename = beatmap.AudioFilename
                 };
             });
@@ -62,22 +62,6 @@ namespace OsuDataDistributeRestful.Ortdp
                     ContentType="audio/mpeg"
                 };
             });
-
-            oddr.RegisterResource("/api/ortdp/hitcount", (p) =>
-             {
-                 var manager = GetListenManager(ortdp, p);
-                 var hitcount = manager?.GetCurrentData(ProvideDataMask.HitCount);
-
-                 return new
-                 {
-                     count_300 = hitcount?.Count300,
-                     count_100 = hitcount?.Count100,
-                     count_50 = hitcount?.Count50,
-                     count_miss = hitcount?.CountMiss,
-                     count_geki = hitcount?.CountGeki,
-                     count_katu = hitcount?.CountKatu,
-                 };
-             });
 
             oddr.RegisterResource("/api/ortdp/hit_count", (p) =>
             {
