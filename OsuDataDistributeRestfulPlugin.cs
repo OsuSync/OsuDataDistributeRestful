@@ -19,7 +19,7 @@ namespace OsuDataDistributeRestful
     {
         public const string PLUGIN_NAME = "OsuDataDistributeRestful";
         public const string PLUGIN_AUTHOR = "KedamavOvO";
-        public const string VERSION = "0.0.4";
+        public const string VERSION = "0.0.5";
 
         private bool m_http_quit = false;
         private HttpListener m_httpd=new HttpListener() { IgnoreWriteExceptions=true};
