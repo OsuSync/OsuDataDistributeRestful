@@ -94,7 +94,7 @@
         //play timer
         setInterval(function(){
             if(play===true)
-                timer+=(0.026*last_mods.time_rate).toFixed(3);
+                timer+=0.026*last_mods.time_rate;
         },Math.round(26*last_mods.time_rate));
         
         //http get loop
@@ -104,10 +104,9 @@
             let beatmap=await get('http://localhost:10800/api/ortdp/beatmap');
             let mods=await get('http://localhost:10800/api/ortdp/mods');
 
-            let breaked=beatmap.folder.split('\\');
-            let folder=breaked[breaked.length-1];
+            let folder=beatmap.folder;
             let mp3=beatmap.audio_filename;
-			mp3=folder+'/'+mp3;
+			mp3=folder+'\\'+mp3;
 
             if(folder!==""&&mp3!=="")
             {
