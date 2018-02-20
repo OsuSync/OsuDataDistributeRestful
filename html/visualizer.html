@@ -36,6 +36,9 @@
 		
 		var _url=new URL(window.location.href);
 		var has_sound=_url.searchParams.get('sound')||"false";
+        var host=_url.searchParams.get('host')||"localhost";
+        var port=_url.searchParams.get('port')||"10800";
+        var web="http://"+host+":"+port;
 
         var current_audio_buffer=null;
         var src = context.createBufferSource();
@@ -100,9 +103,9 @@
         //http get loop
         async function get_loop()
         {
-            let time=(await get('http://localhost:10800/api/ortdp/playing_time')).playing_time/1000.0;
-            let beatmap=await get('http://localhost:10800/api/ortdp/beatmap');
-            let mods=await get('http://localhost:10800/api/ortdp/mods');
+            let time=(await get(web+'/api/ortdp/playing_time')).playing_time/1000.0;
+            let beatmap=await get(web+'/api/ortdp/beatmap');
+            let mods=await get(web+'/api/ortdp/mods');
 
             let folder=beatmap.folder;
             let mp3=beatmap.audio_filename;
@@ -118,7 +121,7 @@
                         play=false;
                     }
 
-                    let audio_data=await get('http://localhost:10800/api/ortdp/audio_file',"arraybuffer");
+                    let audio_data=await get(web+'/api/ortdp/audio_file',"arraybuffer");
                     let buf=await context.decodeAudioData(audio_data);
                     current_audio_buffer=buf;
                     restart_audio(buf,time,1.0);
