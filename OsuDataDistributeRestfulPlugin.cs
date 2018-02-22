@@ -31,6 +31,16 @@ namespace OsuDataDistributeRestful
 
         public OsuDataDistributeRestfulPlugin() : base(PLUGIN_NAME, PLUGIN_AUTHOR)
         {
+            base.EventBus.BindEvent<PluginEvents.LoadCompleteEvent>(e=> {
+                if (!Setting.AllowLAN) return;
+
+                var ips = Dns.GetHostEntry(Dns.GetHostName()).AddressList.Where(ip => ip.AddressFamily == AddressFamily.InterNetwork);
+                int n = 1;
+                foreach (var ip in ips)
+                {
+                    IO.CurrentIO.Write($"[ODDR]IP {n++}:{ip}");
+                }
+            });
         }
 
         #region Initializtion
