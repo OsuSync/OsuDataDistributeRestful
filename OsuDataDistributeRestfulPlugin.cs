@@ -19,7 +19,7 @@ namespace OsuDataDistributeRestful
     {
         public const string PLUGIN_NAME = "OsuDataDistributeRestful";
         public const string PLUGIN_AUTHOR = "KedamavOvO";
-        public const string VERSION = "0.0.5";
+        public const string VERSION = "0.0.6";
 
         private bool m_http_quit = false;
         private HttpListener m_httpd=new HttpListener() { IgnoreWriteExceptions=true};
@@ -92,7 +92,7 @@ namespace OsuDataDistributeRestful
             if (Setting.EnableFileHttpServer)
             {
                 songsHttpServer = new FileHttpServer();
-                songsHttpServer.Start();
+                Task.Run(()=>songsHttpServer.Start());
             }
         }
 
@@ -106,17 +106,8 @@ namespace OsuDataDistributeRestful
             m_url_dict[target_uri] = m_url_dict[uri];
         }
 
-        public override async void OnEnable()
+        private async void StartApiHttpServer()
         {
-            Sync.Tools.IO.CurrentIO.WriteColor(PLUGIN_NAME + " By " + PLUGIN_AUTHOR, ConsoleColor.DarkCyan);
-
-            Initialize();
-
-            if (Setting.AllowLAN)
-                m_httpd.Prefixes.Add(@"http://+:10800/");
-            else
-                m_httpd.Prefixes.Add(@"http://localhost:10800/");
-
             m_httpd.Start();
             while (!m_http_quit)
             {
@@ -130,14 +121,14 @@ namespace OsuDataDistributeRestful
                 response.ContentEncoding = Encoding.UTF8;
                 response.ContentType = "text/json; charset=UTF-8";
 
-                if(request.HttpMethod=="GET")
+                if (request.HttpMethod == "GET")
                 {
                     if (m_url_dict.TryGetValue(request.Url.AbsolutePath, out var func))
                     {
                         var @params = ParseUriParams(request.Url);
 
                         var result = func(@params);
-                        if(result is StreamResult sr)
+                        if (result is StreamResult sr)
                         {
                             if (sr.Data != null)
                             {
@@ -172,6 +163,17 @@ namespace OsuDataDistributeRestful
                 }
                 response.OutputStream.Close();
             }
+        }
+
+        public override void OnEnable()
+        {
+            Sync.Tools.IO.CurrentIO.WriteColor(PLUGIN_NAME + " By " + PLUGIN_AUTHOR, ConsoleColor.DarkCyan);
+            Initialize();
+            if (Setting.AllowLAN)
+                m_httpd.Prefixes.Add(@"http://+:10800/");
+            else
+                m_httpd.Prefixes.Add(@"http://localhost:10800/");
+            Task.Run(()=>StartApiHttpServer());
         }
 
         public void Return404(HttpListenerResponse response)
