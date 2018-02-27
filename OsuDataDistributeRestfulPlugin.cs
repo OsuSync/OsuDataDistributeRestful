@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 namespace OsuDataDistributeRestful
 {
     [SyncSoftRequirePlugin("OsuRTDataProviderPlugin", "RealTimePPDisplayerPlugin", "OsuLiveStatusPanelPlugin")]
-    [SyncPluginID("4b045b1c-7ab2-41a7-9f80-7e79c0d7768a", VERSION)]
+    [SyncPluginID("50549ae4-8ba8-4b3b-9d18-9828d43c6523", VERSION)]
     public class OsuDataDistributeRestfulPlugin : Plugin
     {
         public const string PLUGIN_NAME = "OsuDataDistributeRestful";
@@ -25,7 +25,7 @@ namespace OsuDataDistributeRestful
         private HttpListener m_httpd=new HttpListener() { IgnoreWriteExceptions=true};
         private Dictionary<string, Func<ParamCollection, object>> m_url_dict = new Dictionary<string, Func<ParamCollection,object>>();
 
-        private FileHttpServer songsHttpServer;
+        private FileHttpServer fileHttpServer;
 
         private PluginConfigurationManager m_config_manager;
 
@@ -91,8 +91,8 @@ namespace OsuDataDistributeRestful
 
             if (Setting.EnableFileHttpServer)
             {
-                songsHttpServer = new FileHttpServer();
-                Task.Run(()=>songsHttpServer.Start());
+                fileHttpServer = new FileHttpServer();
+                Task.Run(()=>fileHttpServer.Start());
             }
         }
 
@@ -211,10 +211,10 @@ namespace OsuDataDistributeRestful
 
         public override void OnExit()
         {
-            if (Setting.EnableFileHttpServer)
-                songsHttpServer.Stop();
             m_http_quit = true;
             m_httpd.Stop();
+            if (Setting.EnableFileHttpServer)
+                fileHttpServer.Stop();
         }
     }
 }
