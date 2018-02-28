@@ -1,12 +1,16 @@
 ﻿using Sync.Tools;
+using Sync.Tools.ConfigGUI;
 using System;
 
 namespace OsuDataDistributeRestful
 {
     public class SettingIni : IConfigurable
     {
+        [ConfigBool(NeedRestart = true)]
         public ConfigurationElement AllowLAN { set; get; }
+        [ConfigBool(NeedRestart = true)]
         public ConfigurationElement EnableFileHttpServer { get; set; }
+        [ConfigPath(IsFilePath = false)]
         public ConfigurationElement FileServerRootPath { get; set; }
 
         public void onConfigurationLoad()
