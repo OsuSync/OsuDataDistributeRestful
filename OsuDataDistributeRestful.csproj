@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataResult.cs" />
+    <Compile Include="DefaultLanguage.cs" />
     <Compile Include="Olsp\OlspResourceInitializer.cs" />
     <Compile Include="Ortdp\OrtdpResourceInitializer.cs" />
     <Compile Include="OsuDataDistributeRestfulPlugin.cs" />
