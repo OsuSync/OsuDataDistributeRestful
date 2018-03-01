@@ -111,57 +111,64 @@ namespace OsuDataDistributeRestful
             m_httpd.Start();
             while (!m_http_quit)
             {
-                var ctx = await m_httpd.GetContextAsync();
-                var request = ctx.Request;
-                var response = ctx.Response;
-                response.AppendHeader("Access-Control-Allow-Origin", "*");
-                response.AppendHeader("Access-Control-Allow-Methods", "GET");
-                response.AppendHeader("Access-Control-Allow-Headers", "x-requested-with,content-type");
-
-                response.ContentEncoding = Encoding.UTF8;
-                response.ContentType = "text/json; charset=UTF-8";
-
-                if (request.HttpMethod == "GET")
+                try
                 {
-                    if (m_url_dict.TryGetValue(request.Url.AbsolutePath, out var func))
-                    {
-                        var @params = ParseUriParams(request.Url);
+                    var ctx = await m_httpd.GetContextAsync();
+                    var request = ctx.Request;
+                    var response = ctx.Response;
+                    response.AppendHeader("Access-Control-Allow-Origin", "*");
+                    response.AppendHeader("Access-Control-Allow-Methods", "GET");
+                    response.AppendHeader("Access-Control-Allow-Headers", "x-requested-with,content-type");
 
-                        var result = func(@params);
-                        if (result is StreamResult sr)
+                    response.ContentEncoding = Encoding.UTF8;
+                    response.ContentType = "text/json; charset=UTF-8";
+
+                    if (request.HttpMethod == "GET")
+                    {
+                        if (m_url_dict.TryGetValue(request.Url.AbsolutePath, out var func))
                         {
-                            if (sr.Data != null)
+                            var @params = ParseUriParams(request.Url);
+
+                            var result = func(@params);
+                            if (result is StreamResult sr)
                             {
-                                response.ContentType = sr.ContentType;
-                                sr.Data.CopyTo(response.OutputStream);
-                                sr.Data.Dispose();
+                                if (sr.Data != null)
+                                {
+                                    response.ContentType = sr.ContentType;
+                                    sr.Data.CopyTo(response.OutputStream);
+                                    sr.Data.Dispose();
+                                }
+                                else
+                                {
+                                    Return404(response);
+                                }
                             }
                             else
                             {
-                                Return404(response);
+                                var json = JsonConvert.SerializeObject(result);
+                                ctx.Response.StatusCode = 200;
+
+                                using (var sw = new StreamWriter(response.OutputStream))
+                                    sw.Write(json);
                             }
                         }
                         else
                         {
-                            var json = JsonConvert.SerializeObject(result);
-                            ctx.Response.StatusCode = 200;
-
-                            using (var sw = new StreamWriter(response.OutputStream))
-                                sw.Write(json);
+                            Return404(response);
                         }
                     }
                     else
                     {
-                        Return404(response);
+                        response.StatusCode = 403;
+                        using (var sw = new StreamWriter(response.OutputStream))
+                            sw.Write("{\"code\":403}");
                     }
+                    response.OutputStream.Close();
                 }
-                else
+                catch(HttpListenerException)
                 {
-                    response.StatusCode = 403;
-                    using (var sw = new StreamWriter(response.OutputStream))
-                        sw.Write("{\"code\":403}");
+                    continue;
                 }
-                response.OutputStream.Close();
             }
         }
 
