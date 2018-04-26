@@ -31,16 +31,6 @@ namespace OsuDataDistributeRestful
 
         public OsuDataDistributeRestfulPlugin() : base(PLUGIN_NAME, PLUGIN_AUTHOR)
         {
-            base.EventBus.BindEvent<PluginEvents.LoadCompleteEvent>(e=> {
-                if (!Setting.AllowLAN) return;
-
-                var ips = Dns.GetHostEntry(Dns.GetHostName()).AddressList.Where(ip => ip.AddressFamily == AddressFamily.InterNetwork);
-                int n = 1;
-                foreach (var ip in ips)
-                {
-                    IO.CurrentIO.Write($"[ODDR]IP {n++}:{ip}");
-                }
-            });
         }
 
         #region Initializtion
@@ -108,7 +98,26 @@ namespace OsuDataDistributeRestful
 
         private async void StartApiHttpServer()
         {
-            m_httpd.Start();
+            try
+            {
+                m_httpd.Start();
+                if (Setting.AllowLAN)
+                {
+                    //Display IP Address
+                    var ips = Dns.GetHostEntry(Dns.GetHostName()).AddressList.Where(ip => ip.AddressFamily == AddressFamily.InterNetwork);
+                    int n = 1;
+                    foreach (var ip in ips)
+                    {
+                        IO.CurrentIO.Write($"[ODDR]IP {n++}:{ip}");
+                    }
+                }
+            }
+            catch (HttpListenerException e)
+            {
+                Sync.Tools.IO.CurrentIO.WriteColor($"[ODDR]{DefaultLanguage.AllowRequireAdministrator}", ConsoleColor.Red);
+                return;
+            }
+
             while (!m_http_quit)
             {
                 try
@@ -180,7 +189,8 @@ namespace OsuDataDistributeRestful
                 m_httpd.Prefixes.Add(@"http://+:10800/");
             else
                 m_httpd.Prefixes.Add(@"http://localhost:10800/");
-            Task.Run(()=>StartApiHttpServer());
+
+            base.EventBus.BindEvent<PluginEvents.ProgramReadyEvent>(e=> Task.Run(() => StartApiHttpServer()));
         }
 
         public void Return404(HttpListenerResponse response)

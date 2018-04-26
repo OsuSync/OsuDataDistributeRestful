@@ -6,37 +6,37 @@ namespace OsuDataDistributeRestful
 {
     public class SettingIni : IConfigurable
     {
-        [ConfigBool(NeedRestart = true)]
-        public ConfigurationElement AllowLAN { set; get; }
-        [ConfigBool(NeedRestart = true)]
-        public ConfigurationElement EnableFileHttpServer { get; set; }
-        [ConfigPath(IsFilePath = false)]
-        public ConfigurationElement FileServerRootPath { get; set; }
+        [Bool(RequireRestart = true)]
+        public ConfigurationElement AllowLAN
+        {
+            set => Setting.AllowLAN = bool.Parse(value);
+            get => Setting.AllowLAN.ToString(); }
+
+        [Bool(RequireRestart = true)]
+        public ConfigurationElement EnableFileHttpServer
+        {
+            set => Setting.EnableFileHttpServer = bool.Parse(value);
+            get => Setting.EnableFileHttpServer.ToString();
+        }
+
+
+        [Path(IsDirectory = true)]
+        public ConfigurationElement FileServerRootPath
+        {
+            set => Setting.FileServerRootPath = value;
+            get => Setting.FileServerRootPath;
+        }
 
         public void onConfigurationLoad()
         {
-            try
-            {
-                Setting.AllowLAN = bool.Parse(AllowLAN);
-                Setting.EnableFileHttpServer = bool.Parse(EnableFileHttpServer);
-                Setting.FileServerRootPath = FileServerRootPath;
-            }
-            catch (Exception e)
-            {
-                onConfigurationSave();
-            }
         }
 
         public void onConfigurationReload()
         {
-            onConfigurationLoad();
         }
 
         public void onConfigurationSave()
         {
-            AllowLAN = Setting.AllowLAN.ToString();
-            EnableFileHttpServer = Setting.EnableFileHttpServer.ToString();
-            FileServerRootPath = Setting.FileServerRootPath;
         }
     }
 

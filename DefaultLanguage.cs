@@ -5,13 +5,10 @@ namespace OsuDataDistributeRestful
 {
     public class DefaultLanguage : I18nProvider
     {
-        [ConfigI18n]
-        public static LanguageElement AllowLAN = "Allow LAN";
+        public static LanguageElement AllowRequireAdministrator = "AllowLAN requires that the administrator run sync";
 
-        [ConfigI18n]
-        public static LanguageElement EnableFileHttpServer = "Enable file HTTP server";
-
-        [ConfigI18n]
-        public static LanguageElement FileServerRootPath = "File server root path";
+        public static GuiLanguageElement AllowLAN = "Allow LAN";
+        public static GuiLanguageElement EnableFileHttpServer = "Enable file HTTP server";
+        public static GuiLanguageElement FileServerRootPath = "File server root path";
     }
 }
