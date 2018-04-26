@@ -112,13 +112,13 @@
 
 		//get pp and hit count data
 		async function get_data(){
-			target_pp = await get(web+"/api/rtppd/pp");
+			target_pp = await get(web+"/api/rtppd/0/pp");
 			if(current_pp===null)
 				current_pp=target_pp;
 
-			hit_count=await get(web+"/api/rtppd/hit_count");
+			hit_count=await get(web+"/api/rtppd/0/hit_count");
 			
-			playing=(await get(web+"/api/rtppd/playing")).playing;
+			playing=(await get(web+"/api/rtppd/0/playing")).playing;
 			
 			setTimeout(get_data,get_interval);
 		}

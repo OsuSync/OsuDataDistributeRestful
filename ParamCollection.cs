@@ -9,6 +9,14 @@ namespace OsuDataDistributeRestful
 {
     public class ParamCollection : Dictionary<string, string>
     {
+        public ParamCollection()
+        {
+        }
+
+        public ParamCollection(Dictionary<string, string> dict):base(dict)
+        {
+        }
+
         public int? GetInt(string key)
         {
             if (ContainsKey(key))

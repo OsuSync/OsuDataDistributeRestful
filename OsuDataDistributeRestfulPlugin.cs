@@ -22,8 +22,9 @@ namespace OsuDataDistributeRestful
         public const string VERSION = "0.0.6";
 
         private bool m_http_quit = false;
-        private HttpListener m_httpd=new HttpListener() { IgnoreWriteExceptions=true};
-        private Dictionary<string, Func<ParamCollection, object>> m_url_dict = new Dictionary<string, Func<ParamCollection,object>>();
+
+        private Dictionary<RouteTemplate, Func<ParamCollection, object>> m_route_dict = 
+            new Dictionary<RouteTemplate, Func<ParamCollection, object>>();
 
         private FileHttpServer fileHttpServer;
 
@@ -77,7 +78,9 @@ namespace OsuDataDistributeRestful
             RTPPD_Initialize();
             OLSP_Initialize();
 
-            RegisterResource("/api",(p)=>m_url_dict.Keys);
+            RegisterResource("/api",(p)=>m_route_dict.Keys.Select(template=>template.Template));
+
+            RegisterResource("/test/api/rtppd/{id}/pp", (p) => p);
 
             if (Setting.EnableFileHttpServer)
             {
@@ -86,97 +89,112 @@ namespace OsuDataDistributeRestful
             }
         }
 
-        public void RegisterResource(string uri,Func<ParamCollection,object> c)
+        /// <summary>
+        /// Register Resource
+        /// </summary>
+        /// <param name="route">support template route</param>
+        /// <param name="c"></param>
+        public void RegisterResource(string route,Func<ParamCollection, object> c)
         {
-            m_url_dict.Add(uri, c);
-        }
-
-        public void RemappingResource(string uri,string target_uri)
-        {
-            m_url_dict[target_uri] = m_url_dict[uri];
+            m_route_dict.Add(new RouteTemplate(route), c);
         }
 
         private async void StartApiHttpServer()
         {
-            try
+            using (HttpListener m_httpd = new HttpListener() { IgnoreWriteExceptions = true })
             {
-                m_httpd.Start();
                 if (Setting.AllowLAN)
-                {
-                    //Display IP Address
-                    var ips = Dns.GetHostEntry(Dns.GetHostName()).AddressList.Where(ip => ip.AddressFamily == AddressFamily.InterNetwork);
-                    int n = 1;
-                    foreach (var ip in ips)
-                    {
-                        IO.CurrentIO.Write($"[ODDR]IP {n++}:{ip}");
-                    }
-                }
-            }
-            catch (HttpListenerException e)
-            {
-                Sync.Tools.IO.CurrentIO.WriteColor($"[ODDR]{DefaultLanguage.AllowRequireAdministrator}", ConsoleColor.Red);
-                return;
-            }
+                    m_httpd.Prefixes.Add(@"http://+:10800/");
+                else
+                    m_httpd.Prefixes.Add(@"http://localhost:10800/");
 
-            while (!m_http_quit)
-            {
                 try
                 {
-                    var ctx = await m_httpd.GetContextAsync();
-                    var request = ctx.Request;
-                    var response = ctx.Response;
-                    response.AppendHeader("Access-Control-Allow-Origin", "*");
-                    response.AppendHeader("Access-Control-Allow-Methods", "GET");
-                    response.AppendHeader("Access-Control-Allow-Headers", "x-requested-with,content-type");
-
-                    response.ContentEncoding = Encoding.UTF8;
-                    response.ContentType = "text/json; charset=UTF-8";
-
-                    if (request.HttpMethod == "GET")
+                    m_httpd.Start();
+                    if (Setting.AllowLAN)
                     {
-                        if (m_url_dict.TryGetValue(request.Url.AbsolutePath, out var func))
+                        //Display IP Address
+                        var ips = Dns.GetHostEntry(Dns.GetHostName()).AddressList.Where(ip => ip.AddressFamily == AddressFamily.InterNetwork);
+                        int n = 1;
+                        foreach (var ip in ips)
                         {
-                            var @params = ParseUriParams(request.Url);
+                            IO.CurrentIO.Write($"[ODDR]IP {n++}:{ip}");
+                        }
+                    }
+                }
+                catch (HttpListenerException e)
+                {
+                    Sync.Tools.IO.CurrentIO.WriteColor($"[ODDR]{DefaultLanguage.AllowRequireAdministrator}", ConsoleColor.Red);
+                    return;
+                }
 
-                            var result = func(@params);
-                            if (result is StreamResult sr)
+
+                while (!m_http_quit)
+                {
+                    try
+                    {
+                        var ctx = await m_httpd.GetContextAsync();
+                        var request = ctx.Request;
+                        var response = ctx.Response;
+                        response.AppendHeader("Access-Control-Allow-Origin", "*");
+                        response.AppendHeader("Access-Control-Allow-Methods", "GET");
+                        response.AppendHeader("Access-Control-Allow-Headers", "x-requested-with,content-type");
+
+                        response.ContentEncoding = Encoding.UTF8;
+                        response.ContentType = "text/json; charset=UTF-8";
+
+                        if (request.HttpMethod == "GET")
+                        {
+                            var matched_route = m_route_dict.Select(route => new
                             {
-                                if (sr.Data != null)
+                                Success = route.Key.TryMatch(request.Url.AbsolutePath, out var @params),
+                                Params = @params,
+                                Route =route
+                            })
+                            .Where(route_result=>route_result.Success).SingleOrDefault();
+
+                            if (matched_route != null)
+                            {
+                                var result = matched_route.Route.Value(matched_route.Params);
+                                if (result is StreamResult sr)
                                 {
-                                    response.ContentType = sr.ContentType;
-                                    sr.Data.CopyTo(response.OutputStream);
-                                    sr.Data.Dispose();
+                                    if (sr.Data != null)
+                                    {
+                                        response.ContentType = sr.ContentType;
+                                        sr.Data.CopyTo(response.OutputStream);
+                                        sr.Data.Dispose();
+                                    }
+                                    else
+                                    {
+                                        Return404(response);
+                                    }
                                 }
                                 else
                                 {
-                                    Return404(response);
+                                    var json = JsonConvert.SerializeObject(result);
+                                    ctx.Response.StatusCode = 200;
+
+                                    using (var sw = new StreamWriter(response.OutputStream))
+                                        sw.Write(json);
                                 }
                             }
                             else
                             {
-                                var json = JsonConvert.SerializeObject(result);
-                                ctx.Response.StatusCode = 200;
-
-                                using (var sw = new StreamWriter(response.OutputStream))
-                                    sw.Write(json);
+                                Return404(response);
                             }
                         }
                         else
                         {
-                            Return404(response);
+                            response.StatusCode = 403;
+                            using (var sw = new StreamWriter(response.OutputStream))
+                                sw.Write("{\"code\":403}");
                         }
+                        response.OutputStream.Close();
                     }
-                    else
+                    catch (HttpListenerException)
                     {
-                        response.StatusCode = 403;
-                        using (var sw = new StreamWriter(response.OutputStream))
-                            sw.Write("{\"code\":403}");
+                        continue;
                     }
-                    response.OutputStream.Close();
-                }
-                catch(HttpListenerException)
-                {
-                    continue;
                 }
             }
         }
@@ -185,10 +203,7 @@ namespace OsuDataDistributeRestful
         {
             Sync.Tools.IO.CurrentIO.WriteColor(PLUGIN_NAME + " By " + PLUGIN_AUTHOR, ConsoleColor.DarkCyan);
             Initialize();
-            if (Setting.AllowLAN)
-                m_httpd.Prefixes.Add(@"http://+:10800/");
-            else
-                m_httpd.Prefixes.Add(@"http://localhost:10800/");
+
 
             base.EventBus.BindEvent<PluginEvents.ProgramReadyEvent>(e=> Task.Run(() => StartApiHttpServer()));
         }
@@ -200,36 +215,9 @@ namespace OsuDataDistributeRestful
                 sw.Write("{\"code\":404}");
         }
 
-
-        private ParamCollection ParseUriParams(Uri uri)
-        {
-            ParamCollection dictionary = new ParamCollection();
-            var params_str = uri.Query;
-
-            if (!string.IsNullOrWhiteSpace(params_str))
-            {
-                string[] @params = params_str.Remove(0, 1).Split('&');
-
-                foreach (var param in @params)
-                {
-                    var t = param.Split('=');
-                    try
-                    {
-                        dictionary[t[0]] = t[1];
-                    }
-                    catch (IndexOutOfRangeException e)
-                    {
-                        dictionary[t[0]] = null;
-                    }
-                }
-            }
-            return dictionary;
-        }
-
         public override void OnExit()
         {
             m_http_quit = true;
-            m_httpd.Stop();
             if (Setting.EnableFileHttpServer)
                 fileHttpServer.Stop();
         }
