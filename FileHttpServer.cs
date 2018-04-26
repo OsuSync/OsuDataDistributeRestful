@@ -11,63 +11,68 @@ namespace OsuDataDistributeRestful
 {
     class FileHttpServer
     {
-        private HttpListener m_httpd = new HttpListener();
+        
         private bool m_quit = false;
 
         public FileHttpServer()
         {
-            m_httpd.Prefixes.Add(@"http://localhost:10801/");
-            m_httpd.IgnoreWriteExceptions = true;
+
         }
 
         public async void Start()
         {
-            m_httpd.Start();
-            while (!m_quit)
+            using (HttpListener m_httpd = new HttpListener())
             {
-                try
+                m_httpd.Start();
+                m_httpd.Prefixes.Add(@"http://localhost:10801/");
+                m_httpd.IgnoreWriteExceptions = true;
+
+                while (!m_quit)
                 {
-                    var ctx = await m_httpd.GetContextAsync();
-                    var request = ctx.Request;
-                    var response = ctx.Response;
-
-                    response.AppendHeader("Access-Control-Allow-Origin", "*");
-                    response.AppendHeader("Access-Control-Allow-Methods", "GET");
-                    response.AppendHeader("Access-Control-Allow-Headers", "x-requested-with,content-type");
-
-                    if (request.HttpMethod == "GET")
+                    try
                     {
-                        var filename = Path.Combine(Setting.FileServerRootPath, HttpUtility.UrlDecode(request.RawUrl).Remove(0, 1));
-                        if (!filename.Contains("..") && File.Exists(filename))
-                        {
-                            var ext = Path.GetExtension(filename);
-                            response.StatusCode = 200;
-                            response.ContentType = GetContentType(ext);
+                        var ctx = await m_httpd.GetContextAsync();
+                        var request = ctx.Request;
+                        var response = ctx.Response;
 
-                            using (var fp = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.Read))
+                        response.AppendHeader("Access-Control-Allow-Origin", "*");
+                        response.AppendHeader("Access-Control-Allow-Methods", "GET");
+                        response.AppendHeader("Access-Control-Allow-Headers", "x-requested-with,content-type");
+
+                        if (request.HttpMethod == "GET")
+                        {
+                            var filename = Path.Combine(Setting.FileServerRootPath, HttpUtility.UrlDecode(request.RawUrl).Remove(0, 1));
+                            if (!filename.Contains("..") && File.Exists(filename))
                             {
-                                response.ContentLength64 = fp.Length;
-                                fp.CopyTo(response.OutputStream);
+                                var ext = Path.GetExtension(filename);
+                                response.StatusCode = 200;
+                                response.ContentType = GetContentType(ext);
+
+                                using (var fp = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.Read))
+                                {
+                                    response.ContentLength64 = fp.Length;
+                                    fp.CopyTo(response.OutputStream);
+                                }
+                            }
+                            else
+                            {
+                                response.StatusCode = 404;
+                                using (var sw = new StreamWriter(response.OutputStream))
+                                    sw.Write("{\"code\":404}");
                             }
                         }
                         else
                         {
-                            response.StatusCode = 404;
+                            response.StatusCode = 403;
                             using (var sw = new StreamWriter(response.OutputStream))
-                                sw.Write("{\"code\":404}");
+                                sw.Write("{\"code\":403}");
                         }
+                        response.OutputStream.Close();
                     }
-                    else
+                    catch (HttpListenerException)
                     {
-                        response.StatusCode = 403;
-                        using (var sw = new StreamWriter(response.OutputStream))
-                            sw.Write("{\"code\":403}");
+                        continue;
                     }
-                    response.OutputStream.Close();
-                }
-                catch(HttpListenerException)
-                {
-                    continue;
                 }
             }
         }
@@ -75,7 +80,6 @@ namespace OsuDataDistributeRestful
         public void Stop()
         {
             m_quit = true;
-            m_httpd.Stop();
         }
 
         string GetContentType(string fileExtention)
