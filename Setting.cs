@@ -26,6 +26,20 @@ namespace OsuDataDistributeRestful
             get => Setting.FileServerRootPath;
         }
 
+        [Integer(MinValue = 5000,MaxValue = 65535,RequireRestart = true)]
+        public ConfigurationElement ApiPort
+        {
+            set => Setting.ApiPort = int.Parse(value);
+            get => Setting.ApiPort.ToString();
+        }
+
+        [Integer(MinValue = 5000, MaxValue = 65535,RequireRestart = true)]
+        public ConfigurationElement FilePort
+        {
+            set => Setting.FilePort = int.Parse(value);
+            get => Setting.FilePort.ToString();
+        }
+
         public void onConfigurationLoad()
         {
         }
@@ -44,5 +58,8 @@ namespace OsuDataDistributeRestful
         public static bool AllowLAN = false;
         public static bool EnableFileHttpServer = false;
         public static string FileServerRootPath = "";
+
+        public static int ApiPort = 10800;
+        public static int FilePort = 10801;
     }
 }

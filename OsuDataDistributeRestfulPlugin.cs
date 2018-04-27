@@ -26,7 +26,12 @@ namespace OsuDataDistributeRestful
             m_config_manager = new PluginConfigurationManager(this);
             m_config_manager.AddItem(new SettingIni());
 
-            apiServer = new ApiServer();
+            apiServer = new ApiServer(Setting.ApiPort);
+            if (Setting.EnableFileHttpServer)
+            {
+                fileHttpServer = new FileServer(Setting.FilePort);
+                Task.Run(() => fileHttpServer.Start());
+            }
         }
 
         #region Initializtion
@@ -71,12 +76,6 @@ namespace OsuDataDistributeRestful
             ORTDP_Initialize();
             RTPPD_Initialize();
             OLSP_Initialize();
-
-            if (Setting.EnableFileHttpServer)
-            {
-                fileHttpServer = new FileServer();
-                Task.Run(() => fileHttpServer.Start());
-            }
         }
 
         public override void OnEnable()

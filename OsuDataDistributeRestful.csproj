@@ -52,7 +52,7 @@
     <Compile Include="DefaultLanguage.cs" />
     <Compile Include="Server\Api\IApi.cs" />
     <Compile Include="Server\Api\OlspApis.cs" />
-    <Compile Include="Server\Api\OrtdpResources.cs" />
+    <Compile Include="Server\Api\OrtdpApis.cs" />
     <Compile Include="OsuDataDistributeRestfulPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server\RouteAttribute.cs" />
@@ -82,9 +82,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Olsp\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /y $(TargetPath) $(SolutionDir)\Sync\bin\$(ConfigurationName)\Plugins</PostBuildEvent>
