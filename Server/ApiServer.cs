@@ -112,12 +112,6 @@ namespace OsuDataDistributeRestful.Server
             {
                 return m_apiServer.m_route_dict.Keys.Select(template => template.Template);
             }
-
-            [Route("/api/{id}/test/{test}")]
-            public object Test(int id,string test)
-            {
-                return new { id, test };
-            }
         }
 
         public ApiServer(int port = 10800) : base(port)
