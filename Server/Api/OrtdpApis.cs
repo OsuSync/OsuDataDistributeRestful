@@ -46,7 +46,7 @@ namespace OsuDataDistributeRestful.Api
             return new { gameMode = mode, gameModeText = mode.ToString() };
         }
 
-        [Route("/playingMode/{id}")]
+        [Route("/playingMods/{id}")]
         public object GetPlayingMods(int id)
         {
             var manager = ortdp.TourneyListenerManagers[id];
@@ -55,7 +55,7 @@ namespace OsuDataDistributeRestful.Api
             return MakeModsInfo(mods);
         }
 
-        [Route("/playingMode")]
+        [Route("/playingMods")]
         public object GetPlayingMods()
         {
             var manager = ortdp.ListenerManager;

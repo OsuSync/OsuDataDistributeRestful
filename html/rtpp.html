@@ -88,12 +88,12 @@
 		}
 		
 		//get pp format and hit count format
-		get(web+"/api/rtppd/pp/format").then(function(format_json)
+		get(web+"/api/rtppd/ppFormat").then(function(format_json)
 		{
 			pp_formatter=new Formatter(format_json.format);
 		});
 		
-		get(web+"/api/rtppd/hit_count/format").then(function(format_json)
+		get(web+"/api/rtppd/hitCountFormat").then(function(format_json)
 		{
 			hit_count_formatter=new Formatter(format_json.format);
 		});
@@ -112,13 +112,13 @@
 
 		//get pp and hit count data
 		async function get_data(){
-			target_pp = await get(web+"/api/rtppd/0/pp");
+			target_pp = await get(web+"/api/rtppd/pp");
 			if(current_pp===null)
 				current_pp=target_pp;
 
-			hit_count=await get(web+"/api/rtppd/0/hit_count");
+			hit_count=await get(web+"/api/rtppd/hitCount");
 			
-			playing=(await get(web+"/api/rtppd/0/playing")).playing;
+			playing=(await get(web+"/api/rtppd/playingStatus")).playing;
 			
 			setTimeout(get_data,get_interval);
 		}
