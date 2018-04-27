@@ -1,11 +1,6 @@
-﻿using Newtonsoft.Json;
-using Sync.Tools;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -70,7 +65,7 @@ namespace OsuDataDistributeRestful.Server
 
                         if (request.HttpMethod == "GET")
                         {
-                            OnResponse(request,response);
+                            OnResponse(request, response);
                         }
                         else
                         {
@@ -95,8 +90,21 @@ namespace OsuDataDistributeRestful.Server
                 sw.Write("{\"code\":404}");
         }
 
-        protected virtual void OnStarted() { }
-        protected abstract void OnResponse(HttpListenerRequest request,HttpListenerResponse response);
-        protected virtual void OnStop() { }
+        protected void Return500(HttpListenerResponse response)
+        {
+            response.StatusCode = 500;
+            using (var sw = new StreamWriter(response.OutputStream))
+                sw.Write("{\"code\":500}");
+        }
+
+        protected virtual void OnStarted()
+        {
+        }
+
+        protected abstract void OnResponse(HttpListenerRequest request, HttpListenerResponse response);
+
+        protected virtual void OnStop()
+        {
+        }
     }
 }

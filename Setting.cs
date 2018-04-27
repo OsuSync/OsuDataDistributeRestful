@@ -1,6 +1,5 @@
 ﻿using Sync.Tools;
 using Sync.Tools.ConfigGUI;
-using System;
 
 namespace OsuDataDistributeRestful
 {
@@ -10,7 +9,8 @@ namespace OsuDataDistributeRestful
         public ConfigurationElement AllowLAN
         {
             set => Setting.AllowLAN = bool.Parse(value);
-            get => Setting.AllowLAN.ToString(); }
+            get => Setting.AllowLAN.ToString();
+        }
 
         [Bool(RequireRestart = true)]
         public ConfigurationElement EnableFileHttpServer
@@ -18,7 +18,6 @@ namespace OsuDataDistributeRestful
             set => Setting.EnableFileHttpServer = bool.Parse(value);
             get => Setting.EnableFileHttpServer.ToString();
         }
-
 
         [Path(IsDirectory = true)]
         public ConfigurationElement FileServerRootPath

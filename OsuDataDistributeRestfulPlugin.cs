@@ -1,15 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using OsuDataDistributeRestful.Api;
 using OsuDataDistributeRestful.Server;
 using Sync.Plugins;
 using Sync.Tools;
 using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace OsuDataDistributeRestful
@@ -36,15 +30,16 @@ namespace OsuDataDistributeRestful
         }
 
         #region Initializtion
+
         private void ORTDP_Initialize()
         {
             var plugin = getHoster().EnumPluings().Where(p => p.Name == "OsuRTDataProvider").FirstOrDefault();
             if (plugin != null)
             {
-                new Ortdp.OrtdpResourceInitializer(plugin, apiServer);
+                apiServer.RegisterResource(new OrtdpApis(plugin));
             }
             else
-                IO.CurrentIO.WriteColor($"[ODDR]Not Found RealTimePPDisplayer", ConsoleColor.Red);
+                IO.CurrentIO.WriteColor($"[ODDR]Not Found OsuRTDataProvider", ConsoleColor.Red);
         }
 
         private void RTPPD_Initialize()
@@ -52,7 +47,7 @@ namespace OsuDataDistributeRestful
             var plugin = getHoster().EnumPluings().Where(p => p.Name == "RealTimePPDisplayer").FirstOrDefault();
             if (plugin != null)
             {
-                new Rtppd.RtppdResourceInitializer(plugin, apiServer);
+                apiServer.RegisterResource(new RtppdApis(plugin));
             }
             else
                 IO.CurrentIO.WriteColor($"[ODDR]Not Found RealTimePPDisplayer", ConsoleColor.Red);
@@ -60,15 +55,16 @@ namespace OsuDataDistributeRestful
 
         private void OLSP_Initialize()
         {
-            var plugin = getHoster().EnumPluings().Where(p => p.Name== "OsuLiveStatusPanelPlugin").FirstOrDefault();
+            var plugin = getHoster().EnumPluings().Where(p => p.Name == "OsuLiveStatusPanelPlugin").FirstOrDefault();
             if (plugin != null)
             {
-                new Olsp.OlspResourceInitializer(plugin, apiServer);
+                apiServer.RegisterResource(new OlspApis(plugin));
             }
             else
                 IO.CurrentIO.WriteColor($"[ODDR]Not Found OsuLiveStatusPanel", ConsoleColor.Red);
         }
-        #endregion
+
+        #endregion Initializtion
 
         private void Initialize()
         {
@@ -79,7 +75,7 @@ namespace OsuDataDistributeRestful
             if (Setting.EnableFileHttpServer)
             {
                 fileHttpServer = new FileServer();
-                Task.Run(()=>fileHttpServer.Start());
+                Task.Run(() => fileHttpServer.Start());
             }
         }
 
@@ -88,8 +84,7 @@ namespace OsuDataDistributeRestful
             Sync.Tools.IO.CurrentIO.WriteColor(PLUGIN_NAME + " By " + PLUGIN_AUTHOR, ConsoleColor.DarkCyan);
             Initialize();
 
-
-            base.EventBus.BindEvent<PluginEvents.ProgramReadyEvent>(e=> apiServer.Start());
+            base.EventBus.BindEvent<PluginEvents.ProgramReadyEvent>(e => apiServer.Start());
         }
 
         public override void OnExit()

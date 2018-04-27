@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 
 namespace OsuDataDistributeRestful.Server
 {
-    public class FileServer:ServerBase
+    public class FileServer : ServerBase
     {
-        public FileServer(int port=10081):base(port)
+        public FileServer(int port = 10081) : base(port)
         {
-
         }
 
         protected override void OnResponse(HttpListenerRequest request, HttpListenerResponse response)
@@ -39,22 +33,27 @@ namespace OsuDataDistributeRestful.Server
             }
         }
 
-        string GetContentType(string fileExtention)
+        private string GetContentType(string fileExtention)
         {
             switch (fileExtention)
             {
                 case ".htm":
                 case ".html":
                     return "text/html";
+
                 case ".jpg":
                 case ".jpeg":
                     return "image/jpeg";
+
                 case ".png":
                     return "image/png";
+
                 case ".ogg":
                     return "audio/ogg";
+
                 case ".mp3":
                     return "audio/mpeg";
+
                 default:
                     return "application/octet-stream";
             }
