@@ -47,18 +47,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataResult.cs" />
+    <Compile Include="Server\ApiServer.cs" />
+    <Compile Include="Server\DataResult.cs" />
     <Compile Include="DefaultLanguage.cs" />
+    <Compile Include="Server\Api\IApi.cs" />
     <Compile Include="Olsp\OlspResourceInitializer.cs" />
     <Compile Include="Ortdp\OrtdpResourceInitializer.cs" />
     <Compile Include="OsuDataDistributeRestfulPlugin.cs" />
-    <Compile Include="ParamCollection.cs" />
+    <Compile Include="Server\ParamCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RouteTemplate.cs" />
+    <Compile Include="Server\RouteTemplate.cs" />
     <Compile Include="Rtppd\RestfulDisplayer.cs" />
     <Compile Include="Rtppd\RtppdResourceInitializer.cs" />
+    <Compile Include="Server\ServerBase.cs" />
     <Compile Include="Setting.cs" />
-    <Compile Include="FileHttpServer.cs" />
+    <Compile Include="Server\FileServer.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\osuSync-Plugins\MemoryReader\OsuRTDataProvider.csproj">

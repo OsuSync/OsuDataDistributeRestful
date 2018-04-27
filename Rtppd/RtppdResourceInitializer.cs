@@ -1,4 +1,5 @@
 ﻿using OsuDataDistributeRestful;
+using OsuDataDistributeRestful.Server;
 using RealTimePPDisplayer;
 using Sync.Plugins;
 using System;
@@ -21,13 +22,13 @@ namespace OsuDataDistributeRestful.Rtppd
             return displayer;
         }
 
-        public RtppdResourceInitializer(Plugin rtppd_plugin,OsuDataDistributeRestfulPlugin oddr)
+        public RtppdResourceInitializer(Plugin rtppd_plugin,ApiServer api)
         {
             var rtppd = rtppd_plugin as RealTimePPDisplayerPlugin;
 
             rtppd.RegisterDisplayer("restful", (id) => m_restfuile_displayers[id ?? 0] = new RestfulDisplayer(id));
 
-            oddr.RegisterResource("/api/rtppd/{id}/playing", (p) => {
+            api.RegisterResource("/api/rtppd/{id}/playing", (p) => {
                 RestfulDisplayer displayer = GetDisplayer(p.GetInt("id") ?? 0);
                 return new
                 {
@@ -36,7 +37,7 @@ namespace OsuDataDistributeRestful.Rtppd
                 };
             });
 
-            oddr.RegisterResource("/api/rtppd/{id}/pp", (p) =>
+            api.RegisterResource("/api/rtppd/{id}/pp", (p) =>
             {
                 RestfulDisplayer displayer = GetDisplayer(p.GetInt("id") ?? 0);
 
@@ -63,7 +64,7 @@ namespace OsuDataDistributeRestful.Rtppd
                 };
             });
 
-            oddr.RegisterResource("/api/rtppd/{id}/hit_count", (p) =>
+            api.RegisterResource("/api/rtppd/{id}/hit_count", (p) =>
             {
                 RestfulDisplayer displayer = GetDisplayer(p.GetInt("id") ?? 0);
 
@@ -88,11 +89,11 @@ namespace OsuDataDistributeRestful.Rtppd
                 };
             });
 
-            oddr.RegisterResource("/api/rtppd/pp/format", (p) => new { format=StringFormatter.GetPPFormatter().Format });
+            api.RegisterResource("/api/rtppd/pp/format", (p) => new { format=StringFormatter.GetPPFormatter().Format });
 
-            oddr.RegisterResource("/api/rtppd/hit_count/format", (p) => new { format=StringFormatter.GetHitCountFormatter().Format });
+            api.RegisterResource("/api/rtppd/hit_count/format", (p) => new { format=StringFormatter.GetHitCountFormatter().Format });
 
-            oddr.RegisterResource("/api/rtppd/{id}/pp/formatted_content", (p) => {
+            api.RegisterResource("/api/rtppd/{id}/pp/formatted_content", (p) => {
                 RestfulDisplayer displayer = GetDisplayer(p.GetInt("id") ?? 0);
                 return new
                 {
@@ -101,7 +102,7 @@ namespace OsuDataDistributeRestful.Rtppd
                 };
             });
 
-            oddr.RegisterResource("/api/rtppd/{id}/hit_count/formatted_content", (p) => {
+            api.RegisterResource("/api/rtppd/{id}/hit_count/formatted_content", (p) => {
                 RestfulDisplayer displayer = GetDisplayer(p.GetInt("id") ?? 0);
                 return new
                 {

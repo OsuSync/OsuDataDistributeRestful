@@ -1,4 +1,5 @@
-﻿using OsuRTDataProvider;
+﻿using OsuDataDistributeRestful.Server;
+using OsuRTDataProvider;
 using OsuRTDataProvider.Listen;
 using OsuRTDataProvider.Mods;
 using Sync.Plugins;
@@ -14,19 +15,19 @@ namespace OsuDataDistributeRestful.Ortdp
 {
     class OrtdpResourceInitializer
     {
-        public OrtdpResourceInitializer(Plugin plugin, OsuDataDistributeRestfulPlugin oddr)
+        public OrtdpResourceInitializer(Plugin plugin, ApiServer api)
         {
             var ortdp = plugin as OsuRTDataProviderPlugin;
-            oddr.RegisterResource("/api/ortdp/tourney_mode", (p) => new { value = ortdp.TourneyListenerManagers != null });
-            oddr.RegisterResource("/api/ortdp/listener_count", (p) => new { count = ortdp.TourneyListenerManagersCount });
+            api.RegisterResource("/api/ortdp/tourney_mode", (p) => new { value = ortdp.TourneyListenerManagers != null });
+            api.RegisterResource("/api/ortdp/listener_count", (p) => new { count = ortdp.TourneyListenerManagersCount });
 
-            oddr.RegisterResource("/api/ortdp/{id}/playing_time", (p) =>
+            api.RegisterResource("/api/ortdp/{id}/playing_time", (p) =>
              {
                  var manager = GetListenManager(ortdp, p);
                  return new { playing_time = manager?.GetCurrentData(ProvideDataMask.Time).Time };
              });
 
-            oddr.RegisterResource("/api/ortdp/{id}/beatmap", (p) =>
+            api.RegisterResource("/api/ortdp/{id}/beatmap", (p) =>
             {
                 var manager = GetListenManager(ortdp, p);
                 var beatmap = manager?.GetCurrentData(ProvideDataMask.Beatmap).Beatmap;
@@ -50,7 +51,7 @@ namespace OsuDataDistributeRestful.Ortdp
                 };
             });
 
-            oddr.RegisterResource("/api/ortdp/audio_file",(p)=>
+            api.RegisterResource("/api/ortdp/audio_file",(p)=>
             {
                 var manager = ortdp.ListenerManager;
                 var beatmap = manager?.GetCurrentData(ProvideDataMask.Beatmap).Beatmap;
@@ -63,7 +64,7 @@ namespace OsuDataDistributeRestful.Ortdp
                 };
             });
 
-            oddr.RegisterResource("/api/ortdp/{id}/hit_count", (p) =>
+            api.RegisterResource("/api/ortdp/{id}/hit_count", (p) =>
             {
                 var manager = GetListenManager(ortdp, p);
                 var hitcount = manager?.GetCurrentData(ProvideDataMask.HitCount|ProvideDataMask.Combo);
@@ -80,7 +81,7 @@ namespace OsuDataDistributeRestful.Ortdp
                 };
             });
 
-            oddr.RegisterResource("/api/ortdp/{id}/hp", (p) =>
+            api.RegisterResource("/api/ortdp/{id}/hp", (p) =>
             {
                 var manager = GetListenManager(ortdp, p);
                 double hp = manager?.GetCurrentData(ProvideDataMask.HealthPoint).HealthPoint??0;
@@ -88,7 +89,7 @@ namespace OsuDataDistributeRestful.Ortdp
                 return new{hp};
             });
 
-            oddr.RegisterResource("/api/ortdp/{id}/acc", (p) =>
+            api.RegisterResource("/api/ortdp/{id}/acc", (p) =>
             {
                 var manager = GetListenManager(ortdp, p);
                 double acc = manager?.GetCurrentData(ProvideDataMask.Accuracy).HealthPoint ?? 0;
@@ -96,7 +97,7 @@ namespace OsuDataDistributeRestful.Ortdp
                 return new{acc};
             });
 
-            oddr.RegisterResource("/api/ortdp/{id}/game_mode", (p) =>
+            api.RegisterResource("/api/ortdp/{id}/game_mode", (p) =>
             {
                 var manager = GetListenManager(ortdp, p);
                 var mode = manager?.GetCurrentData(ProvideDataMask.GameMode).PlayMode;
@@ -104,7 +105,7 @@ namespace OsuDataDistributeRestful.Ortdp
                 return new { game_mode = mode,game_mode_text=mode.ToString()};
             });
 
-            oddr.RegisterResource("/api/ortdp/{id}/mods", (p) =>
+            api.RegisterResource("/api/ortdp/{id}/mods", (p) =>
             {
                 var manager = GetListenManager(ortdp, p);
                 var mods = manager?.GetCurrentData(ProvideDataMask.Mods).Mods??ModsInfo.Empty;
@@ -118,7 +119,7 @@ namespace OsuDataDistributeRestful.Ortdp
                 };
             });
 
-            oddr.RegisterResource("/api/ortdp/{id}/score", (p) =>
+            api.RegisterResource("/api/ortdp/{id}/score", (p) =>
             {
                 var manager = GetListenManager(ortdp, p);
                 var score = manager?.GetCurrentData(ProvideDataMask.Score).Score??0;
@@ -126,7 +127,7 @@ namespace OsuDataDistributeRestful.Ortdp
                 return new{score};
             });
 
-            oddr.RegisterResource("/api/ortdp/{id}/game_status", (p) =>
+            api.RegisterResource("/api/ortdp/{id}/game_status", (p) =>
             {
                 var manager = GetListenManager(ortdp, p);
                 var status = manager?.GetCurrentData((ProvideDataMask)0).Status?? OsuStatus.Unkonwn;
