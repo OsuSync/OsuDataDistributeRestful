@@ -61,7 +61,7 @@ namespace OsuDataDistributeRestful.Api
             };
         }
 
-        [Route("/modsImage")]
+        [Route("/image/mods")]
         public ActionResult GetModsImage()
         {
             var result = olsp.GetData("olsp_mod_save_path") as string;
