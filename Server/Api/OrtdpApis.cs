@@ -103,11 +103,17 @@ namespace OsuDataDistributeRestful.Api
             var beatmap = manager?.GetCurrentData(ProvideDataMask.Beatmap).Beatmap;
             string filename = Path.Combine(beatmap.Folder, beatmap.AudioFilename);
 
-            var fs = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
-            return new ActionResult(fs)
+            if (File.Exists(filename))
             {
-                ContentType = "audio/mpeg"
-            };
+                var fs = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
+
+                return new ActionResult(fs)
+                {
+                    ContentType = "audio/mpeg"
+                };
+            }
+
+            return new ActionResult(new { code = 404 }, 404);
         }
 
         [Route("/playintInfo/{id}")]

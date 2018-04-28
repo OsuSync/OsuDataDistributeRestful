@@ -37,13 +37,17 @@ namespace OsuDataDistributeRestful.Api
             var result = olsp.GetData("olsp_bg_path") as string;
             if (string.IsNullOrEmpty(result)) return new ActionResult(null);
 
-            string ext = Path.GetExtension(result);
-            var fs = File.Open(result, FileMode.Open, FileAccess.Read, FileShare.Read);
-
-            return new ActionResult(fs)
+            if (File.Exists(result))
             {
-                ContentType = GetContentType(ext)
-            };
+                var fs = File.Open(result, FileMode.Open, FileAccess.Read, FileShare.Read);
+                string ext = Path.GetExtension(result);
+
+                return new ActionResult(fs)
+                {
+                    ContentType = GetContentType(ext)
+                };
+            }
+            return new ActionResult(new { code = 404, message = "background image not found" }, 404);
         }
 
         [Route("/image/output")]
@@ -52,13 +56,17 @@ namespace OsuDataDistributeRestful.Api
             var result = olsp.GetData("olsp_bg_save_path") as string;
             if (string.IsNullOrEmpty(result)) return new ActionResult(null);
 
-            string ext = Path.GetExtension(result);
-            var fs = File.Open(result, FileMode.Open, FileAccess.Read, FileShare.Read);
-
-            return new ActionResult(fs)
+            if (File.Exists(result))
             {
-                ContentType = GetContentType(ext)
-            };
+                var fs = File.Open(result, FileMode.Open, FileAccess.Read, FileShare.Read);
+                string ext = Path.GetExtension(result);
+
+                return new ActionResult(fs)
+                {
+                    ContentType = GetContentType(ext)
+                };
+            }
+            return new ActionResult(new { code = 404, message = "output image not found" }, 404);
         }
 
         [Route("/image/mods")]
@@ -67,13 +75,17 @@ namespace OsuDataDistributeRestful.Api
             var result = olsp.GetData("olsp_mod_save_path") as string;
             if (string.IsNullOrEmpty(result)) return new ActionResult(null);
 
-            string ext = Path.GetExtension(result);
-            var fs = File.Open(result, FileMode.Open, FileAccess.Read, FileShare.Read);
-
-            return new ActionResult(fs)
+            if(File.Exists(result))
             {
-                ContentType = GetContentType(ext)
-            };
+                var fs = File.Open(result, FileMode.Open, FileAccess.Read, FileShare.Read);
+                string ext = Path.GetExtension(result);
+
+                return new ActionResult(fs)
+                {
+                    ContentType = GetContentType(ext)
+                };
+            }
+            return new ActionResult(new { code = 404, message = "mods image not found" }, 404);
         }
 
         private string GetContentType(string fileExtention)

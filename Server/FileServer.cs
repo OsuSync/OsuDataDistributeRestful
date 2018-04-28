@@ -40,6 +40,10 @@ namespace OsuDataDistributeRestful.Server
                 case ".htm":
                 case ".html":
                     return "text/html";
+                case ".js":
+                    return "text/javascript";
+                case ".css":
+                    return "text/css";
 
                 case ".jpg":
                 case ".jpeg":
