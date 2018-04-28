@@ -57,7 +57,7 @@ namespace OsuDataDistributeRestful
     {
         public static bool AllowLAN = false;
         public static bool EnableFileHttpServer = false;
-        public static string FileServerRootPath = "";
+        public static string FileServerRootPath = @"..\html";
 
         public static int ApiPort = 10800;
         public static int FilePort = 10801;

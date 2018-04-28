@@ -12,24 +12,30 @@ namespace OsuDataDistributeRestful.Server
 
         protected override void OnResponse(HttpListenerRequest request, HttpListenerResponse response)
         {
-            var filename = Path.Combine(Setting.FileServerRootPath, HttpUtility.UrlDecode(request.RawUrl).Remove(0, 1));
-            if (!filename.Contains("..") && File.Exists(filename))
+            var url = HttpUtility.UrlDecode(request.RawUrl).Remove(0, 1);
+            var filename = Path.Combine(Setting.FileServerRootPath, url);
+            if (!url.Contains(".."))
             {
-                var ext = Path.GetExtension(filename);
-                response.StatusCode = 200;
-                response.ContentType = GetContentType(ext);
-
-                using (var fp = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.Read))
+                if (File.Exists(filename))
                 {
-                    response.ContentLength64 = fp.Length;
-                    fp.CopyTo(response.OutputStream);
+                    var ext = Path.GetExtension(filename);
+                    response.StatusCode = 200;
+                    response.ContentType = GetContentType(ext);
+
+                    using (var fp = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    {
+                        response.ContentLength64 = fp.Length;
+                        fp.CopyTo(response.OutputStream);
+                    }
                 }
+                else
+                    Return404(response);
             }
             else
             {
-                response.StatusCode = 404;
+                response.StatusCode = 403;
                 using (var sw = new StreamWriter(response.OutputStream))
-                    sw.Write("{\"code\":404}");
+                    sw.Write("{\"code\":403}");
             }
         }
 
