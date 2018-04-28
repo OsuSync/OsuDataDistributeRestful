@@ -48,7 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Server\ApiServer.cs" />
-    <Compile Include="Server\StreamResult.cs" />
+    <Compile Include="Server\ActionResult.cs" />
     <Compile Include="DefaultLanguage.cs" />
     <Compile Include="Server\Api\IApi.cs" />
     <Compile Include="Server\Api\OlspApis.cs" />

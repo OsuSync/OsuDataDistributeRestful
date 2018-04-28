@@ -14,63 +14,63 @@ namespace OsuDataDistributeRestful.Api
 
         public OlspApis(Plugin olsp_plguin)
         {
-            OsuLiveStatusPanelPlugin olsp = olsp_plguin as OsuLiveStatusPanelPlugin;
+            olsp = olsp_plguin as OsuLiveStatusPanelPlugin;
         }
 
         [Route("/{providable_data_name}")]
-        public object GetDictValue(string providable_data_name)
+        public ActionResult GetDictValue(string providable_data_name)
         {
             if (!olsp.EnumProvidableDataName().Any(p => p == providable_data_name))
-                return null;
+                return new ActionResult(new { code = 404}, 404);
 
             var result = olsp.GetData(providable_data_name);
-            return new
+            return new ActionResult(new
             {
                 status = result != null,
                 value = result
-            };
+            });
         }
 
         [Route("/backgroundImage")]
-        public StreamResult GetBackgoundImage()
+        public ActionResult GetBackgoundImage()
         {
             var result = olsp.GetData("olsp_bg_path") as string;
-            if (string.IsNullOrEmpty(result)) return new StreamResult(null);
+            if (string.IsNullOrEmpty(result)) return new ActionResult(null);
 
             string ext = Path.GetExtension(result);
             var fs = File.Open(result, FileMode.Open, FileAccess.Read, FileShare.Read);
 
-            return new StreamResult(fs)
+            return new ActionResult(fs)
             {
                 ContentType = GetContentType(ext)
             };
         }
 
         [Route("/outputBackgroundImage")]
-        public StreamResult GetOuputBackgoundImage()
+        public ActionResult GetOuputBackgoundImage()
         {
             var result = olsp.GetData("olsp_bg_save_path") as string;
-            if (string.IsNullOrEmpty(result)) return new StreamResult(null);
+            if (string.IsNullOrEmpty(result)) return new ActionResult(null);
 
             string ext = Path.GetExtension(result);
             var fs = File.Open(result, FileMode.Open, FileAccess.Read, FileShare.Read);
 
-            return new StreamResult(fs)
+            return new ActionResult(fs)
             {
                 ContentType = GetContentType(ext)
             };
         }
 
         [Route("/modsImage")]
-        public StreamResult GetModsImage()
+        public ActionResult GetModsImage()
         {
             var result = olsp.GetData("olsp_mod_save_path") as string;
-            if (string.IsNullOrEmpty(result)) return new StreamResult(null);
+            if (string.IsNullOrEmpty(result)) return new ActionResult(null);
 
             string ext = Path.GetExtension(result);
             var fs = File.Open(result, FileMode.Open, FileAccess.Read, FileShare.Read);
 
-            return new StreamResult(fs)
+            return new ActionResult(fs)
             {
                 ContentType = GetContentType(ext)
             };

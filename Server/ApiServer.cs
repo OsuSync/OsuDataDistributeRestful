@@ -175,27 +175,24 @@ namespace OsuDataDistributeRestful.Server
                 try
                 {
                     var result = CallMethod(matched_route.Route.Value, matched_route.Params);
+                    response.ContentType = result.ContentType;
 
-                    if (result is StreamResult sr)
+                    if (result.Stream != null)
                     {
-                        if (sr.Data != null)
-                        {
-                            response.ContentType = sr.ContentType;
-                            sr.Data.CopyTo(response.OutputStream);
-                            sr.Data.Dispose();
-                        }
-                        else
-                        {
-                            Return404(response);
-                        }
+                        result.Stream.CopyTo(response.OutputStream);
+                        result.Stream.Dispose();
                     }
-                    else
+                    else if (result.Data != null)
                     {
-                        var json = JsonConvert.SerializeObject(result);
-                        response.StatusCode = 200;
+                        var json = JsonConvert.SerializeObject(result.Data);
+                        response.StatusCode = result.Code;
 
                         using (var sw = new StreamWriter(response.OutputStream))
                             sw.Write(json);
+                    }
+                    else
+                    {
+                        Return404(response);
                     }
                 }
                 catch(Exception e)
@@ -210,12 +207,16 @@ namespace OsuDataDistributeRestful.Server
             }
         }
 
-        private object CallMethod(Method method,ParamCollection @params)
+        private ActionResult CallMethod(Method method,ParamCollection @params)
         {
             var params_instance=method.MethodInfo.GetParameters()
                 .Select(p => TypeConvert(p.ParameterType, @params.TryGetValue(p.Name)))
                 .ToArray();
-            return method.MethodInfo.Invoke(method.Instance, params_instance);
+            var ret = method.MethodInfo.Invoke(method.Instance, params_instance);
+
+            if (!(ret is ActionResult))
+                ret = new ActionResult(ret);
+            return ret as ActionResult;
         }
 
         private object TypeConvert(Type type,string str)

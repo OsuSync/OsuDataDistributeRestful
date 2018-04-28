@@ -97,14 +97,14 @@ namespace OsuDataDistributeRestful.Api
         }
 
         [Route("/audioFile")]
-        public StreamResult GetAudioFile()
+        public ActionResult GetAudioFile()
         {
             var manager = ortdp.ListenerManager;
             var beatmap = manager?.GetCurrentData(ProvideDataMask.Beatmap).Beatmap;
             string filename = Path.Combine(beatmap.Folder, beatmap.AudioFilename);
 
             var fs = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
-            return new StreamResult(fs)
+            return new ActionResult(fs)
             {
                 ContentType = "audio/mpeg"
             };
