@@ -61,7 +61,6 @@ namespace OsuDataDistributeRestful.Server
                         response.AppendHeader("Access-Control-Allow-Headers", "x-requested-with,content-type");
 
                         response.ContentEncoding = Encoding.UTF8;
-                        response.ContentType = "text/json; charset=UTF-8";
 
                         if (request.HttpMethod == "GET")
                         {

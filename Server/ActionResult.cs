@@ -14,7 +14,7 @@ namespace OsuDataDistributeRestful.Server
 
         public ActionResult(object a,int code=200)
         {
-            ContentType = "text/json";
+            ContentType = "text/json; charset=UTF-8";
             Data = a;
             Code = code;
         }

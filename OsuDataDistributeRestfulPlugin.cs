@@ -30,7 +30,7 @@ namespace OsuDataDistributeRestful
             if (Setting.EnableFileHttpServer)
             {
                 fileHttpServer = new FileServer(Setting.FilePort);
-                Task.Run(() => fileHttpServer.Start());
+                fileHttpServer.Start();
             }
         }
 
@@ -89,7 +89,7 @@ namespace OsuDataDistributeRestful
         public override void OnExit()
         {
             if (Setting.EnableFileHttpServer)
-                fileHttpServer.Stop();
+                fileHttpServer?.Stop();
         }
     }
 }
