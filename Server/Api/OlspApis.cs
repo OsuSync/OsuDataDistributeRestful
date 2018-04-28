@@ -31,7 +31,7 @@ namespace OsuDataDistributeRestful.Api
             });
         }
 
-        [Route("/backgroundImage")]
+        [Route("/image/background")]
         public ActionResult GetBackgoundImage()
         {
             var result = olsp.GetData("olsp_bg_path") as string;
@@ -46,7 +46,7 @@ namespace OsuDataDistributeRestful.Api
             };
         }
 
-        [Route("/outputBackgroundImage")]
+        [Route("/image/output")]
         public ActionResult GetOuputBackgoundImage()
         {
             var result = olsp.GetData("olsp_bg_save_path") as string;

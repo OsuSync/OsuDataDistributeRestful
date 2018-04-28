@@ -177,10 +177,10 @@ namespace OsuDataDistributeRestful.Server
                     var result = CallMethod(matched_route.Route.Value, matched_route.Params);
                     response.ContentType = result.ContentType;
 
-                    if (result.Stream != null)
+                    if (result.Data is Stream s)
                     {
-                        result.Stream.CopyTo(response.OutputStream);
-                        result.Stream.Dispose();
+                        s.CopyTo(response.OutputStream);
+                        s.Dispose();
                     }
                     else if (result.Data != null)
                     {

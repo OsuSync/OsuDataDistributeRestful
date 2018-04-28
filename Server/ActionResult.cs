@@ -10,7 +10,6 @@ namespace OsuDataDistributeRestful.Server
         public string ContentType { get; set; } = "application/octet-stream";
         public int Code { get; private set; } = 200;
 
-        public Stream Stream { get; private set; }
         public object Data { get; private set; }
 
         public ActionResult(object a,int code=200)
@@ -22,7 +21,7 @@ namespace OsuDataDistributeRestful.Server
 
         public ActionResult(Stream s, int code = 200)
         {
-            Stream = s;
+            Data = s;
             Code = code;
         }
     }
