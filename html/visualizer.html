@@ -104,7 +104,7 @@
         async function get_loop()
         {
             let time=(await get(web+'/api/ortdp/playingTime')).time/1000.0;
-            let beatmap=await get(web+'/api/ortdp/beatmap');
+            let beatmap=await get(web+'/api/ortdp/beatmapInfo');
             let mods=await get(web+'/api/ortdp/playingMods');
 
             let folder=beatmap.folder;

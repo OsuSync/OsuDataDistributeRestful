@@ -80,7 +80,7 @@ namespace OsuDataDistributeRestful.Api
         public object GetPlayingTime()
             => new { time = ortdp.ListenerManager.GetCurrentData(ProvideDataMask.Time).Time };
 
-        [Route("/beatmap/{id}")]
+        [Route("/beatmapInfo/{id}")]
         public object GetBeatmapInfo(int id)
         {
             var beatmap = ortdp.TourneyListenerManagers[id]?.GetCurrentData(ProvideDataMask.Beatmap).Beatmap;
@@ -88,12 +88,23 @@ namespace OsuDataDistributeRestful.Api
             return MakeBeatmap(beatmap);
         }
 
-        [Route("/beatmap")]
+        [Route("/beatmapInfo")]
         public object GetBeatmapInfo()
         {
             var beatmap = ortdp.ListenerManager.GetCurrentData(ProvideDataMask.Beatmap).Beatmap;
 
             return MakeBeatmap(beatmap);
+        }
+
+        [Route("/beatmap")]
+        public object GetBeatmap()
+        {
+            var beatmap = ortdp.ListenerManager.GetCurrentData(ProvideDataMask.Beatmap).Beatmap;
+
+            if(File.Exists(beatmap.FilenameFull))
+                return new ActionResult(File.OpenRead(beatmap.FilenameFull)) { ContentType = "text/plain" };
+
+            return new ActionResult(new { Code = 404,message="no found beatmap file" }, 404);
         }
 
         [Route("/audioFile")]
