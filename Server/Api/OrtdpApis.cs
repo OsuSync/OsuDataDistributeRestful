@@ -127,7 +127,7 @@ namespace OsuDataDistributeRestful.Api
             return new ActionResult(new { code = 404 },200);
         }
 
-        [Route("/playintInfo/{id}")]
+        [Route("/playingInfo/{id}")]
         public object GetPlayingInfo(int id)
         {
             var info=ortdp.TourneyListenerManagers[id]?.GetCurrentData(
@@ -140,7 +140,7 @@ namespace OsuDataDistributeRestful.Api
             return MakePlayingInfo(info);
         }
 
-        [Route("/playintInfo")]
+        [Route("/playingInfo")]
         public object GetPlayingInfo()
         {
             var info = ortdp.ListenerManager.GetCurrentData(
