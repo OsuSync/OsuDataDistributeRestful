@@ -43,7 +43,7 @@
         var current_audio_buffer=null;
         var src = context.createBufferSource();
         var analyser = context.createAnalyser();
-        analyser.smoothingTimeConstant=0.6;
+        analyser.smoothingTimeConstant=0.75;
         src.connect(analyser);
 
         //链接音频输出设备
