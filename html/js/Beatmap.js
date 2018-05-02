@@ -14,7 +14,8 @@ class Beatmap{
         this.difficulty={};
         this.timingPoints=[];
         
-        this._parse(str.split(/\r?\n/));
+        if(str!=null)
+            this._parse(str.split(/\r?\n/));
     }
     
     _parse(lines){
@@ -64,12 +65,16 @@ class Beatmap{
     }
     
     getTiming(time){
+        let lastTiming=this.timingPoints[0];
+
         for(let timing of this.timingPoints){
             if(timing.beatChange){
-                if(time>=timing.offset)
-                    return timing;
+                if(time<=timing.offset)
+                    return lastTiming;
+                lastTiming=timing;
             }
         }
+        return lastTiming;
     }
     
     _parseTiming(str){

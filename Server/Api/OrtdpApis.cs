@@ -102,9 +102,9 @@ namespace OsuDataDistributeRestful.Api
             var beatmap = ortdp.ListenerManager.GetCurrentData(ProvideDataMask.Beatmap).Beatmap;
 
             if(File.Exists(beatmap.FilenameFull))
-                return new ActionResult(File.OpenRead(beatmap.FilenameFull)) { ContentType = "text/plain" };
+                return new ActionResult(File.OpenRead(beatmap.FilenameFull)) { ContentType = "text/plain; charset=utf-8" };
 
-            return new ActionResult(new { Code = 404,message="no found beatmap file" }, 404);
+            return new ActionResult(new { code = 404,message="no found beatmap file" });
         }
 
         [Route("/audioFile")]
@@ -124,7 +124,7 @@ namespace OsuDataDistributeRestful.Api
                 };
             }
 
-            return new ActionResult(new { code = 404 }, 404);
+            return new ActionResult(new { code = 404 },200);
         }
 
         [Route("/playintInfo/{id}")]

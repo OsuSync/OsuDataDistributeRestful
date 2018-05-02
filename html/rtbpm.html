@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Displayer</title>
+
+    <style type="text/css">
+    body
+    {
+        background-color:#66CCFF;
+    }
+
+    .text
+    {
+        color:#FFFFFF;
+        text-align:center;
+        font-size:48px;
+        text-shadow:2px 2px 2px #000000;
+        font-family:sans-serif;
+    }
+
+    .text-bpm
+    {
+        font-size:24px;
+    }
+    </style>
+
+    <script src="js/Beatmap.js"></script>
+    <script>
+        window.onload=function(){
+            var _url=new URL(window.location.href);
+            var host=_url.searchParams.get('host')||"localhost";
+            var port=_url.searchParams.get('port')||"10800";
+            var web="http://"+host+":"+port;
+
+            function get(uri,type){
+                return new Promise(function(resolve,reject)
+                {
+                    let xhr=new XMLHttpRequest();
+                    
+                    xhr.onload=function(e)
+                    {
+                        if (xhr.readyState === xhr.DONE) {
+                            if (xhr.status === 200) {
+                                resolve(xhr.response);
+                            }
+                        }
+                        else 
+                            reject();
+                    };
+                    xhr.open("GET",uri,true);
+                    xhr.responseType=type||"json";
+                    xhr.send();
+                });
+            }
+            
+            let lastBeatmapInfo={};
+            let beatmap={};
+            let bpmLabel=document.querySelector('#bpm-lable');
+
+            async function loop(){
+                let status = await get(`${web}/api/ortdp/gameStatus`);
+                let mods={};
+                
+                if(status.statusText=="Playing"||status.statusText=="Listening"){
+                    let beatmapInfo=await get(web+'/api/ortdp/beatmapInfo');
+
+                    if(beatmapInfo.filename!=lastBeatmapInfo.filename&&
+                        beatmapInfo.creator!=lastBeatmapInfo.creator){
+                            let beatmapText=await get(web+'/api/ortdp/beatmap',"text");
+                            if(!/no found beatmap file/.test(beatmapText)){
+                                beatmap=new Beatmap(beatmapText);
+                                lastBeatmapInfo=beatmapInfo;
+                            }
+                    }
+
+                    if(status.statusText=='Playing'){
+                        let time=(await get(web+'/api/ortdp/playingTime')).time;
+                        let mods=await get(web+'/api/ortdp/playingMods');
+
+                        let timing=beatmap.getTiming(time)||{bpm:0};
+
+                        bpmLabel.textContent="BPM: "+Math.round(Math.round(timing.bpm)*mods.timeRate);
+                    }else if(status.statusText=='Listening'){
+                        let timing=beatmap.getTiming(0);
+                        bpmLabel.textContent="BPM: "+Math.round(beatmap.maxBpm);
+                    }
+                }
+
+                setTimeout(loop,300);
+            }
+
+            loop();
+        }
+    </script>
+</head>
+<body>
+    <p id="bpm-lable" class="text text-bpm">0</p>
+</body>
+</html>

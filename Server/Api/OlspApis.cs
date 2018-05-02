@@ -47,7 +47,7 @@ namespace OsuDataDistributeRestful.Api
                     ContentType = GetContentType(ext)
                 };
             }
-            return new ActionResult(new { code = 404, message = "background image not found" }, 404);
+            return new ActionResult(new { code = 404, message = "background image not found" }, 200);
         }
 
         [Route("/image/output")]
@@ -66,7 +66,7 @@ namespace OsuDataDistributeRestful.Api
                     ContentType = GetContentType(ext)
                 };
             }
-            return new ActionResult(new { code = 404, message = "output image not found" }, 404);
+            return new ActionResult(new { code = 404, message = "output image not found" }, 200);
         }
 
         [Route("/image/mods")]
@@ -85,7 +85,7 @@ namespace OsuDataDistributeRestful.Api
                     ContentType = GetContentType(ext)
                 };
             }
-            return new ActionResult(new { code = 404, message = "mods image not found" }, 404);
+            return new ActionResult(new { code = 404, message = "mods image not found" }, 200);
         }
 
         private string GetContentType(string fileExtention)
