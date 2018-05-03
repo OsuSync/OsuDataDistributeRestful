@@ -46,7 +46,7 @@ namespace OsuDataDistributeRestful.Api
             return new { gameMode = mode, gameModeText = mode.ToString() };
         }
 
-        [Route("/playingMods/{id}")]
+        [Route("/playing/mods/{id}")]
         public object GetPlayingMods(int id)
         {
             var manager = ortdp.TourneyListenerManagers[id];
@@ -55,7 +55,7 @@ namespace OsuDataDistributeRestful.Api
             return MakeModsInfo(mods);
         }
 
-        [Route("/playingMods")]
+        [Route("/playing/mods")]
         public object GetPlayingMods()
         {
             var manager = ortdp.ListenerManager;
@@ -64,7 +64,7 @@ namespace OsuDataDistributeRestful.Api
             return MakeModsInfo(mods);
         }
 
-        [Route("/tournetMode")]
+        [Route("/isTournetMode")]
         public object GetTourneyMode() 
             => new { value = ortdp.TourneyListenerManagers != null };
 
@@ -72,15 +72,15 @@ namespace OsuDataDistributeRestful.Api
         public object GetTournetModeListenCount() 
             => new { count = ortdp.TourneyListenerManagersCount };
 
-        [Route("/playingTime/{id}")]
+        [Route("/playing/time/{id}")]
         public object GetPlayingTime(int id)
             => new { time = ortdp.TourneyListenerManagers[id]?.GetCurrentData(ProvideDataMask.Time).Time };
 
-        [Route("/playingTime")]
+        [Route("/playing/time")]
         public object GetPlayingTime()
             => new { time = ortdp.ListenerManager.GetCurrentData(ProvideDataMask.Time).Time };
 
-        [Route("/beatmapInfo/{id}")]
+        [Route("/beatmap/info/{id}")]
         public object GetBeatmapInfo(int id)
         {
             var beatmap = ortdp.TourneyListenerManagers[id]?.GetCurrentData(ProvideDataMask.Beatmap).Beatmap;
@@ -88,7 +88,7 @@ namespace OsuDataDistributeRestful.Api
             return MakeBeatmap(beatmap);
         }
 
-        [Route("/beatmapInfo")]
+        [Route("/beatmap/info")]
         public object GetBeatmapInfo()
         {
             var beatmap = ortdp.ListenerManager.GetCurrentData(ProvideDataMask.Beatmap).Beatmap;
@@ -107,7 +107,7 @@ namespace OsuDataDistributeRestful.Api
             return new ActionResult(new { code = 404,message="no found beatmap file" });
         }
 
-        [Route("/audioFile")]
+        [Route("/beatmap/audio")]
         public ActionResult GetAudioFile()
         {
             var manager = ortdp.ListenerManager;
@@ -127,7 +127,49 @@ namespace OsuDataDistributeRestful.Api
             return new ActionResult(new { code = 404 },200);
         }
 
-        [Route("/playingInfo/{id}")]
+        [Route("/beatmap/backround")]
+        public ActionResult GetBackroundFile()
+        {
+            var manager = ortdp.ListenerManager;
+            var beatmap = manager?.GetCurrentData(ProvideDataMask.Beatmap).Beatmap;
+            string filename = Path.Combine(beatmap.Folder, beatmap.BackgroundFilename);
+
+            if (File.Exists(filename))
+            {
+                var fs = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
+                string ext = Path.GetExtension(filename);
+
+                return new ActionResult(fs)
+                {
+                    ContentType = GetContentType(ext)
+                };
+            }
+
+            return new ActionResult(new { code = 404 }, 200);
+        }
+
+        //[Route("/beatmap/video")]
+        //public ActionResult GetVideoFile()
+        //{
+        //    var manager = ortdp.ListenerManager;
+        //    var beatmap = manager?.GetCurrentData(ProvideDataMask.Beatmap).Beatmap;
+        //    string filename = Path.Combine(beatmap.Folder, beatmap.VideoFilename);
+
+        //    if (File.Exists(filename))
+        //    {
+        //        var fs = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
+        //        string ext = Path.GetExtension(filename);
+
+        //        return new ActionResult(fs)
+        //        {
+        //            ContentType = GetContentType(ext)
+        //        };
+        //    }
+
+        //    return new ActionResult(new { code = 404 }, 200);
+        //}
+
+        [Route("/playing/info/{id}")]
         public object GetPlayingInfo(int id)
         {
             var info=ortdp.TourneyListenerManagers[id]?.GetCurrentData(
@@ -140,7 +182,7 @@ namespace OsuDataDistributeRestful.Api
             return MakePlayingInfo(info);
         }
 
-        [Route("/playingInfo")]
+        [Route("/playing/info")]
         public object GetPlayingInfo()
         {
             var info = ortdp.ListenerManager.GetCurrentData(
@@ -184,21 +226,38 @@ namespace OsuDataDistributeRestful.Api
         {
             return new
             {
-                download_link_set = beatmap.DownloadLinkSet,
-                download_link = beatmap.DownloadLink,
-                beatmap_set_id = beatmap.BeatmapSetID,
-                beatmap_id = beatmap.BeatmapID,
+                downloadLinkSet = beatmap.DownloadLinkSet,
+                downloadLink = beatmap.DownloadLink,
+                beatmapSetId = beatmap.BeatmapSetID,
+                beatmapId = beatmap.BeatmapID,
                 difficulty = beatmap.Difficulty,
                 creator = beatmap.Creator,
                 artist = beatmap.Artist,
-                artist_unicode = beatmap.ArtistUnicode,
+                artistUnicode = beatmap.ArtistUnicode,
                 title = beatmap.Title,
-                title_unicode = beatmap.TitleUnicode,
+                titleUnicode = beatmap.TitleUnicode,
 
                 folder = Path.GetFileName(beatmap.Folder),
                 filename = beatmap.Filename,
-                audio_filename = beatmap.AudioFilename
+                audioFilename = beatmap.AudioFilename,
+                backroundFilename=beatmap.BackgroundFilename,
+                videoFilename=beatmap.VideoFilename
             };
+        }
+
+        private string GetContentType(string fileExtention)
+        {
+            switch (fileExtention.ToLower())
+            {
+                case ".jpg":case ".jpeg": return "image/jpeg";
+                case ".png":return "image/png";
+                case ".ogg":return "audio/ogg";
+
+                case ".mp4":return "video/mp4";
+                case ".avi":return "video/x-msvideo";
+                default:
+                    return "application/octet-stream";
+            }
         }
     }
 }

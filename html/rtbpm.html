@@ -65,7 +65,7 @@
                 let mods={};
                 
                 if(status.statusText=="Playing"||status.statusText=="Listening"){
-                    let beatmapInfo=await get(web+'/api/ortdp/beatmapInfo');
+                    let beatmapInfo=await get(web+'/api/ortdp/beatmap/info');
 
                     if(beatmapInfo.filename!=lastBeatmapInfo.filename&&
                         beatmapInfo.creator!=lastBeatmapInfo.creator){
@@ -77,8 +77,8 @@
                     }
 
                     if(status.statusText=='Playing'){
-                        let time=(await get(web+'/api/ortdp/playingTime')).time;
-                        let mods=await get(web+'/api/ortdp/playingMods');
+                        let time=(await get(web+'/api/ortdp/playing/time')).time;
+                        let mods=await get(web+'/api/ortdp/playing/mods');
 
                         let timing=beatmap.getTiming(time)||{bpm:0};
 
