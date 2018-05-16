@@ -32,7 +32,7 @@
 		<pre id="hit-count-lable" class="text text-hit-count">0x100 0x50 0xMiss</pre>
 		
 		<script>
-		var html_hit_count=document.querySelector("#hit-count-lable");;
+		var html_hit_count=document.querySelector("#hit-count-lable");
 		var html_pp=document.querySelector("#pp-lable");
 		
 		var _url=new URL(window.location.href);
@@ -112,13 +112,13 @@
 
 		//get pp and hit count data
 		async function get_data(){
-			target_pp = await get(web+"/api/rtppd/pp");
+			target_pp = await get(web+"/api/rtppd/pp/0");
 			if(current_pp===null)
 				current_pp=target_pp;
 
-			hit_count=await get(web+"/api/rtppd/hitCount");
+			hit_count=await get(web+"/api/rtppd/hitCount/0");
 			
-			playing=(await get(web+"/api/rtppd/playingStatus")).playing;
+			playing=(await get(web+"/api/rtppd/playingStatus/0")).playing;
 			
 			setTimeout(get_data,get_interval);
 		}
@@ -130,14 +130,14 @@
 			{
 				if(current_pp!==null)
 				{
-					current_pp.tuple=SmoothObject(current_pp.tuple,target_pp.tuple);
+					current_pp=SmoothObject(current_pp,target_pp);
 					if(pp_formatter!=null)
-						html_pp.textContent=pp_formatter.Format(current_pp.tuple,digits);
+						html_pp.textContent=pp_formatter.Format(current_pp,digits);
 				}
 				
 				if(hit_count!==null)
 					if(hit_count_formatter!=null)
-						html_hit_count.textContent=hit_count_formatter.Format(hit_count.tuple,0);
+						html_hit_count.textContent=hit_count_formatter.Format(hit_count,0);
 			}
 			else
 			{

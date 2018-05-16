@@ -5,6 +5,8 @@ using OsuRTDataProvider.BeatmapInfo;
 using OsuRTDataProvider.Listen;
 using OsuRTDataProvider.Mods;
 using Sync.Plugins;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using static OsuRTDataProvider.Listen.OsuListenerManager;
 
@@ -23,20 +25,18 @@ namespace OsuDataDistributeRestful.Api
         [Route("/gameStatus/{id}")]
         public object GetGameStatus(int id)
         {
-            var manager = ortdp.TourneyListenerManagers[id];
-            var status = manager?.GetCurrentData((ProvideDataMask)0).Status ?? OsuStatus.Unkonwn;
+            dynamic status = GetGameStatus();
 
-            return new { status, statusText = status.ToString() };
+            if (id < status.list.Count)
+                return status.list[id];
+            else
+                return null;
         }
 
         [Route("/gameStatus")]
-        public object GetGameStatus()
-        {
-            var manager = ortdp.ListenerManager;
-            var status = manager?.GetCurrentData((ProvideDataMask)0).Status ?? OsuStatus.Unkonwn;
-
-            return new { status, statusText = status.ToString() };
-        }
+        public object GetGameStatus() =>
+            MakeProvideDatas((ProvideDataMask)0, data =>
+             new { status = data.Status, statusText = data.Status.ToString() });
 
         [Route("/gameMode")]
         public object GetGameMode()
@@ -46,23 +46,6 @@ namespace OsuDataDistributeRestful.Api
             return new { gameMode = mode, gameModeText = mode.ToString() };
         }
 
-        [Route("/playing/mods/{id}")]
-        public object GetPlayingMods(int id)
-        {
-            var manager = ortdp.TourneyListenerManagers[id];
-            var mods = manager?.GetCurrentData(ProvideDataMask.Mods).Mods ?? ModsInfo.Empty;
-
-            return MakeModsInfo(mods);
-        }
-
-        [Route("/playing/mods")]
-        public object GetPlayingMods()
-        {
-            var manager = ortdp.ListenerManager;
-            var mods = manager?.GetCurrentData(ProvideDataMask.Mods).Mods ?? ModsInfo.Empty;
-
-            return MakeModsInfo(mods);
-        }
 
         [Route("/isTournetMode")]
         public object GetTourneyMode() 
@@ -72,29 +55,22 @@ namespace OsuDataDistributeRestful.Api
         public object GetTournetModeListenCount() 
             => new { count = ortdp.TourneyListenerManagersCount };
 
-        [Route("/playing/time/{id}")]
-        public object GetPlayingTime(int id)
-            => new { time = ortdp.TourneyListenerManagers[id]?.GetCurrentData(ProvideDataMask.Time).Time };
-
-        [Route("/playing/time")]
-        public object GetPlayingTime()
-            => new { time = ortdp.ListenerManager.GetCurrentData(ProvideDataMask.Time).Time };
+        #region Beatmap
 
         [Route("/beatmap/info/{id}")]
         public object GetBeatmapInfo(int id)
         {
-            var beatmap = ortdp.TourneyListenerManagers[id]?.GetCurrentData(ProvideDataMask.Beatmap).Beatmap;
+            dynamic beatmaps = GetBeatmapInfo();
 
-            return MakeBeatmap(beatmap);
+            if (id < beatmaps.list.Count)
+                return beatmaps.list[id];
+            else
+                return null;
         }
 
         [Route("/beatmap/info")]
-        public object GetBeatmapInfo()
-        {
-            var beatmap = ortdp.ListenerManager.GetCurrentData(ProvideDataMask.Beatmap).Beatmap;
-
-            return MakeBeatmap(beatmap);
-        }
+        public object GetBeatmapInfo()=>
+            MakeProvideDatas(ProvideDataMask.Beatmap, data =>MakeBeatmap(data.Beatmap));
 
         [Route("/beatmap")]
         public object GetBeatmap()
@@ -169,32 +145,81 @@ namespace OsuDataDistributeRestful.Api
             return new ActionResult(new { code = 404 }, 200);
         }
 
+        #endregion
+
+        #region Playing
+
         [Route("/playing/info/{id}")]
         public object GetPlayingInfo(int id)
         {
-            var info=ortdp.TourneyListenerManagers[id]?.GetCurrentData(
-                ProvideDataMask.Score|
-                ProvideDataMask.HealthPoint|
-                ProvideDataMask.HitCount|
-                ProvideDataMask.Combo|
-                ProvideDataMask.Accuracy);
+            dynamic infos = GetPlayingInfo();
 
-            return MakePlayingInfo(info);
+            if (id < infos.list.Count)
+                return infos.list[id];
+            else
+                return null;
         }
 
         [Route("/playing/info")]
-        public object GetPlayingInfo()
-        {
-            var info = ortdp.ListenerManager.GetCurrentData(
+        public object GetPlayingInfo()=>
+            MakeProvideDatas(
                 ProvideDataMask.Score |
                 ProvideDataMask.HealthPoint |
                 ProvideDataMask.HitCount |
                 ProvideDataMask.Combo |
-                ProvideDataMask.Accuracy);
+                ProvideDataMask.Accuracy,
+                (data) => MakePlayingInfo(data));
 
-            return MakePlayingInfo(info);
+        [Route("/playing/mods/{id}")]
+        public object GetPlayingMods(int id)
+        {
+            dynamic mods = GetPlayingMods();
+
+            if (id < mods.list.Count)
+                return mods.list[id];
+            else
+                return null;
         }
 
+        [Route("/playing/mods")]
+        public object GetPlayingMods()
+            => MakeProvideDatas(ProvideDataMask.Mods, data => MakeModsInfo(data.Mods));
+
+        [Route("/playing/time")]
+        public object GetPlayingTime()
+            => new { time = ortdp.ListenerManager.GetCurrentData(ProvideDataMask.Time).Time };
+
+        #endregion
+
+        #region tools
+        private object MakeProvideDatas(ProvideDataMask mask,Func<ProvideData,object> selector)
+        {
+            bool isTourney = ortdp.TourneyListenerManagersCount != 0;
+
+            var ret = new
+            {
+                tourneyMode = isTourney,
+                count = isTourney ? ortdp.TourneyListenerManagersCount:1,
+                list = new List<object>()
+            };
+
+            if (isTourney)
+            {
+                foreach (var manager in ortdp.TourneyListenerManagers)
+                {
+                    var data = manager.GetCurrentData(mask);
+                    ret.list.Add(selector(data));
+                }
+            }
+            else
+            {
+                var manager = ortdp.ListenerManager;
+                var data = manager.GetCurrentData(mask);
+                ret.list.Add(selector(data));
+            }
+
+            return ret;
+        }
 
         private object MakeModsInfo(ModsInfo mods)
         {
@@ -206,6 +231,7 @@ namespace OsuDataDistributeRestful.Api
                 mods = mods.Mod
             };
         }
+
         private object MakePlayingInfo(ProvideData? info)
         {
             return new
@@ -222,6 +248,7 @@ namespace OsuDataDistributeRestful.Api
                 score = info?.Score,
             };
         }
+
         private object MakeBeatmap(Beatmap beatmap)
         {
             return new
@@ -259,5 +286,6 @@ namespace OsuDataDistributeRestful.Api
                     return "application/octet-stream";
             }
         }
+        #endregion
     }
 }

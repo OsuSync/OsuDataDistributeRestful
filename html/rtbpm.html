@@ -61,11 +61,11 @@
             let bpmLabel=document.querySelector('#bpm-lable');
 
             async function loop(){
-                let status = await get(`${web}/api/ortdp/gameStatus`);
+                let status = await get(`${web}/api/ortdp/gameStatus/0`);
                 let mods={};
                 
                 if(status.statusText=="Playing"||status.statusText=="Listening"){
-                    let beatmapInfo=await get(web+'/api/ortdp/beatmap/info');
+                    let beatmapInfo=await get(web+'/api/ortdp/beatmap/info/0');
 
                     if(beatmapInfo.filename!=lastBeatmapInfo.filename&&
                         beatmapInfo.creator!=lastBeatmapInfo.creator){
@@ -78,7 +78,7 @@
 
                     if(status.statusText=='Playing'){
                         let time=(await get(web+'/api/ortdp/playing/time')).time;
-                        let mods=await get(web+'/api/ortdp/playing/mods');
+                        let mods=await get(web+'/api/ortdp/playing/mods/0');
 
                         let timing=beatmap.getTiming(time)||{bpm:0};
 

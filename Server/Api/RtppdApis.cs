@@ -3,6 +3,8 @@ using OsuDataDistributeRestful.Server.Api;
 using RealTimePPDisplayer;
 using RealTimePPDisplayer.Displayer;
 using Sync.Plugins;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace OsuDataDistributeRestful.Api
 {
@@ -33,10 +35,11 @@ namespace OsuDataDistributeRestful.Api
         [Route("/playingStatus")]
         public object GetPlayingStatus()
         {
-            RestfulDisplayer displayer = GetDisplayer(0);
+            List < RestfulDisplayer > displayers = EnumerateRestfulDisplayers();
             return new
             {
-                playing = displayer?.IsPlay
+                count = displayers.Count,
+                list = displayers.Select(d=> new { playing = d?.IsPlay})
             };
         }
 
@@ -44,19 +47,18 @@ namespace OsuDataDistributeRestful.Api
         public object GetPP(int id)
         {
             RestfulDisplayer displayer = GetDisplayer(id);
-            return new
-            {
-                tuple = (displayer?.PPTuple == null) ? null : MakePP(displayer?.PPTuple)
-            };
+            return (displayer?.PPTuple == null) ? null : MakePP(displayer?.PPTuple);
         }
 
         [Route("/pp")]
         public object GetPP()
         {
-            RestfulDisplayer displayer = GetDisplayer(0);
+            List<RestfulDisplayer> displayers = EnumerateRestfulDisplayers();
+
             return new
             {
-                tuple = (displayer?.PPTuple == null) ? null : MakePP(displayer?.PPTuple)
+                count =displayers.Count,
+                list = displayers.Select(d=>(d?.PPTuple == null) ? null : MakePP(d?.PPTuple))
             };
         }
 
@@ -65,22 +67,18 @@ namespace OsuDataDistributeRestful.Api
         {
             RestfulDisplayer displayer = GetDisplayer(id);
 
-            return new
-            {
-                client_id = displayer?.ClientID,
-                tuple = displayer?.HitCountTuple == null ? null : MakeHitCount(displayer?.HitCountTuple)
-            };
+            return (displayer?.HitCountTuple) == null ? null : MakeHitCount(displayer?.HitCountTuple);
         }
 
         [Route("/hitCount")]
         public object GetHitCount()
         {
-            RestfulDisplayer displayer = GetDisplayer(0);
+            List<RestfulDisplayer> displayers = EnumerateRestfulDisplayers();
 
             return new
             {
-                client_id = displayer?.ClientID,
-                tuple = displayer?.HitCountTuple == null ? null : MakeHitCount(displayer?.HitCountTuple)
+                count = displayers.Count,
+                list = displayers.Select(d => (d?.HitCountTuple == null) ? null : MakeHitCount(d?.HitCountTuple))
             };
         }
 
@@ -137,6 +135,20 @@ namespace OsuDataDistributeRestful.Api
 
             var displayer = m_restfuile_displayers[i];
             return displayer;
+        }
+
+        private List<RestfulDisplayer> EnumerateRestfulDisplayers()
+        {
+            List<RestfulDisplayer> displayers=new List<RestfulDisplayer>();
+            if (rtppd.TourneyMode)
+            {
+                for (int i = 0; i < rtppd.TourneyWindowCount; i++)
+                    displayers.Add(GetDisplayer(i));
+            }
+            else
+                displayers.Add(GetDisplayer(0));
+
+            return displayers;
         }
 
         class RestfulDisplayer : DisplayerBase
