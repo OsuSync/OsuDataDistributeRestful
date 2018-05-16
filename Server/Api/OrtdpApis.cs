@@ -148,26 +148,26 @@ namespace OsuDataDistributeRestful.Api
             return new ActionResult(new { code = 404 }, 200);
         }
 
-        //[Route("/beatmap/video")]
-        //public ActionResult GetVideoFile()
-        //{
-        //    var manager = ortdp.ListenerManager;
-        //    var beatmap = manager?.GetCurrentData(ProvideDataMask.Beatmap).Beatmap;
-        //    string filename = Path.Combine(beatmap.Folder, beatmap.VideoFilename);
+        [Route("/beatmap/video")]
+        public ActionResult GetVideoFile()
+        {
+            var manager = ortdp.ListenerManager;
+            var beatmap = manager?.GetCurrentData(ProvideDataMask.Beatmap).Beatmap;
+            string filename = Path.Combine(beatmap.Folder, beatmap.VideoFilename);
 
-        //    if (File.Exists(filename))
-        //    {
-        //        var fs = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
-        //        string ext = Path.GetExtension(filename);
+            if (File.Exists(filename))
+            {
+                var fs = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
+                string ext = Path.GetExtension(filename);
 
-        //        return new ActionResult(fs)
-        //        {
-        //            ContentType = GetContentType(ext)
-        //        };
-        //    }
+                return new ActionResult(fs)
+                {
+                    ContentType = GetContentType(ext)
+                };
+            }
 
-        //    return new ActionResult(new { code = 404 }, 200);
-        //}
+            return new ActionResult(new { code = 404 }, 200);
+        }
 
         [Route("/playing/info/{id}")]
         public object GetPlayingInfo(int id)

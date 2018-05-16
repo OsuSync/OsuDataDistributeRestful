@@ -62,17 +62,22 @@ namespace OsuDataDistributeRestful.Server
 
                         response.ContentEncoding = Encoding.UTF8;
 
-                        if (request.HttpMethod == "GET")
+#pragma warning disable CS4014 // 由于此调用不会等待，因此在调用完成前将继续执行当前方法
+                        Task.Run(() =>
                         {
-                            OnResponse(request, response);
-                        }
-                        else
-                        {
-                            response.StatusCode = 403;
-                            using (var sw = new StreamWriter(response.OutputStream))
-                                sw.Write("{\"code\":403}");
-                        }
-                        response.OutputStream.Close();
+                            if (request.HttpMethod == "GET")
+                            {
+                                OnResponse(request, response);
+                            }
+                            else
+                            {
+                                response.StatusCode = 403;
+                                using (var sw = new StreamWriter(response.OutputStream))
+                                    sw.Write("{\"code\":403}");
+                            }
+                            response.OutputStream.Close();
+                        });
+#pragma warning restore CS4014 // 由于此调用不会等待，因此在调用完成前将继续执行当前方法
                     }
                     catch (HttpListenerException)
                     {
