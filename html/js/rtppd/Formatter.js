@@ -1,3 +1,24 @@
+"use strict";
+
+let _NAME_MAPPING_TABLE=
+{
+	rtppAccuracy:"rtpp_acc",
+	fcppAccuracy:"fcpp_acc",
+	maxppAccuracy:"maxpp_acc",
+
+	rtppAim:"rtpp_aim",
+	fcppAim:"fcpp_aim",
+	maxppAim:"maxpp_aim",
+
+	rtppSpeed:"rtpp_speed",
+	fcppSpeed:"fcpp_speed",
+	maxppSpeed:"maxpp_spped",
+
+	rtpp:"rtpp",
+	fcpp:"fcpp",
+	maxpp:"maxpp",
+};
+
 class Formatter
 {
 	constructor(format)
@@ -23,7 +44,7 @@ class Formatter
 		{
 			let expr=this.args[i];
 			for(let prop in tuple)
-				expr=expr.replace(new RegExp(prop,"g"),tuple[prop]);
+				expr=expr.replace(new RegExp(_NAME_MAPPING_TABLE[prop],"g"),tuple[prop]);
 
 			let value=eval(expr).toFixed(digital);
 			formatted=formatted.replace("${"+this.args[i]+"}",value);

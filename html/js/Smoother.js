@@ -1,3 +1,5 @@
+"use strict";
+
 class Smoother{
 	constructor(smoothTime,dt)
 	{
