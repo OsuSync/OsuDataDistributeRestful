@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="../js/ODDR.js"></script>
+    <script src="../js/ORTDP.js"></script>
+</head>
+<body>
+    <script>
+        window.onload = async function(){
+            let oddr=new ODDR();
+            let ortdp=new ORTDP(oddr);
+
+            setInterval(async ()=>console.log(await ortdp.getPlayingInfoAt(0)),2000);
+            document.body.appendChild(await ortdp.getBeatmapAudio()).controls=true;
+            document.body.appendChild(await ortdp.getBeatmapVideo()).controls=true;
+            document.body.appendChild(await ortdp.getBeatmapBackground());
+        };
+    </script>
+</body>
+</html>

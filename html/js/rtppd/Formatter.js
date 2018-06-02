@@ -44,7 +44,9 @@ class Formatter
 		{
 			let expr=this.args[i];
 			for(let prop in tuple)
-				expr=expr.replace(new RegExp(_NAME_MAPPING_TABLE[prop],"g"),tuple[prop]);
+			{
+				expr=expr.replace(new RegExp(_NAME_MAPPING_TABLE[prop]||prop,"g"),tuple[prop]);
+			}
 
 			let value=eval(expr).toFixed(digital);
 			formatted=formatted.replace("${"+this.args[i]+"}",value);

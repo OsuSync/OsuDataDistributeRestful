@@ -3,6 +3,8 @@
 	<head>
 		<meta charset="utf-8" />
 		<title>Displayer</title>
+		<script src="js/ODDR.js"></script>
+		<script src="js/rtppd/RTPPD.js"></script>
 		<script src="js/Smoother.js"></script>
 		<script src="js/rtppd/Formatter.js"></script>
 		<style type="text/css">
@@ -32,123 +34,97 @@
 		<pre id="hit-count-lable" class="text text-hit-count">0x100 0x50 0xMiss</pre>
 		
 		<script>
-		var html_hit_count=document.querySelector("#hit-count-lable");
-		var html_pp=document.querySelector("#pp-lable");
-		
-		var _url=new URL(window.location.href);
-		var host=_url.searchParams.get('host');
-		var port=_url.searchParams.get('port');
-		var digits=_url.searchParams.get('digits');
-		
-		if(host===null)host="localhost";
-		if(port===null)port="10800";
-		if(digits===null)digits="2";
-		
-		digits=Number.parseInt(digits);
-		
-		const st=0.2;
-		const fps=30;
-		const dt=1.0/fps;;
-		const render_interval=dt*1000;
-		const get_interval=200;
+				(async function () {
+					let html_hit_count = document.querySelector("#hit-count-lable");
+					let html_pp = document.querySelector("#pp-lable");
 
-		var web="http://"+host+":"+port;
-		var current_pp=null;
-		var target_pp=null;
-		
-		var hit_count=null;
-		
-		var smoothers={};
-		var pp_formatter=null;
-		var hit_count_formatter=null;
-		
-		var playing=false;
-		
-		//http get
-		function get(uri)
-		{
-			return new Promise(function(resolve,reject)
-			{
-				let xhr=new XMLHttpRequest();
-				
-				xhr.onload=function(e)
-				{
-					if (xhr.readyState === xhr.DONE) {
-						if (xhr.status === 200) {
-							resolve(xhr.response);
+					let _url = new URL(window.location.href);
+					let host = _url.searchParams.get('host');
+					let port = _url.searchParams.get('port');
+					let digits = _url.searchParams.get('digits');
+
+					if (host === null) host = "localhost";
+					if (port === null) port = "10800";
+					if (digits === null) digits = "2";
+
+					digits = Number.parseInt(digits);
+
+					const st = 0.2;
+					const fps = 30;
+					const dt = 1.0 / fps;;
+					const render_interval = dt * 1000;
+					const get_interval = 200;
+
+					let current_pp = null;
+					let target_pp = null;
+
+					let hit_count = null;
+
+					let smoothers = {};
+					let pp_formatter = null;
+					let hit_count_formatter = null;
+
+					let playing = false;
+
+					//initialize ODDR and RTPPD
+					let oddr = new ODDR(host,port);
+					let rtppd = new RTPPD(oddr);
+
+					//get pp format and hit count format
+					rtppd.getPerformancePointFormatString().then(function (format_json) {
+						pp_formatter = new Formatter(format_json.format);
+					});
+
+					rtppd.getHitCountFormatString().then(function (format_json) {
+						hit_count_formatter = new Formatter(format_json.format);
+					});
+
+					//smooth function
+					function SmoothObject(previous, target) {
+						for (let prop in target) {
+							if (smoothers[prop] === undefined)
+								smoothers[prop] = new Smoother(st, dt);
+							previous[prop] = smoothers[prop].SmoothDamp(previous[prop], target[prop]);
 						}
+						return previous;
 					}
-					reject();
-				};
-				
-				xhr.open("GET",uri,true);
-				xhr.responseType="json";
-				xhr.send();
-			});
-		}
-		
-		//get pp format and hit count format
-		get(web+"/api/rtppd/ppFormat").then(function(format_json)
-		{
-			pp_formatter=new Formatter(format_json.format);
-		});
-		
-		get(web+"/api/rtppd/hitCountFormat").then(function(format_json)
-		{
-			hit_count_formatter=new Formatter(format_json.format);
-		});
-		
-		//smooth function
-		function SmoothObject(previous,target)
-		{
-			for(let prop in target)
-			{
-				if(smoothers[prop]===undefined)
-					smoothers[prop]=new Smoother(st,dt);
-				previous[prop]=smoothers[prop].SmoothDamp(previous[prop],target[prop]);
-			}
-			return previous;
-		}
 
-		//get pp and hit count data
-		async function get_data(){
-			target_pp = await get(web+"/api/rtppd/pp/0");
-			if(current_pp===null)
-				current_pp=target_pp;
+					//get pp and hit count data
+					async function get_data() {
+						target_pp = await rtppd.getPerformancePointAt(0);
+						if (current_pp === null)
+							current_pp = target_pp;
 
-			hit_count=await get(web+"/api/rtppd/hitCount/0");
-			
-			playing=(await get(web+"/api/rtppd/playingStatus/0")).playing;
-			
-			setTimeout(get_data,get_interval);
-		}
-		
-		//display function
-		function display_content()
-		{
-			if(playing===true)
-			{
-				if(current_pp!==null)
-				{
-					current_pp=SmoothObject(current_pp,target_pp);
-					if(pp_formatter!=null)
-						html_pp.textContent=pp_formatter.Format(current_pp,digits);
-				}
-				
-				if(hit_count!==null)
-					if(hit_count_formatter!=null)
-						html_hit_count.textContent=hit_count_formatter.Format(hit_count,0);
-			}
-			else
-			{
-				html_pp.textContent="";
-				html_hit_count.textContent="";
-			}
-			setTimeout(display_content,render_interval);
-		}
-		
-		get_data();
-		display_content();
+						hit_count = await rtppd.getHitCountAt(0);
+
+						playing = (await rtppd.getPlayingStatusAt(0)).playing;
+
+						setTimeout(get_data, get_interval);
+					}
+
+					//display function
+					function display_content() {
+						if (playing === true) {
+							if (current_pp !== null) {
+								current_pp = SmoothObject(current_pp, target_pp);
+								if (pp_formatter != null)
+									html_pp.textContent = pp_formatter.Format(current_pp, digits);
+							}
+
+							if (hit_count !== null)
+								if (hit_count_formatter != null)
+									html_hit_count.textContent = hit_count_formatter.Format(hit_count, 0);
+						}
+						else {
+							html_pp.textContent = "";
+							html_hit_count.textContent = "";
+						}
+						setTimeout(display_content, render_interval);
+					}
+
+					get_data();
+					display_content();
+				})();
 		</script>
 	</body>
 </html>

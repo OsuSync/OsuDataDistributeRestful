@@ -57,20 +57,9 @@ namespace OsuDataDistributeRestful.Api
 
         #region Beatmap
 
-        [Route("/beatmap/info/{id}")]
-        public object GetBeatmapInfo(int id)
-        {
-            dynamic beatmaps = GetBeatmapInfo();
-
-            if (id < beatmaps.list.Count)
-                return beatmaps.list[id];
-            else
-                return null;
-        }
-
         [Route("/beatmap/info")]
         public object GetBeatmapInfo()=>
-            MakeProvideDatas(ProvideDataMask.Beatmap, data =>MakeBeatmap(data.Beatmap));
+            MakeBeatmap(ortdp.ListenerManager.GetCurrentData(ProvideDataMask.Beatmap).Beatmap);
 
         [Route("/beatmap")]
         public object GetBeatmap()
@@ -103,8 +92,8 @@ namespace OsuDataDistributeRestful.Api
             return new ActionResult(new { code = 404 },200);
         }
 
-        [Route("/beatmap/backround")]
-        public ActionResult GetBackroundFile()
+        [Route("/beatmap/background")]
+        public ActionResult GetBackgroundFile()
         {
             var manager = ortdp.ListenerManager;
             var beatmap = manager?.GetCurrentData(ProvideDataMask.Beatmap).Beatmap;

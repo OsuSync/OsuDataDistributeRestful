@@ -27,49 +27,32 @@
     }
     </style>
 
+    <script src="js/ODDR.js"></script>
+    <script src="js/ORTDP.js"></script>
     <script src="js/Beatmap.js"></script>
     <script>
         window.onload=function(){
-            var _url=new URL(window.location.href);
-            var host=_url.searchParams.get('host')||"localhost";
-            var port=_url.searchParams.get('port')||"10800";
-            var web="http://"+host+":"+port;
+            let _url=new URL(window.location.href);
+            let host=_url.searchParams.get('host')||"localhost";
+            let port=_url.searchParams.get('port')||"10800";
 
-            function get(uri,type){
-                return new Promise(function(resolve,reject)
-                {
-                    let xhr=new XMLHttpRequest();
-                    
-                    xhr.onload=function(e)
-                    {
-                        if (xhr.readyState === xhr.DONE) {
-                            if (xhr.status === 200) {
-                                resolve(xhr.response);
-                            }
-                        }
-                        else 
-                            reject();
-                    };
-                    xhr.open("GET",uri,true);
-                    xhr.responseType=type||"json";
-                    xhr.send();
-                });
-            }
+            let oddr = new ODDR(host,port);
+            let ortdp = new ORTDP(oddr);
             
             let lastBeatmapInfo={};
             let beatmap={};
             let bpmLabel=document.querySelector('#bpm-lable');
 
             async function loop(){
-                let status = await get(`${web}/api/ortdp/gameStatus/0`);
+                let status = await ortdp.getGameStatusAt(0);
                 let mods={};
                 
                 if(status.statusText=="Playing"||status.statusText=="Listening"){
-                    let beatmapInfo=await get(web+'/api/ortdp/beatmap/info/0');
+                    let beatmapInfo=await ortdp.getBeatmapInfo();
 
                     if(beatmapInfo.filename!=lastBeatmapInfo.filename&&
                         beatmapInfo.creator!=lastBeatmapInfo.creator){
-                            let beatmapText=await get(web+'/api/ortdp/beatmap',"text");
+                            let beatmapText=await ortdp.getBeatmap();
                             if(!/no found beatmap file/.test(beatmapText)){
                                 beatmap=new Beatmap(beatmapText);
                                 lastBeatmapInfo=beatmapInfo;
@@ -77,8 +60,8 @@
                     }
 
                     if(status.statusText=='Playing'){
-                        let time=(await get(web+'/api/ortdp/playing/time')).time;
-                        let mods=await get(web+'/api/ortdp/playing/mods/0');
+                        let time=(await ortdp.getPlayingTime()).time;
+                        let mods=await ortdp.getPlayingModsAt(0);
 
                         let timing=beatmap.getTiming(time)||{bpm:0};
 
