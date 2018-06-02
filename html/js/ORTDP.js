@@ -3,8 +3,6 @@
 class ORTDP {
     constructor(oddr){
         this._oddr=oddr;
-
-        
     }
 
     async getIsTourneyMode(){
