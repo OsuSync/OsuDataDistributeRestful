@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Fade inout background</title>
+
+    <script src="js/ODDR.js"></script>
+    <script src="js/ORTDP.js"></script>
+
+    <script>
+        let debugSwapper;
+
+        window.onload = async function () {
+            let _url = new URL(window.location.href);
+            let host = _url.searchParams.get('host') || "localhost";
+            let port = _url.searchParams.get('port') || "10800";
+
+            let oddr = new ODDR(host, port);
+            let ortdp = new ORTDP(oddr);
+
+            let bgSwapper={
+                _buffer:document.querySelectorAll(".swapper-buffer"),
+                _front:0,
+                _back:1,
+
+                init:function(fadeTime){
+                    this.fadeTime=fadeTime;
+
+                    for(let img of this._buffer){
+                        img.onload = function () {
+                            window.URL.revokeObjectURL(img.src);
+                        };
+                        img.style.position="fixed";
+                    }
+
+                    this._buffer[this._front].style.opacity=1;
+                    this._buffer[this._back].style.opacity=0;
+                },
+
+                setNextSrc:function(src){
+                    this._buffer[this._back].style.backgroundImage=`url("${src}")`;
+                },
+
+                swap:function(){
+                    this.fade(this._buffer[this._front],0,this.fadeTime);
+                    this.fade(this._buffer[this._back],1,this.fadeTime);
+
+                    let t=this._front;
+                    this._front=this._back;
+                    this._back=t;
+                },
+
+                fade:function(img,to,time){
+                    let blocks=100;
+                    let total= to - Number.parseFloat(img.style.opacity||"1");
+                    let stepTime = time / blocks;
+                    let step = total / blocks;
+                    let totalTime = 0;
+
+                    let timer = setInterval(()=>{
+                        if(totalTime>time)
+                            clearInterval(timer);
+
+                        let opacity = Number.parseFloat(img.style.opacity||"1")+step;
+
+                        img.style.opacity = Math.min(1,Math.max(0,opacity));
+
+                        totalTime+=stepTime;
+                    },stepTime);
+                },
+            }
+
+            bgSwapper.init(1000);
+            debugSwapper=bgSwapper;
+
+            let lastBeatmapInfo = {};
+            async function loop() {
+                let beatmapInfo = await ortdp.getBeatmapInfo();
+                if(beatmapInfo!=null){
+                    if (beatmapInfo.backroundFilename != lastBeatmapInfo.backroundFilename &&
+                        beatmapInfo.creator != lastBeatmapInfo.creator) {
+
+                        let bgBlob = await ortdp.getBeatmapBackground("blob");
+                        let src = window.URL.createObjectURL(bgBlob);
+                        bgSwapper.setNextSrc(src);
+                        bgSwapper.swap();
+
+                        lastBeatmapInfo = beatmapInfo;
+                    }
+                }
+                setTimeout(loop, 300);
+            }
+
+            loop();
+        }
+    </script>
+
+    <style>
+        .swapper-buffer{
+            width: 100%;
+            height: 100%;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center center;
+        }
+    </style>
+</head>
+<body>
+    <div class="img-back swapper-buffer" id="img-0" alt=""></div>
+    <div class="img-fornt swapper-buffer" id="img-1" alt=""></div>
+</body>
+</html>

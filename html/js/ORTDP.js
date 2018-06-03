@@ -21,10 +21,11 @@ class ORTDP {
         return await this._oddr.get(`api/ortdp/beatmap`,"text");
     }
 
-    async getBeatmapAudio(type = "blob"){
-        let data = await this._oddr.get(`api/ortdp/beatmap/audio`,type);
+    async getBeatmapAudio(type = "object"){
+        let realtype = (type === "object" ? "blob" : type);
+        let data = await this._oddr.get(`api/ortdp/beatmap/audio`,realtype);
 
-        if(type === "arraybuffer"){
+        if(type !== "object"){
             return data;
         }else{
             let audio = document.createElement('audio');
@@ -38,10 +39,11 @@ class ORTDP {
         }
     }
 
-    async getBeatmapBackground(type = "blob"){
-        let data = await this._oddr.get(`api/ortdp/beatmap/background`,type);
+    async getBeatmapBackground(type = "object"){
+        let realtype = (type === "object" ? "blob" : type);
+        let data = await this._oddr.get(`api/ortdp/beatmap/background`,realtype);
 
-        if(type === "arraybuffer"){
+        if(type !== "object"){
             return data;
         }else{
             let img = document.createElement('img');
@@ -55,10 +57,12 @@ class ORTDP {
         }
     }
 
-    async getBeatmapVideo(type = "blob"){
-        let data = await this._oddr.get(`api/ortdp/beatmap/video`,type);
+    async getBeatmapVideo(type = "object"){
+        let realtype = (type === "object" ? "blob" : type);
 
-        if(type === "arraybuffer"){
+        let data = await this._oddr.get(`api/ortdp/beatmap/video`,realtype);
+
+        if(type !== "object"){
             return data;
         }else{
             let video = document.createElement('video');
