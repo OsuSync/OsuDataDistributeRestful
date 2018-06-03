@@ -51,8 +51,7 @@
                     if (status.statusText == "Playing" || status.statusText == "Listening") {
                         let beatmapInfo = await ortdp.getBeatmapInfo();
 
-                        if (beatmapInfo.filename != lastBeatmapInfo.filename &&
-                            beatmapInfo.creator != lastBeatmapInfo.creator) {
+                        if (!beatmapInfo.equals(lastBeatmapInfo)) {
                             let beatmapText = await ortdp.getBeatmap();
                             if (!/no found beatmap file/.test(beatmapText)) {
                                 beatmap = new Beatmap(beatmapText);

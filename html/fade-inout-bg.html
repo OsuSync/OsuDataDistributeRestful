@@ -79,8 +79,7 @@
             async function loop() {
                 let beatmapInfo = await ortdp.getBeatmapInfo();
                 if(beatmapInfo!=null){
-                    if (beatmapInfo.backroundFilename != lastBeatmapInfo.backroundFilename &&
-                        beatmapInfo.creator != lastBeatmapInfo.creator) {
+                    if (!beatmapInfo.equals(lastBeatmapInfo)) {
 
                         let bgBlob = await ortdp.getBeatmapBackground("blob");
                         let src = window.URL.createObjectURL(bgBlob);

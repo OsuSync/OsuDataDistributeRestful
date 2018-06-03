@@ -14,7 +14,18 @@ class ORTDP {
     }
 
     async getBeatmapInfo(){
-        return await this._oddr.get(`api/ortdp/beatmap/info`);
+        let info = await this._oddr.get(`api/ortdp/beatmap/info`);
+        if(info!==null){
+            info.equals=function(b){
+                for(let key in this){
+                    if(key === "equals")continue;
+                    if(this[key] !== b[key])return false;
+                }
+                return true;
+            }
+        }
+
+        return info;
     }
 
     async getBeatmap(){
