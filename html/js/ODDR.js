@@ -1,12 +1,15 @@
 "use strict";
 
 class ODDR {
-    constructor(host, port, errorObject = null,isHttps) {
-        this.protocol = (isHttps || false) ? "https" : "http";
+    //options.isHttps
+    //options.errorObject
+    constructor(host, port, options={}) {
+        this.protocol = (options.isHttps || false) ? "https" : "http";
         this.host = host || "localhost";
         this.port = port || 10800;
 
-        this.errorObject = errorObject;
+
+        this.errorObject = options.errorObject || null;
 
         this._uriPrefix = `${this.protocol}://${this.host}:${this.port}/`;
     }
