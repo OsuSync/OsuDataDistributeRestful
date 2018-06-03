@@ -18,7 +18,7 @@ class ORTDP {
         if(info!==null){
             info.equals=function(b){
                 for(let key in this){
-                    if(key === "equals")continue;
+                    if(typeof(this[key]) === "function")continue;
                     if(this[key] !== b[key])return false;
                 }
                 return true;
