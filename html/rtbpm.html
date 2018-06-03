@@ -45,39 +45,40 @@
 
             async function loop(){
                 let status = await ortdp.getGameStatusAt(0);
-                let mods={};
-                
-                if(status.statusText=="Playing"||status.statusText=="Listening"){
-                    let beatmapInfo=await ortdp.getBeatmapInfo();
+                if (status != null) {
+                    let mods = {};
 
-                    if(beatmapInfo.filename!=lastBeatmapInfo.filename&&
-                        beatmapInfo.creator!=lastBeatmapInfo.creator){
-                            let beatmapText=await ortdp.getBeatmap();
-                            if(!/no found beatmap file/.test(beatmapText)){
-                                beatmap=new Beatmap(beatmapText);
-                                lastBeatmapInfo=beatmapInfo;
+                    if (status.statusText == "Playing" || status.statusText == "Listening") {
+                        let beatmapInfo = await ortdp.getBeatmapInfo();
+
+                        if (beatmapInfo.filename != lastBeatmapInfo.filename &&
+                            beatmapInfo.creator != lastBeatmapInfo.creator) {
+                            let beatmapText = await ortdp.getBeatmap();
+                            if (!/no found beatmap file/.test(beatmapText)) {
+                                beatmap = new Beatmap(beatmapText);
+                                lastBeatmapInfo = beatmapInfo;
                             }
-                    }
+                        }
 
-                    if(status.statusText=='Playing'){
-                        let time=(await ortdp.getPlayingTime()).time;
-                        let mods=await ortdp.getPlayingModsAt(0);
+                        if (status.statusText == 'Playing') {
+                            let time = (await ortdp.getPlayingTime()).time;
+                            let mods = await ortdp.getPlayingModsAt(0);
 
-                        let timing=beatmap.getTiming(time)||{bpm:0};
+                            let timing = beatmap.getTiming(time) || { bpm: 0 };
 
-                        bpmLabel.textContent="BPM: "+Math.round(Math.round(timing.bpm)*mods.timeRate);
-                    }else if(status.statusText=='Listening'){
-                        let timing=beatmap.getTiming(0);
-                        let minBpm=Math.round(beatmap.minBpm);
-                        let maxBpm=Math.round(beatmap.maxBpm);
+                            bpmLabel.textContent = "BPM: " + Math.round(Math.round(timing.bpm) * mods.timeRate);
+                        } else if (status.statusText == 'Listening') {
+                            let timing = beatmap.getTiming(0);
+                            let minBpm = Math.round(beatmap.minBpm);
+                            let maxBpm = Math.round(beatmap.maxBpm);
 
-                        if(maxBpm==minBpm)
-                            bpmLabel.textContent="BPM: "+minBpm;
-                        else
-                            bpmLabel.textContent=`BPM: ${minBpm} - ${maxBpm}`;
+                            if (maxBpm == minBpm)
+                                bpmLabel.textContent = "BPM: " + minBpm;
+                            else
+                                bpmLabel.textContent = `BPM: ${minBpm} - ${maxBpm}`;
+                        }
                     }
                 }
-
                 setTimeout(loop,300);
             }
 

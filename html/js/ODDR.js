@@ -1,7 +1,7 @@
 "use strict";
 
 class ODDR {
-    constructor(host, port, isHttps, errorObject = null) {
+    constructor(host, port, errorObject = null,isHttps) {
         this.protocol = (isHttps || false) ? "https" : "http";
         this.host = host || "localhost";
         this.port = port || 10800;
@@ -14,7 +14,7 @@ class ODDR {
     combineUri(uri) {
         if (uri.charAt(0) === "/")
             uri = uri.replace("/", "");
-        return `${this._uriPrefix}/${uri}`;
+        return `${this._uriPrefix}${uri}`;
     }
 
     async getApis() {
