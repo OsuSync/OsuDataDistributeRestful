@@ -24,6 +24,7 @@
                 _buffer:document.querySelectorAll(".swapper-buffer"),
                 _front:0,
                 _back:1,
+                _timerQueue:[],
 
                 init:function(fadeTime,FPS){
                     this.fadeTime = fadeTime;
@@ -44,13 +45,30 @@
                     this._buffer[this._back].style.backgroundImage=`url("${src}")`;
                 },
 
-                swap:function(){
-                    this.fade(this._buffer[this._front],0,this.fadeTime);
-                    this.fade(this._buffer[this._back],1,this.fadeTime);
+                flush:function(){
+                    if(this._timerQueue.length!=0){
+                        this.skip();
+                    }else{
+                        this.fade(this._buffer[this._front],0,this.fadeTime);
+                        this.fade(this._buffer[this._back],1,this.fadeTime);
+                    }
 
+                    this._swap();
+                },
+
+                _swap:function(){
                     let t=this._front;
                     this._front=this._back;
                     this._back=t;
+                },
+
+                skip:function(){
+                    for(let timer of this._timerQueue)
+                        clearInterval(timer);
+                    this._timerQueue = [];
+
+                    this._buffer[this._back].style.opacity=1;
+                    this._buffer[this._front].style.opacity=0;
                 },
 
                 fade:function(img,to,time){
@@ -60,8 +78,12 @@
                     let totalTime = 0;
 
                     let timer = setInterval(()=>{
-                        if (totalTime > time)
+                        if (totalTime > time){
                             clearInterval(timer);
+                            let index = this._timerQueue.findIndex((t)=>t===timer);
+                            if(index != -1)
+                                this._timerQueue.splice(index,1);
+                        }
 
                         let opacity = Number.parseFloat(img.style.opacity || "1") + step;
 
@@ -69,6 +91,7 @@
 
                         totalTime += stepTime;
                     },stepTime);
+                    this._timerQueue.push(timer);
                 },
             }
 
@@ -85,7 +108,7 @@
                         let bgBlob = await ortdp.getBeatmapBackground("blob");
                         let src = window.URL.createObjectURL(bgBlob);
                         bgSwapper.setNextSrc(src);
-                        bgSwapper.swap();
+                        bgSwapper.flush();
 
                         lastBeatmapInfo = beatmapInfo;
                     }
