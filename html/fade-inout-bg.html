@@ -10,6 +10,22 @@
     <script src="js/ODDR.js"></script>
     <script src="js/ORTDP.js"></script>
 
+    <style>
+            .swapper-buffer {
+                width: 100%;
+                height: 100%;
+                background-repeat: no-repeat;
+                background-size: cover;
+                background-position: center center;
+            }
+            
+            /* Remove this comment to enable blur
+            .filter{
+                filter:blur(1px);
+            }
+            */
+    </style>
+
     <script>
         const FPS = 30;
         const fadeTime = 1000;
@@ -113,21 +129,13 @@
             loop();
         }
     </script>
-
-    <style>
-        .swapper-buffer {
-            width: 100%;
-            height: 100%;
-            background-repeat: no-repeat;
-            background-size: cover;
-            background-position: center center;
-        }
-    </style>
 </head>
 
 <body>
-    <div class="img-back swapper-buffer" id="img-0" alt=""></div>
-    <div class="img-fornt swapper-buffer" id="img-1" alt=""></div>
+    <div class="filter">
+        <div class="img-back swapper-buffer" id="img-0" alt=""></div>
+        <div class="img-fornt swapper-buffer" id="img-1" alt=""></div>
+    </div>
 </body>
 
 </html>
