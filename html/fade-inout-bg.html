@@ -18,6 +18,18 @@
                 background-size: cover;
                 background-position: center center;
             }
+
+            @keyframes fade-in
+		    {
+			    from{opacity: 0;}
+			    to{opacity: 1;}
+            }
+            
+            @keyframes fade-out
+		    {
+			    from{opacity: 1;}
+			    to{opacity: 0;}
+		    }
             
             /* Remove this comment to enable blur
             .filter{
@@ -49,13 +61,12 @@
 
                     for (let img of this._buffer) {
                         img.onload = function () {
-                            window.URL.revokeObjectURL(img.src);
+                            let src=img.style.backgroundImage;
+                            window.URL.revokeObjectURL(src.substr(5,src.length-7));
                         };
                         img.style.position = "fixed";
+                        
                     }
-
-                    this._buffer[this._front].style.opacity = 1;
-                    this._buffer[this._back].style.opacity = 0;
                 },
 
                 setNextSrc: function (src) {
@@ -66,11 +77,10 @@
                     if (this._fading) return;
 
                     this._fading = true;
-                    let fadeout = this.fade(this._buffer[this._front], 0, this.fadeTime);
-                    let fadein = this.fade(this._buffer[this._back], 1, this.fadeTime);
+                    let fadeout = this.fadeOut(this._buffer[this._front],this.fadeTime);
+                    let fadein = this.fadeIn(this._buffer[this._back], this.fadeTime);
                     await fadein;
                     await fadeout;
-
                     this._fading = false;
 
                     this._swap();
@@ -82,25 +92,29 @@
                     this._back = t;
                 },
 
-                fade: function (img, to, time) {
-                    return new Promise((resolve, reject) => {
-                        let total = to - Number.parseFloat(img.style.opacity || "1");
-                        let stepTime = 1000 / this.FPS;
-                        let step = total / (time / stepTime);
-                        let totalTime = 0;
+                fadeIn:function(img,time){
+                    img.style.animation=`fade-in ${time/1000.0}s linear`;
+                    return new Promise(function(ret){
+                        let cb = function(){
+                            img.style.opacity=1;
+                            img.removeEventListener("animationend",cb);
+                            ret(true);
+                        };
+                        
+                        img.addEventListener("animationend",cb);
+                    });
+                },
 
-                        let timer = setInterval(() => {
-                            if (totalTime > time) {
-                                clearInterval(timer);
-                                resolve(true);
-                            }
-
-                            let opacity = Number.parseFloat(img.style.opacity || "1") + step;
-
-                            img.style.opacity = Math.min(1, Math.max(0, opacity));
-
-                            totalTime += stepTime;
-                        }, stepTime);
+                fadeOut:function(img,time){
+                    img.style.animation=`fade-out ${time/1000.0}s linear`;
+                    return new Promise(function(ret){
+                        let cb = function(){
+                            img.style.opacity=0;
+                            img.removeEventListener("animationend",cb);
+                            ret(true);
+                        };
+                        
+                        img.addEventListener("animationend",cb);
                     });
                 }
             };
