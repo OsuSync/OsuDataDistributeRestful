@@ -45,7 +45,6 @@
     </style>
 
     <script>
-        const FPS = 30;
         const fadeTime = 1000;
         window.onload = async function () {
             let _url = new URL(window.location.href);
@@ -61,9 +60,8 @@
                 _back: 1,
                 _fading: false,
 
-                init: function (fadeTime, FPS) {
+                init: function (fadeTime) {
                     this.fadeTime = fadeTime;
-                    this.FPS = FPS;
 
                     for (let img of this._buffer) {
                         img.onload = function () {
@@ -125,7 +123,7 @@
                 }
             };
 
-            bgSwapper.init(fadeTime, FPS);
+            bgSwapper.init(fadeTime);
             debugSwapper = bgSwapper;
 
             let lastBeatmapInfo = {};
