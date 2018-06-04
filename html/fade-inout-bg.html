@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,52 +21,52 @@
             let oddr = new ODDR(host, port);
             let ortdp = new ORTDP(oddr);
 
-            let bgSwapper={
-                _buffer:document.querySelectorAll(".swapper-buffer"),
-                _front:0,
-                _back:1,
-                _fading:false,
+            let bgSwapper = {
+                _buffer: document.querySelectorAll(".swapper-buffer"),
+                _front: 0,
+                _back: 1,
+                _fading: false,
 
-                init:function(fadeTime,FPS){
+                init: function (fadeTime, FPS) {
                     this.fadeTime = fadeTime;
                     this.FPS = FPS;
 
-                    for(let img of this._buffer){
+                    for (let img of this._buffer) {
                         img.onload = function () {
                             window.URL.revokeObjectURL(img.src);
                         };
-                        img.style.position="fixed";
+                        img.style.position = "fixed";
                     }
 
-                    this._buffer[this._front].style.opacity=1;
-                    this._buffer[this._back].style.opacity=0;
+                    this._buffer[this._front].style.opacity = 1;
+                    this._buffer[this._back].style.opacity = 0;
                 },
 
-                setNextSrc:function(src){
-                    this._buffer[this._back].style.backgroundImage=`url("${src}")`;
+                setNextSrc: function (src) {
+                    this._buffer[this._back].style.backgroundImage = `url("${src}")`;
                 },
 
-                flush:async function(){
-                    if(this._fading)return;
+                flush: async function () {
+                    if (this._fading) return;
 
-                    this._fading=true;
-                    let fadeout = this.fade(this._buffer[this._front],0,this.fadeTime);
-                    let fadein = this.fade(this._buffer[this._back],1,this.fadeTime);
+                    this._fading = true;
+                    let fadeout = this.fade(this._buffer[this._front], 0, this.fadeTime);
+                    let fadein = this.fade(this._buffer[this._back], 1, this.fadeTime);
                     await fadein;
                     await fadeout;
 
-                    this._fading=false;
+                    this._fading = false;
 
                     this._swap();
                 },
 
-                _swap:function(){
-                    let t=this._front;
-                    this._front=this._back;
-                    this._back=t;
+                _swap: function () {
+                    let t = this._front;
+                    this._front = this._back;
+                    this._back = t;
                 },
 
-                fade:function(img,to,time){
+                fade: function (img, to, time) {
                     return new Promise((resolve, reject) => {
                         let total = to - Number.parseFloat(img.style.opacity || "1");
                         let stepTime = 1000 / this.FPS;
@@ -88,13 +89,13 @@
                 }
             };
 
-            bgSwapper.init(fadeTime,FPS);
-            debugSwapper=bgSwapper;
+            bgSwapper.init(fadeTime, FPS);
+            debugSwapper = bgSwapper;
 
             let lastBeatmapInfo = {};
             async function loop() {
                 let beatmapInfo = await ortdp.getBeatmapInfo();
-                if(beatmapInfo!=null&&beatmapInfo.beatmapId!=-1){
+                if (beatmapInfo != null && beatmapInfo.beatmapId != -1) {
                     if (beatmapInfo.backroundFilename != lastBeatmapInfo.backroundFilename &&
                         !beatmapInfo.equals(lastBeatmapInfo)) {
 
@@ -114,7 +115,7 @@
     </script>
 
     <style>
-        .swapper-buffer{
+        .swapper-buffer {
             width: 100%;
             height: 100%;
             background-repeat: no-repeat;
@@ -123,8 +124,10 @@
         }
     </style>
 </head>
+
 <body>
     <div class="img-back swapper-buffer" id="img-0" alt=""></div>
     <div class="img-fornt swapper-buffer" id="img-1" alt=""></div>
 </body>
+
 </html>
