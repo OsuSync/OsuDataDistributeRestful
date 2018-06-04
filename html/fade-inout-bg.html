@@ -53,26 +53,26 @@
                 },
 
                 fade:function(img,to,time){
-                    let blocks=100;
-                    let total= to - Number.parseFloat(img.style.opacity||"1");
-                    let stepTime = time / blocks;
-                    let step = total / blocks;
+                    const FPS = 30;
+                    let total = to - Number.parseFloat(img.style.opacity || "1");
+                    let stepTime = 1000 / FPS;
+                    let step = total / (time / stepTime);
                     let totalTime = 0;
 
                     let timer = setInterval(()=>{
-                        if(totalTime>time)
+                        if (totalTime > time)
                             clearInterval(timer);
 
-                        let opacity = Number.parseFloat(img.style.opacity||"1")+step;
+                        let opacity = Number.parseFloat(img.style.opacity || "1") + step;
 
-                        img.style.opacity = Math.min(1,Math.max(0,opacity));
+                        img.style.opacity = Math.min(1, Math.max(0, opacity));
 
-                        totalTime+=stepTime;
+                        totalTime += stepTime;
                     },stepTime);
                 },
             }
 
-            bgSwapper.init(1000);
+            bgSwapper.init(5000);
             debugSwapper=bgSwapper;
 
             let lastBeatmapInfo = {};

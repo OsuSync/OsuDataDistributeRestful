@@ -24,9 +24,7 @@ class ODDR {
         return this.get("api");
     }
 
-    get(uri, type) {
-        type = type || "json";
-
+    get(uri, type = "json") {
         return new Promise((resolve, reject) => {
             let xhr = new XMLHttpRequest();
 
