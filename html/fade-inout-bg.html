@@ -24,7 +24,7 @@
                 _buffer:document.querySelectorAll(".swapper-buffer"),
                 _front:0,
                 _back:1,
-                _timerQueue:[],
+                _fading:false,
 
                 init:function(fadeTime,FPS){
                     this.fadeTime = fadeTime;
@@ -45,13 +45,16 @@
                     this._buffer[this._back].style.backgroundImage=`url("${src}")`;
                 },
 
-                flush:function(){
-                    if(this._timerQueue.length!=0){
-                        this.skip();
-                    }else{
-                        this.fade(this._buffer[this._front],0,this.fadeTime);
-                        this.fade(this._buffer[this._back],1,this.fadeTime);
-                    }
+                flush:async function(){
+                    if(this._fading)return;
+
+                    this._fading=true;
+                    let fadeout = this.fade(this._buffer[this._front],0,this.fadeTime);
+                    let fadein = this.fade(this._buffer[this._back],1,this.fadeTime);
+                    await fadein;
+                    await fadeout;
+
+                    this._fading=false;
 
                     this._swap();
                 },
@@ -62,38 +65,28 @@
                     this._back=t;
                 },
 
-                skip:function(){
-                    for(let timer of this._timerQueue)
-                        clearInterval(timer);
-                    this._timerQueue = [];
-
-                    this._buffer[this._back].style.opacity=1;
-                    this._buffer[this._front].style.opacity=0;
-                },
-
                 fade:function(img,to,time){
-                    let total = to - Number.parseFloat(img.style.opacity || "1");
-                    let stepTime = 1000 / this.FPS;
-                    let step = total / (time / stepTime);
-                    let totalTime = 0;
+                    return new Promise((resolve, reject) => {
+                        let total = to - Number.parseFloat(img.style.opacity || "1");
+                        let stepTime = 1000 / this.FPS;
+                        let step = total / (time / stepTime);
+                        let totalTime = 0;
 
-                    let timer = setInterval(()=>{
-                        if (totalTime > time){
-                            clearInterval(timer);
-                            let index = this._timerQueue.findIndex((t)=>t===timer);
-                            if(index != -1)
-                                this._timerQueue.splice(index,1);
-                        }
+                        let timer = setInterval(() => {
+                            if (totalTime > time) {
+                                clearInterval(timer);
+                                resolve(true);
+                            }
 
-                        let opacity = Number.parseFloat(img.style.opacity || "1") + step;
+                            let opacity = Number.parseFloat(img.style.opacity || "1") + step;
 
-                        img.style.opacity = Math.min(1, Math.max(0, opacity));
+                            img.style.opacity = Math.min(1, Math.max(0, opacity));
 
-                        totalTime += stepTime;
-                    },stepTime);
-                    this._timerQueue.push(timer);
-                },
-            }
+                            totalTime += stepTime;
+                        }, stepTime);
+                    });
+                }
+            };
 
             bgSwapper.init(fadeTime,FPS);
             debugSwapper=bgSwapper;
@@ -101,7 +94,7 @@
             let lastBeatmapInfo = {};
             async function loop() {
                 let beatmapInfo = await ortdp.getBeatmapInfo();
-                if(beatmapInfo!=null){
+                if(beatmapInfo!=null&&beatmapInfo.beatmapId!=-1){
                     if (beatmapInfo.backroundFilename != lastBeatmapInfo.backroundFilename &&
                         !beatmapInfo.equals(lastBeatmapInfo)) {
 
