@@ -45,12 +45,12 @@
     </style>
 
     <script>
-        const fadeTime = 1000;
-        window.onload = async function () {
-            let _url = new URL(window.location.href);
-            let host = _url.searchParams.get('host') || "localhost";
-            let port = _url.searchParams.get('port') || "10800";
+        let _url = new URL(window.location.href);
+        let fadeTime = Number.parseInt(_url.searchParams.get('fadeTime') || "350");//ms
+        let host = _url.searchParams.get('host') || "localhost";
+        let port = _url.searchParams.get('port') || "10800";
 
+        window.onload = async function () {
             let oddr = new ODDR(host, port);
             let ortdp = new ORTDP(oddr);
 
