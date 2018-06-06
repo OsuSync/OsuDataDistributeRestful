@@ -26,14 +26,14 @@ namespace OsuDataDistributeRestful
             get => Setting.FileServerRootPath;
         }
 
-        [Integer(MinValue = 5000,MaxValue = 65535,RequireRestart = true)]
+        [Integer(MinValue = 5000, MaxValue = 65535, RequireRestart = true)]
         public ConfigurationElement ApiPort
         {
             set => Setting.ApiPort = int.Parse(value);
             get => Setting.ApiPort.ToString();
         }
 
-        [Integer(MinValue = 5000, MaxValue = 65535,RequireRestart = true)]
+        [Integer(MinValue = 5000, MaxValue = 65535, RequireRestart = true)]
         public ConfigurationElement FilePort
         {
             set => Setting.FilePort = int.Parse(value);

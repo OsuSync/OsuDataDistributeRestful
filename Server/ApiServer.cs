@@ -7,7 +7,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Sockets;
 using System.Reflection;
 
 namespace OsuDataDistributeRestful.Server
@@ -17,12 +16,13 @@ namespace OsuDataDistributeRestful.Server
         private Dictionary<RouteTemplate, Method> m_route_dict =
             new Dictionary<RouteTemplate, Method>();
 
-        struct Method
+        private struct Method
         {
             public MethodInfo MethodInfo;
             public object Instance;
         }
-        class ParamCollection : Dictionary<string, string>
+
+        private class ParamCollection : Dictionary<string, string>
         {
             public ParamCollection()
             {
@@ -39,7 +39,8 @@ namespace OsuDataDistributeRestful.Server
                 return null;
             }
         }
-        class RouteTemplate
+
+        private class RouteTemplate
         {
             private struct TemplateNode
             {
@@ -98,7 +99,7 @@ namespace OsuDataDistributeRestful.Server
             }
         }
 
-        class Apis : IApi
+        private class Apis : IApi
         {
             private readonly ApiServer m_apiServer;
 
@@ -128,35 +129,21 @@ namespace OsuDataDistributeRestful.Server
         public void RegisterResource(IApi api)
         {
             Type api_type = api.GetType();
-            RouteAttribute api_route = api_type.GetCustomAttribute<RouteAttribute>()??new RouteAttribute("/");
+            RouteAttribute api_route = api_type.GetCustomAttribute<RouteAttribute>() ?? new RouteAttribute("/");
 
-            foreach(var method in api_type.GetMethods())
+            foreach (var method in api_type.GetMethods())
             {
                 RouteAttribute method_route = method.GetCustomAttribute<RouteAttribute>();
                 if (method_route != null)
                 {
                     string route = method_route.Route;
                     if (route[0] == '/')
-                        route=route.Remove(0,1);
+                        route = route.Remove(0, 1);
 
-                    route = Path.Combine(api_route.Route, route).Replace(Path.DirectorySeparatorChar,'/');
+                    route = Path.Combine(api_route.Route, route).Replace(Path.DirectorySeparatorChar, '/');
 
                     RouteTemplate route_template = new RouteTemplate(route);
                     m_route_dict.Add(route_template, new Method() { Instance = api, MethodInfo = method });
-                }
-            }
-        }
-
-        protected override void OnStarted()
-        {
-            if (AllowLAN)
-            {
-                //Display IP Address
-                var ips = Dns.GetHostEntry(Dns.GetHostName()).AddressList.Where(ip => ip.AddressFamily == AddressFamily.InterNetwork);
-                int n = 1;
-                foreach (var ip in ips)
-                {
-                    IO.CurrentIO.Write($"[ODDR]IP {n++}:{ip}");
                 }
             }
         }
@@ -195,7 +182,7 @@ namespace OsuDataDistributeRestful.Server
                         Return404(response);
                     }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     IO.CurrentIO.WriteColor(e.ToString(), ConsoleColor.Yellow);
                     Return500(response);
@@ -207,9 +194,9 @@ namespace OsuDataDistributeRestful.Server
             }
         }
 
-        private ActionResult CallMethod(Method method,ParamCollection @params)
+        private ActionResult CallMethod(Method method, ParamCollection @params)
         {
-            var params_instance=method.MethodInfo.GetParameters()
+            var params_instance = method.MethodInfo.GetParameters()
                 .Select(p => TypeConvert(p.ParameterType, @params.TryGetValue(p.Name)))
                 .ToArray();
             var ret = method.MethodInfo.Invoke(method.Instance, params_instance);
@@ -219,9 +206,9 @@ namespace OsuDataDistributeRestful.Server
             return ret as ActionResult;
         }
 
-        private object TypeConvert(Type type,string str)
+        private object TypeConvert(Type type, string str)
         {
-            object val=str;
+            object val = str;
 
             try
             {
@@ -234,7 +221,7 @@ namespace OsuDataDistributeRestful.Server
                 else if (type == typeof(float))
                     val = float.Parse(str, CultureInfo.InvariantCulture);
             }
-            catch(FormatException e)
+            catch (FormatException e)
             {
                 IO.CurrentIO.WriteColor($"[ODDR]{e}", ConsoleColor.Yellow);
             }

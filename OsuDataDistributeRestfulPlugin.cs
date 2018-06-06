@@ -4,7 +4,8 @@ using Sync.Plugins;
 using Sync.Tools;
 using System;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Net;
+using System.Net.Sockets;
 
 namespace OsuDataDistributeRestful
 {
@@ -27,10 +28,26 @@ namespace OsuDataDistributeRestful
             m_config_manager.AddItem(new SettingIni());
 
             ApiServer = new ApiServer(Setting.ApiPort);
+            EventBus.BindEvent<PluginEvents.ProgramReadyEvent>(e => ApiServer.Start());
+            if (Setting.AllowLAN)
+                EventBus.BindEvent<PluginEvents.ProgramReadyEvent>(e => PrintLanAddress());
+
             if (Setting.EnableFileHttpServer)
             {
                 fileHttpServer = new FileServer(Setting.FilePort);
                 fileHttpServer.Start();
+            }
+        }
+
+        private void PrintLanAddress()
+        {
+            //Display IP Address
+            var ips = Dns.GetHostEntry(Dns.GetHostName()).AddressList.Where(ip => ip.AddressFamily == AddressFamily.InterNetwork).Distinct();
+            int n = 1;
+            foreach (var ip in ips)
+            {
+                bool recommend = ip.ToString().StartsWith("192.168.");
+                IO.CurrentIO.WriteColor($"[ODDR]IP {n++}:{ip}", recommend ? ConsoleColor.Green : ConsoleColor.White);
             }
         }
 
@@ -82,8 +99,6 @@ namespace OsuDataDistributeRestful
         {
             Sync.Tools.IO.CurrentIO.WriteColor(PLUGIN_NAME + " By " + PLUGIN_AUTHOR, ConsoleColor.DarkCyan);
             Initialize();
-
-            base.EventBus.BindEvent<PluginEvents.ProgramReadyEvent>(e => ApiServer.Start());
         }
 
         public override void OnExit()

@@ -8,6 +8,7 @@ namespace OsuDataDistributeRestful.Server
     {
         public FileServer(int port = 10081) : base(port)
         {
+            AllowLAN = Setting.AllowLAN;
         }
 
         protected override void OnResponse(HttpListenerRequest request, HttpListenerResponse response)
@@ -46,8 +47,10 @@ namespace OsuDataDistributeRestful.Server
                 case ".htm":
                 case ".html":
                     return "text/html";
+
                 case ".js":
                     return "text/javascript";
+
                 case ".css":
                     return "text/css";
 

@@ -8,11 +8,12 @@ namespace OsuDataDistributeRestful.Server
         /// MIME
         /// </summary>
         public string ContentType { get; set; } = "application/octet-stream";
+
         public int Code { get; private set; } = 200;
 
         public object Data { get; private set; }
 
-        public ActionResult(object a,int code=200)
+        public ActionResult(object a, int code = 200)
         {
             ContentType = "text/json; charset=UTF-8";
             Data = a;

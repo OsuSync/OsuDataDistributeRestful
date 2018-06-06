@@ -21,7 +21,7 @@ namespace OsuDataDistributeRestful.Api
         public ActionResult GetDictValue(string providable_data_name)
         {
             if (!olsp.EnumProvidableDataName().Any(p => p == providable_data_name))
-                return new ActionResult(new { code = 404}, 404);
+                return new ActionResult(new { code = 404 }, 404);
 
             var result = olsp.GetData(providable_data_name);
             return new ActionResult(new
@@ -75,7 +75,7 @@ namespace OsuDataDistributeRestful.Api
             var result = olsp.GetData("olsp_mod_save_path") as string;
             if (string.IsNullOrEmpty(result)) return new ActionResult(null);
 
-            if(File.Exists(result))
+            if (File.Exists(result))
             {
                 var fs = File.Open(result, FileMode.Open, FileAccess.Read, FileShare.Read);
                 string ext = Path.GetExtension(result);

@@ -45,13 +45,17 @@ namespace OsuDataDistributeRestful.Server
                 }
                 catch (HttpListenerException e)
                 {
-                    if(e.ErrorCode == 0x80004005)
+                    switch (e.ErrorCode)
                     {
-                        Sync.Tools.IO.CurrentIO.WriteColor($"[ODDR]{string.Format(DefaultLanguage.PortIsOccupied, Port)}", ConsoleColor.Red);
-                    }
-                    else
-                    {
-                        Sync.Tools.IO.CurrentIO.WriteColor($"[ODDR]{DefaultLanguage.AllowRequireAdministrator}", ConsoleColor.Red);
+                        case 5:
+                            Sync.Tools.IO.CurrentIO.WriteColor($"[ODDR]{DefaultLanguage.AllowRequireAdministrator}", ConsoleColor.Red);
+                            break;
+                        case 32:
+                            Sync.Tools.IO.CurrentIO.WriteColor($"[ODDR]{string.Format(DefaultLanguage.PortIsOccupied, Port)}", ConsoleColor.Red);
+                            break;
+                        default:
+                            Sync.Tools.IO.CurrentIO.WriteColor($"[ODDR]{e}", ConsoleColor.Red);
+                            break;
                     }
                     return;
                 }

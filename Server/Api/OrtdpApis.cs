@@ -8,7 +8,6 @@ using Sync.Plugins;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using static OsuRTDataProvider.Listen.OsuListenerManager;
 
 namespace OsuDataDistributeRestful.Api
 {
@@ -46,19 +45,18 @@ namespace OsuDataDistributeRestful.Api
             return new { gameMode = mode, gameModeText = mode.ToString() };
         }
 
-
         [Route("/isTournetMode")]
-        public object GetTourneyMode() 
+        public object GetTourneyMode()
             => new { value = ortdp.TourneyListenerManagers != null };
 
         [Route("/tournetModeListenCount")]
-        public object GetTournetModeListenCount() 
+        public object GetTournetModeListenCount()
             => new { count = ortdp.TourneyListenerManagersCount };
 
         #region Beatmap
 
         [Route("/beatmap/info")]
-        public object GetBeatmapInfo()=>
+        public object GetBeatmapInfo() =>
             MakeBeatmap(ortdp.ListenerManager.GetCurrentData(ProvideDataMask.Beatmap).Beatmap);
 
         [Route("/beatmap")]
@@ -66,10 +64,10 @@ namespace OsuDataDistributeRestful.Api
         {
             var beatmap = ortdp.ListenerManager.GetCurrentData(ProvideDataMask.Beatmap).Beatmap;
 
-            if(File.Exists(beatmap.FilenameFull))
+            if (File.Exists(beatmap.FilenameFull))
                 return new ActionResult(File.OpenRead(beatmap.FilenameFull)) { ContentType = "text/plain; charset=utf-8" };
 
-            return new ActionResult(new { code = 404,message="no found beatmap file" });
+            return new ActionResult(new { code = 404, message = "no found beatmap file" });
         }
 
         [Route("/beatmap/audio")]
@@ -89,7 +87,7 @@ namespace OsuDataDistributeRestful.Api
                 };
             }
 
-            return new ActionResult(new { code = 404 },200);
+            return new ActionResult(new { code = 404 }, 200);
         }
 
         [Route("/beatmap/background")]
@@ -134,7 +132,7 @@ namespace OsuDataDistributeRestful.Api
             return new ActionResult(new { code = 404 }, 200);
         }
 
-        #endregion
+        #endregion Beatmap
 
         #region Playing
 
@@ -150,7 +148,7 @@ namespace OsuDataDistributeRestful.Api
         }
 
         [Route("/playing/info")]
-        public object GetPlayingInfo()=>
+        public object GetPlayingInfo() =>
             MakeProvideDatas(
                 ProvideDataMask.Score |
                 ProvideDataMask.HealthPoint |
@@ -178,17 +176,18 @@ namespace OsuDataDistributeRestful.Api
         public object GetPlayingTime()
             => new { time = ortdp.ListenerManager.GetCurrentData(ProvideDataMask.Time).Time };
 
-        #endregion
+        #endregion Playing
 
         #region tools
-        private object MakeProvideDatas(ProvideDataMask mask,Func<ProvideData,object> selector)
+
+        private object MakeProvideDatas(ProvideDataMask mask, Func<ProvideData, object> selector)
         {
             bool isTourney = ortdp.TourneyListenerManagersCount != 0;
 
             var ret = new
             {
                 tourneyMode = isTourney,
-                count = isTourney ? ortdp.TourneyListenerManagersCount:1,
+                count = isTourney ? ortdp.TourneyListenerManagersCount : 1,
                 list = new List<object>()
             };
 
@@ -256,8 +255,8 @@ namespace OsuDataDistributeRestful.Api
                 folder = Path.GetFileName(beatmap.Folder),
                 filename = beatmap.Filename,
                 audioFilename = beatmap.AudioFilename,
-                backroundFilename=beatmap.BackgroundFilename,
-                videoFilename=beatmap.VideoFilename
+                backroundFilename = beatmap.BackgroundFilename,
+                videoFilename = beatmap.VideoFilename
             };
         }
 
@@ -265,16 +264,17 @@ namespace OsuDataDistributeRestful.Api
         {
             switch (fileExtention.ToLower())
             {
-                case ".jpg":case ".jpeg": return "image/jpeg";
-                case ".png":return "image/png";
-                case ".ogg":return "audio/ogg";
+                case ".jpg": case ".jpeg": return "image/jpeg";
+                case ".png": return "image/png";
+                case ".ogg": return "audio/ogg";
 
-                case ".mp4":return "video/mp4";
-                case ".avi":return "video/x-msvideo";
+                case ".mp4": return "video/mp4";
+                case ".avi": return "video/x-msvideo";
                 default:
                     return "application/octet-stream";
             }
         }
-        #endregion
+
+        #endregion tools
     }
 }

@@ -35,11 +35,11 @@ namespace OsuDataDistributeRestful.Api
         [Route("/playingStatus")]
         public object GetPlayingStatus()
         {
-            List < RestfulDisplayer > displayers = EnumerateRestfulDisplayers();
+            List<RestfulDisplayer> displayers = EnumerateRestfulDisplayers();
             return new
             {
                 count = displayers.Count,
-                list = displayers.Select(d=> new { playing = d?.IsPlay})
+                list = displayers.Select(d => new { playing = d?.IsPlay })
             };
         }
 
@@ -57,8 +57,8 @@ namespace OsuDataDistributeRestful.Api
 
             return new
             {
-                count =displayers.Count,
-                list = displayers.Select(d=>(d?.PPTuple == null) ? null : MakePP(d?.PPTuple))
+                count = displayers.Count,
+                list = displayers.Select(d => (d?.PPTuple == null) ? null : MakePP(d?.PPTuple))
             };
         }
 
@@ -110,6 +110,7 @@ namespace OsuDataDistributeRestful.Api
                 maxpp = tuple?.MaxPP,
             };
         }
+
         private object MakeHitCount(HitCountTuple? tuple)
         {
             return new
@@ -139,7 +140,7 @@ namespace OsuDataDistributeRestful.Api
 
         private List<RestfulDisplayer> EnumerateRestfulDisplayers()
         {
-            List<RestfulDisplayer> displayers=new List<RestfulDisplayer>();
+            List<RestfulDisplayer> displayers = new List<RestfulDisplayer>();
             if (rtppd.TourneyMode)
             {
                 for (int i = 0; i < rtppd.TourneyWindowCount; i++)
@@ -151,7 +152,7 @@ namespace OsuDataDistributeRestful.Api
             return displayers;
         }
 
-        class RestfulDisplayer : DisplayerBase
+        private class RestfulDisplayer : DisplayerBase
         {
             public bool IsPlay { get; private set; } = false;
             public HitCountTuple HitCountTuple { get; private set; }
