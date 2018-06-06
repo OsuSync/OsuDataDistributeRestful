@@ -12,7 +12,7 @@ using System.Reflection;
 
 namespace OsuDataDistributeRestful.Server
 {
-    internal class ApiServer : ServerBase
+    public class ApiServer : ServerBase
     {
         private Dictionary<RouteTemplate, Method> m_route_dict =
             new Dictionary<RouteTemplate, Method>();
