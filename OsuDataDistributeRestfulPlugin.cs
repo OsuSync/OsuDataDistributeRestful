@@ -24,6 +24,7 @@ namespace OsuDataDistributeRestful
 
         public OsuDataDistributeRestfulPlugin() : base(PLUGIN_NAME, PLUGIN_AUTHOR)
         {
+            I18n.Instance.ApplyLanguage(new DefaultLanguage());
             m_config_manager = new PluginConfigurationManager(this);
             m_config_manager.AddItem(new SettingIni());
 
