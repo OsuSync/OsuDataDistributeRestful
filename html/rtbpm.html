@@ -68,8 +68,16 @@
                             bpmLabel.textContent = "BPM: " + Math.round(Math.round(timing.bpm) * mods.timeRate);
                         } else if (status.statusText == 'Listening') {
                             let timing = beatmap.getTiming(0);
+                            let mods = await ortdp.getPlayingModsAt(0);
+
                             let minBpm = Math.round(beatmap.minBpm);
                             let maxBpm = Math.round(beatmap.maxBpm);
+
+                            if(mods.mods!=0xFFFFFFFF)
+                            {
+                                minBpm = Math.round(minBpm*mods.timeRate);
+                                maxBpm = Math.round(maxBpm*mods.timeRate);
+                            }
 
                             if (maxBpm == minBpm)
                                 bpmLabel.textContent = "BPM: " + minBpm;
