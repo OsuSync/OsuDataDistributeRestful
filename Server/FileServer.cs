@@ -13,7 +13,7 @@ namespace OsuDataDistributeRestful.Server
 
         protected override void OnResponse(HttpListenerRequest request, HttpListenerResponse response)
         {
-            var url = HttpUtility.UrlDecode(request.RawUrl).Remove(0, 1);
+            var url = request.Url.LocalPath.Remove(0, 1);
             var filename = Path.Combine(Setting.FileServerRootPath, url);
             if (!url.Contains(".."))
             {
