@@ -15,7 +15,7 @@ namespace OsuDataDistributeRestful
     {
         public const string PLUGIN_NAME = "OsuDataDistributeRestful";
         public const string PLUGIN_AUTHOR = "KedamavOvO";
-        public const string VERSION = "0.3.0";
+        public const string VERSION = "0.3.1";
 
         public ApiServer ApiServer { get; private set; }
         private FileServer fileHttpServer;
