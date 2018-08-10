@@ -105,15 +105,17 @@
 					//display function
 					function display_content() {
 						if (playing === true) {
+							let tuple = Object.assign(current_pp,hit_count);
+
 							if (current_pp !== null) {
 								current_pp = SmoothObject(current_pp, target_pp);
 								if (pp_formatter != null)
-									html_pp.textContent = pp_formatter.Format(current_pp, digits);
+									html_pp.textContent = pp_formatter.Format(tuple, digits);
 							}
 
 							if (hit_count !== null)
 								if (hit_count_formatter != null)
-									html_hit_count.textContent = hit_count_formatter.Format(hit_count, 0);
+									html_hit_count.textContent = hit_count_formatter.Format(tuple, 0);
 						}
 						else {
 							html_pp.textContent = "";

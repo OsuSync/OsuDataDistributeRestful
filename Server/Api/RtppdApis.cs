@@ -123,10 +123,14 @@ namespace OsuDataDistributeRestful.Api
                 n50 = tuple?.Count50,
                 nmiss = tuple?.CountMiss,
 
-                rtmaxcombo = tuple?.RealTimeMaxCombo,
+                rtmaxcombo = tuple?.CurrentMaxCombo,
                 maxcombo = tuple?.PlayerMaxCombo,
                 fullcombo = tuple?.FullCombo,
-                combo = tuple?.Combo
+                combo = tuple?.Combo,
+                objectsCount = tuple?.ObjectsCount,
+
+                time = tuple?.PlayTime,
+                duration = tuple?.Duration
             };
         }
 
