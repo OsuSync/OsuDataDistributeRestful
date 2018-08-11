@@ -83,7 +83,9 @@ class Formatter
 				Math.ceil,
 				Math.round,
 				Math.sign,
-				(a,min,max)=>Math.max(Math.min(a,max),min)
+				(a,min,max)=>Math.max(Math.min(a,max),min),
+				(a,b,t)=>(1-t)*a+t*b,
+				(a,b)=>(a||0)+Math.random()*((b||1)-(a||0))
 			).toFixed(digital);
 			formatted=formatted.replace("${"+this.args[i].exprStr+"}",value);
 		}
@@ -147,6 +149,8 @@ class Formatter
 			"sign",
 			"truncate",
 			"clamp",
+			"lerp",
+			"random"
 			`return ${expr}`
 		);
 	}

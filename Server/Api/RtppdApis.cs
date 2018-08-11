@@ -175,15 +175,11 @@ namespace OsuDataDistributeRestful.Api
                 HitCountTuple = new HitCountTuple();
             }
 
-            public override void OnUpdateHitCount(HitCountTuple tuple)
-            {
-                HitCountTuple = tuple;
-            }
-
-            public override void OnUpdatePP(PPTuple tuple)
+            public override void Display()
             {
                 IsPlay = true;
-                PPTuple = tuple;
+                PPTuple = Pp;
+                HitCountTuple = HitCount;
             }
         }
     }
