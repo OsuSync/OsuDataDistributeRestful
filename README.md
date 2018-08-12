@@ -3,7 +3,9 @@
 2. copy to **Sync folde**r
 3. add **restful** to **OutputMethods** in **config.ini**
 4. add **Browser Source** to scene in **OBS**. 
-5. type **{your sync folder}/html/rtpp.html** or **http://oddr.kedamaovo.net/OsuDataDistributeRestful/rtpp.html** in Browser Source
+5. type **{your sync folder}/html/rtpp.html** or **http://oddr.kedamaovo.moe/rtpp.html** in Browser Source
+6. **If you want to let other devices display PP via LAN, please read [here](https://github.com/OsuSync/OsuDataDistributeRestful/wiki/How-to-display-realtime-to-my-other-devices%3F-(e.g-Phone)).**
+
 
 # Config.ini
 | Setting Name | Default Value | Description |
