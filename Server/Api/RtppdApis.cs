@@ -1,4 +1,4 @@
-﻿using OsuDataDistributeRestful.Server;
+using OsuDataDistributeRestful.Server;
 using OsuDataDistributeRestful.Server.Api;
 using RealTimePPDisplayer;
 using RealTimePPDisplayer.Displayer;
@@ -84,11 +84,49 @@ namespace OsuDataDistributeRestful.Api
 
         [Route("/ppFormat")]
         public object GetPPFormat()
-            => new { format = StringFormatter.GetPPFormatter().Format };
+            => new {format = StringFormatter.GetPPFormatter().Format};
 
         [Route("/hitCountFormat")]
         public object GetHitCountFormat()
-            => new { format = StringFormatter.GetHitCountFormatter().Format };
+            => new {format = StringFormatter.GetHitCountFormatter().Format};
+
+        [Route("/formated/pp")]
+        public object GetFormatedPP()
+        {
+            List<RestfulDisplayer> displayers = EnumerateRestfulDisplayers();
+
+            return new
+            {
+                count = displayers.Count,
+                list = displayers.Select(d=>d.FormatPp())
+            };
+        }
+
+        [Route("/formated/pp/{0}")]
+        public object GetFormatedPP(int id)
+        {
+            RestfulDisplayer displayer = GetDisplayer(id);
+            return displayer.FormatPp();
+        }
+
+        [Route("/formated/hitCount/{0}")]
+        public object GetFormatedHitCount(int id)
+        {
+            RestfulDisplayer displayer = GetDisplayer(id);
+            return displayer.FormatHitCount();
+        }
+
+        [Route("/formated/hitCount")]
+        public object GetFormatedHitCount()
+        {
+            List<RestfulDisplayer> displayers = EnumerateRestfulDisplayers();
+
+            return new
+            {
+                count = displayers.Count,
+                list = displayers.Select(d => d.FormatHitCount())
+            };
+        }
 
         private object MakePP(PPTuple? tuple)
         {
