@@ -5,6 +5,7 @@ using RealTimePPDisplayer.Displayer;
 using Sync.Plugins;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace OsuDataDistributeRestful.Api
 {
@@ -47,7 +48,7 @@ namespace OsuDataDistributeRestful.Api
         public object GetPP(int id)
         {
             RestfulDisplayer displayer = GetDisplayer(id);
-            return (displayer?.PPTuple == null) ? null : MakePP(displayer?.PPTuple);
+            return (displayer?.PPTuple == null) ? null : MakeTupleResult(displayer?.PPTuple);
         }
 
         [Route("/pp")]
@@ -58,7 +59,7 @@ namespace OsuDataDistributeRestful.Api
             return new
             {
                 count = displayers.Count,
-                list = displayers.Select(d => (d?.PPTuple == null) ? null : MakePP(d?.PPTuple))
+                list = displayers.Select(d => (d?.PPTuple == null) ? null : MakeTupleResult(d?.PPTuple))
             };
         }
 
@@ -67,7 +68,7 @@ namespace OsuDataDistributeRestful.Api
         {
             RestfulDisplayer displayer = GetDisplayer(id);
 
-            return (displayer?.HitCountTuple) == null ? null : MakeHitCount(displayer?.HitCountTuple);
+            return (displayer?.HitCountTuple) == null ? null : MakeTupleResult(displayer?.HitCountTuple);
         }
 
         [Route("/hitCount")]
@@ -78,7 +79,27 @@ namespace OsuDataDistributeRestful.Api
             return new
             {
                 count = displayers.Count,
-                list = displayers.Select(d => (d?.HitCountTuple == null) ? null : MakeHitCount(d?.HitCountTuple))
+                list = displayers.Select(d => (d?.HitCountTuple == null) ? null : MakeTupleResult(d?.HitCountTuple))
+            };
+        }
+
+        [Route("/beatmap/{id}")]
+        public object GetBeatmap(int id)
+        {
+            RestfulDisplayer displayer = GetDisplayer(id);
+
+            return (displayer?.HitCountTuple) == null ? null : MakeTupleResult(displayer?.BeatmapTuple);
+        }
+
+        [Route("/beatmap")]
+        public object GetBeatmap()
+        {
+            List<RestfulDisplayer> displayers = EnumerateRestfulDisplayers();
+
+            return new
+            {
+                count = displayers.Count,
+                list = displayers.Select(d => (d?.HitCountTuple == null) ? null : MakeTupleResult(d?.BeatmapTuple))
             };
         }
 
@@ -128,48 +149,20 @@ namespace OsuDataDistributeRestful.Api
             };
         }
 
-        private object MakePP(PPTuple? tuple)
+        private object MakeTupleResult<T>(T? tuple) where T:struct
         {
-            return new
+            Dictionary<string,object> dict = new Dictionary<string, object>();
+            T ntuple = tuple.Value;
+
+            foreach (var field in typeof(T).GetFields(BindingFlags.GetField|BindingFlags.Instance|BindingFlags.Public))
             {
-                fcppAim = tuple?.FullComboAimPP,
-                fcppSpeed = tuple?.FullComboSpeedPP,
-                fcppAccuracy = tuple?.FullComboAccuracyPP,
-                fcpp = tuple?.FullComboPP,
+                string name = field.Name;
+                string name1 = name.Substring(0, 1).ToLower();
+                string name2 = name.Substring(1);
+                dict.Add(name1+name2,field.GetValue(ntuple));
+            }
 
-                rtppAim = tuple?.RealTimeAimPP,
-                rtppSpeed = tuple?.RealTimeSpeedPP,
-                rtppAccuracy = tuple?.RealTimeAccuracyPP,
-                rtpp = tuple?.RealTimePP,
-
-                maxppAim = tuple?.MaxAimPP,
-                maxppSpeed = tuple?.MaxSpeedPP,
-                maxppAccuracy = tuple?.MaxAccuracyPP,
-                maxpp = tuple?.MaxPP,
-            };
-        }
-
-        private object MakeHitCount(HitCountTuple? tuple)
-        {
-            return new
-            {
-                n300g = tuple?.CountGeki,
-                n300 = tuple?.Count300,
-                n200 = tuple?.CountKatu,
-                n150 = tuple?.Count100,
-                n100 = tuple?.Count100,
-                n50 = tuple?.Count50,
-                nmiss = tuple?.CountMiss,
-
-                rtmaxcombo = tuple?.CurrentMaxCombo,
-                maxcombo = tuple?.PlayerMaxCombo,
-                fullcombo = tuple?.FullCombo,
-                combo = tuple?.Combo,
-                objectsCount = tuple?.ObjectsCount,
-
-                time = tuple?.PlayTime,
-                duration = tuple?.Duration
-            };
+            return dict;
         }
 
         private RestfulDisplayer GetDisplayer(int i)
