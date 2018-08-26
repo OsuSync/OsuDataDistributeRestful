@@ -3,6 +3,16 @@
 class ORTDP {
     constructor(oddr){
         this._oddr=oddr;
+
+        this.STATUS_NO_FOUND_PROCESS = 1 << 0;
+        this.STATUS_UNKONWN = 1 << 1;
+        this.STATUS_SELECT_SONG = 1<<2,
+        this.STATUS_PLAYING = 1 << 3;
+        this.STATUS_EDITING = 1 << 4;
+        this.STATUS_RANK = 1 << 5;
+        this.STATUS_MATCH_SETUP = 1 << 6;
+        this.STATUS_LOBBY = 1 << 7;
+        this.STATUS_IDLE = 1 << 8;
     }
 
     async getIsTourneyMode(){
@@ -121,5 +131,13 @@ class ORTDP {
 
     async getGameModeList(){
         return await this._oddr.get(`api/ortdp/gameMode`);
+    }
+
+    isListening(status){
+        if(status instanceof Object)
+            status = status.status;
+
+        let listen = this.STATUS_SELECT_SONG | this.STATUS_MATCH_SETUP | this.STATUS_LOBBY | this.IDLE;
+        return (listen & status) == status;
     }
 }
