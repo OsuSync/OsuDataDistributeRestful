@@ -31,33 +31,33 @@ class Formatter
 		for(let i=0;i<this.args.length;++i)
 		{
 			let expr=this.args[i].expr;
-			let value=expr(
-				tuple.rtpp,
-				tuple.rtppAccuracy,
-				tuple.rtppAim,
-				tuple.rtppSpeed,
-				tuple.maxpp,
-				tuple.maxAccuracy,
-				tuple.maxAim,
-				tuple.maxSpeed,
-				tuple.fcpp,
-				tuple.fcppAccuracy,
-				tuple.fcppAim,
-				tuple.fcppSpeed,
-				tuple.n300,
-				tuple.n300g,
-				tuple.n200,
-				tuple.n150,
-				tuple.n100,
-				tuple.n50,
-				tuple.n200,
-				tuple.n300g,
-				tuple.nmiss,
-				tuple.rtmaxcombo,
-				tuple.rtmaxcombo,
-				tuple.maxcombo,
-				tuple.maxcombo,
-				tuple.fullcombo,
+			let ret=expr(
+				tuple.realTimePP,
+				tuple.realTimeAccuracyPP,
+				tuple.realTimeAimPP,
+				tuple.realTimeSpeedPP,
+				tuple.maxPP,
+				tuple.maxAccuracyPP,
+				tuple.maxAimPP,
+				tuple.maxSpeedPP,
+				tuple.fullComboPP,
+				tuple.fullComboAccuracyPP,
+				tuple.fullComboAimPP,
+				tuple.fullComboSpeedPP,
+				tuple.count300,
+				tuple.countGeki,
+				tuple.countKatu,
+				tuple.count100,
+				tuple.count100,
+				tuple.count50,
+				tuple.countKatu,
+				tuple.countGeki,
+				tuple.countMiss,
+				tuple.currentMaxCombo,
+				tuple.currentMaxCombo,
+				tuple.playerMaxCombo,
+				tuple.playerMaxCombo,
+				tuple.fullCombo,
 				tuple.combo,
 				tuple.objectsCount,
 				tuple.time,
@@ -83,11 +83,13 @@ class Formatter
 				Math.ceil,
 				Math.round,
 				Math.sign,
+				Math.trunc,
 				(a,min,max)=>Math.max(Math.min(a,max),min),
 				(a,b,t)=>(1-t)*a+t*b,
 				(a,b)=>(a||0)+Math.random()*((b||1)-(a||0)),
 				()=>new Date().getTime()
-			).toFixed(digital);
+			);
+			let value = ret.toFixed(digital);
 			formatted=formatted.replace("${"+this.args[i].exprStr+"}",value);
 		}
 		
@@ -145,15 +147,15 @@ class Formatter
 			"log",
 			"log10",
 			"floor",
-			"ceiling",
+			"ceil",
 			"round",
 			"sign",
 			"truncate",
 			"clamp",
 			"lerp",
 			"random",
-			"getTime"
-			`return ${expr}`
+			"getTime",
+			`return ${expr};`
 		);
 	}
 }

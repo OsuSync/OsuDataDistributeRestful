@@ -36,4 +36,12 @@ class RTPPD {
     async getPlayingStatusList() {
         return await this._oddr.get(`api/rtppd/playingStatus`);
     }
+
+    async getBeatmapTupleAt(id = 0){
+        return await this._oddr.get(`api/rtppd/beatmapTuple/${id}`);
+    }
+
+    async getBeatmapTupleList(){
+        return await this._oddr.get(`api/rtppd/beatmapTuple`);
+    }
 }

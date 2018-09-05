@@ -83,7 +83,7 @@ namespace OsuDataDistributeRestful.Api
             };
         }
 
-        [Route("/beatmap/{id}")]
+        [Route("/beatmapTuple/{id}")]
         public object GetBeatmap(int id)
         {
             RestfulDisplayer displayer = GetDisplayer(id);
@@ -91,7 +91,7 @@ namespace OsuDataDistributeRestful.Api
             return (displayer?.HitCountTuple) == null ? null : MakeTupleResult(displayer?.BeatmapTuple);
         }
 
-        [Route("/beatmap")]
+        [Route("/beatmapTuple")]
         public object GetBeatmap()
         {
             List<RestfulDisplayer> displayers = EnumerateRestfulDisplayers();

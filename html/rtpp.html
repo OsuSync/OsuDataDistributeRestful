@@ -5,6 +5,7 @@
 		<title>Displayer</title>
 		<script src="js/ODDR.js"></script>
 		<script src="js/rtppd/RTPPD.js"></script>
+		<script src="js/ORTDP.js"></script>
 		<script src="js/Smoother.js"></script>
 		<script src="js/rtppd/Formatter.js"></script>
 		<style type="text/css">
@@ -59,6 +60,7 @@
 					let target_pp = null;
 
 					let hit_count = null;
+					let beatmapTuple = null;
 
 					let smoothers = {};
 					let pp_formatter = null;
@@ -69,6 +71,7 @@
 					//initialize ODDR and RTPPD
 					let oddr = new ODDR(host,port);
 					let rtppd = new RTPPD(oddr);
+					let ortdp = new ORTDP(host,port);
 
 					//get pp format and hit count format
 					rtppd.getPerformancePointFormatString().then(function (format_json) {
@@ -96,6 +99,8 @@
 							current_pp = target_pp;
 
 						hit_count = await rtppd.getHitCountAt(0);
+						beatmapTuple = await rtppd.getBeatmapTupleAt(0);
+						beatmapTuple.playtime = await ortdp.getPlayingTime();
 
 						playing = (await rtppd.getPlayingStatusAt(0)).playing;
 
@@ -106,6 +111,7 @@
 					function display_content() {
 						if (playing === true) {
 							let tuple = Object.assign(current_pp,hit_count);
+							tuple = Object.assign(tuple,beatmapTuple);
 
 							if (current_pp !== null) {
 								current_pp = SmoothObject(current_pp, target_pp);
