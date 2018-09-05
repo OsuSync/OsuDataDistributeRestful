@@ -71,7 +71,7 @@
 					//initialize ODDR and RTPPD
 					let oddr = new ODDR(host,port);
 					let rtppd = new RTPPD(oddr);
-					let ortdp = new ORTDP(host,port);
+					let ortdp = new ORTDP(oddr);
 
 					//get pp format and hit count format
 					rtppd.getPerformancePointFormatString().then(function (format_json) {
