@@ -100,7 +100,7 @@
 
 						hit_count = await rtppd.getHitCountAt(0);
 						beatmapTuple = await rtppd.getBeatmapTupleAt(0);
-						beatmapTuple.playtime = await ortdp.getPlayingTime();
+						beatmapTuple.time = await ortdp.getPlayingTime();
 
 						playing = (await rtppd.getPlayingStatusAt(0)).playing;
 
