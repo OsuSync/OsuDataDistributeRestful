@@ -1,37 +1,32 @@
 "use strict";
 
-class Formatter
-{
-	constructor(format)
-	{
-		var pattern=/\$\{(([A-Z]|[a-z]|[0-9]|_|\.|,|\(|\)|\^|\+|\-|\*|\/)+?)?(@\d+)?\}/g;
-		
-		this.format=format;
-		this.args=[];
-		
-		while(true)
-		{
-			let arg=pattern.exec(this.format);
+class Formatter {
+	constructor(format) {
+		var pattern = /\$\{(([A-Z]|[a-z]|[0-9]|_|\.|,|\(|\)|\^|\+|\-|\*|\/)+?)?(@\d+)?\}/g;
+
+		this.format = format;
+		this.args = [];
+
+		while (true) {
+			let arg = pattern.exec(this.format);
 			let digital = 2;
-			if(arg==null)break;
-			let rawExpr = arg[0].substring(2,arg[0].length-1)
+			if (arg == null) break;
+			let rawExpr = arg[0].substring(2, arg[0].length - 1)
 			let breakdExpr = rawExpr.split("@");
 			this.args.push({
-				exprStr:rawExpr,
-				expr:this._CreateExprFunction(breakdExpr[0]),
-				digital:Number.parseInt(breakdExpr[1])
+				exprStr: rawExpr,
+				expr: this._CreateExprFunction(breakdExpr[0]),
+				digital: Number.parseInt(breakdExpr[1])
 			});
 		}
 	}
-	
-	Format(tuple,digital)
-	{
-		let formatted=this.format;
 
-		for(let i=0;i<this.args.length;++i)
-		{
-			let expr=this.args[i].expr;
-			let ret=expr(
+	Format(tuple, digital) {
+		let formatted = this.format;
+
+		for (let i = 0; i < this.args.length; ++i) {
+			let expr = this.args[i].expr;
+			let ret = expr(
 				tuple.realTimePP,
 				tuple.realTimeAccuracyPP,
 				tuple.realTimeAimPP,
@@ -84,20 +79,20 @@ class Formatter
 				Math.round,
 				Math.sign,
 				Math.trunc,
-				(a,min,max)=>Math.max(Math.min(a,max),min),
-				(a,b,t)=>(1-t)*a+t*b,
-				(a,b)=>(a||0)+Math.random()*((b||1)-(a||0)),
-				()=>new Date().getTime()
+				(a, min, max) => Math.max(Math.min(a, max), min),
+				(a, b, t) => (1 - t) * a + t * b,
+				(a, b) => (a || 0) + Math.random() * ((b || 1) - (a || 0)),
+				() => new Date().getTime(),
+				(a, b) => a % b
 			);
 			let value = ret.toFixed(digital);
-			formatted=formatted.replace("${"+this.args[i].exprStr+"}",value);
+			formatted = formatted.replace("${" + this.args[i].exprStr + "}", value);
 		}
-		
+
 		return formatted;
 	}
 
-	_CreateExprFunction(expr)
-	{
+	_CreateExprFunction(expr) {
 		return new Function(
 			"rtpp",
 			"rtpp_acc",
@@ -155,6 +150,7 @@ class Formatter
 			"lerp",
 			"random",
 			"getTime",
+			"mod",
 			`return ${expr};`
 		);
 	}
