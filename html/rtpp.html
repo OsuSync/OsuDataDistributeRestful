@@ -79,11 +79,11 @@
 
 			//get pp format and hit count format
 			rtppd.getPerformancePointFormatString().then(function (format_json) {
-				pp_formatter = new Formatter(format_json.format);
+				pp_formatter = new Formatter(format_json.format,digits);
 			});
 
 			rtppd.getHitCountFormatString().then(function (format_json) {
-				hit_count_formatter = new Formatter(format_json.format);
+				hit_count_formatter = new Formatter(format_json.format,0);
 			});
 
 			//smooth function
@@ -114,12 +114,12 @@
 					if (current_pp !== null) {
 						current_pp = SmoothObject(current_pp, target_pp);
 						if (pp_formatter != null)
-							html_pp.textContent = pp_formatter.Format(tuple, digits);
+							html_pp.textContent = pp_formatter.Format(tuple);
 					}
 
 					if (hit_count !== null)
 						if (hit_count_formatter != null)
-							html_hit_count.textContent = hit_count_formatter.Format(tuple, 0);
+							html_hit_count.textContent = hit_count_formatter.Format(tuple);
 				}
 
 				if(status != ortdp.STATUS_RANK && status != ortdp.STATUS_PLAYING){

@@ -5,7 +5,7 @@ String.prototype.splice = function(idx, rem, str) {
 };
 
 class Formatter {
-	constructor(format) {
+	constructor(format,digital = 2) {
 		var pattern = /\$\{(([A-Z]|[a-z]|[0-9]|_|\.|,|\(|\)|\^|\+|\-|\*|\/|\%|\<|\>|\=|\!|\||\&)+?)?(@\d+)?\}/g;
 
 		this.format = format;
@@ -14,14 +14,14 @@ class Formatter {
 
 		while (true) {
 			let arg = pattern.exec(this.format);
-			let digital = 2;
 			if (arg == null) break;
 			let rawExpr = arg[0].substring(2, arg[0].length - 1);
 			let breakdExpr = rawExpr.split("@");
+			digital = Number.parseInt(breakdExpr[1])||digital;
 			this.args.push({
 				exprStr: rawExpr,
 				expr: this._CreateExprFunction(this.preprocessExpr(breakdExpr[0])),
-				digital: Number.parseInt(breakdExpr[1])
+				digital: digital
 			});
 		}
 	}
@@ -34,6 +34,7 @@ class Formatter {
 
 	_set(name,val){
 		if(window[name]==undefined){
+			window[name]=0;
 			this.varNames.push(name);
 		}
 		window[name]=val;
@@ -46,7 +47,7 @@ class Formatter {
 		}
 	}
 
-	Format(tuple, digital) {
+	Format(tuple) {
 		let formatted = this.format;
 
 		for (let i = 0; i < this.args.length; ++i) {
@@ -122,7 +123,7 @@ class Formatter {
 					window[v] = 0;
 				}
 			}
-			let value = ret.toFixed(digital);
+			let value = ret.toFixed(this.args[i].digital);
 			formatted = formatted.replace("${" + this.args[i].exprStr + "}", value);
 		}
 
