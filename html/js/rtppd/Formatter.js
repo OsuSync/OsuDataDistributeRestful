@@ -160,7 +160,7 @@ class Formatter {
 			"fullcombo",
 			"combo",
 			"objects_count",
-			"time",
+			"playtime",
 			"duration",
 			"pi",
 			"e",
