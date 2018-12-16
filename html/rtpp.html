@@ -1,138 +1,141 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8" />
-		<title>Displayer</title>
-		<script src="js/ODDR.js"></script>
-		<script src="js/rtppd/RTPPD.js"></script>
-		<script src="js/ORTDP.js"></script>
-		<script src="js/Smoother.js"></script>
-		<script src="js/rtppd/Formatter.js"></script>
-		<style type="text/css">
-		body
-		{
-			background-color:#66CCFF;
+
+<head>
+	<meta charset="utf-8" />
+	<title>Displayer</title>
+	<script src="js/ODDR.js"></script>
+	<script src="js/rtppd/RTPPD.js"></script>
+	<script src="js/ORTDP.js"></script>
+	<script src="js/Smoother.js"></script>
+	<script src="js/rtppd/Formatter.js"></script>
+	<style type="text/css">
+		body {
+			background-color: #66CCFF;
 		}
 
-		.text
-		{
-			color:#FFFFFF;
-			text-align:center;
-			font-size:48px;
-			text-shadow:2px 2px 2px #000000;
-			font-family:sans-serif;
+		.text {
+			color: #FFFFFF;
+			text-align: center;
+			font-size: 48px;
+			text-shadow: 2px 2px 2px #000000;
+			font-family: sans-serif;
 		}
 
-		.text-hit-count
-		{
-			font-size:24px;
+		.text-hit-count {
+			font-size: 24px;
 		}
-		</style>
-	</head>
-	
-	<body>
-		<pre id="pp-lable" class="text">0.00pp</pre>
-		<pre id="hit-count-lable" class="text text-hit-count">0x100 0x50 0xMiss</pre>
-		
-		<script>
-				(async function () {
-					let html_hit_count = document.querySelector("#hit-count-lable");
-					let html_pp = document.querySelector("#pp-lable");
+	</style>
+</head>
 
-					let _url = new URL(window.location.href);
-					let host = _url.searchParams.get('host');
-					let port = _url.searchParams.get('port');
-					let digits = _url.searchParams.get('digits');
+<body>
+	<pre id="pp-lable" class="text">0.00pp</pre>
+	<pre id="hit-count-lable" class="text text-hit-count">0x100 0x50 0xMiss</pre>
 
-					if (host === null) host = "localhost";
-					if (port === null) port = "10800";
-					if (digits === null) digits = "2";
+	<script>
+		window.onerror = function (message, source, lineno, colno, error) {
+			const regex = /(\w) is not defined/;
+			console.log(message)
+			if (regex.test(message)) {
+				let v = regex.exec(message)[1];
+				window[v] = 0;
+			}
+		};
+		(async function () {
+			let html_hit_count = document.querySelector("#hit-count-lable");
+			let html_pp = document.querySelector("#pp-lable");
 
-					digits = Number.parseInt(digits);
+			let _url = new URL(window.location.href);
+			let host = _url.searchParams.get('host');
+			let port = _url.searchParams.get('port');
+			let digits = _url.searchParams.get('digits');
 
-					const st = 0.2;
-					const fps = 30;
-					const dt = 1.0 / fps;;
-					const render_interval = dt * 1000;
-					const get_interval = 200;
+			if (host === null) host = "localhost";
+			if (port === null) port = "10800";
+			if (digits === null) digits = "2";
 
-					let current_pp = null;
-					let target_pp = null;
+			digits = Number.parseInt(digits);
 
-					let hit_count = null;
-					let beatmapTuple = null;
+			const st = 0.2;
+			const fps = 30;
+			const dt = 1.0 / fps;;
+			const render_interval = dt * 1000;
+			const get_interval = 200;
 
-					let smoothers = {};
-					let pp_formatter = null;
-					let hit_count_formatter = null;
+			let current_pp = null;
+			let target_pp = null;
 
-					let playing = false;
+			let hit_count = null;
+			let beatmapTuple = null;
 
-					//initialize ODDR and RTPPD
-					let oddr = new ODDR(host,port);
-					let rtppd = new RTPPD(oddr);
-					let ortdp = new ORTDP(oddr);
+			let smoothers = {};
+			let pp_formatter = null;
+			let hit_count_formatter = null;
 
-					//get pp format and hit count format
-					rtppd.getPerformancePointFormatString().then(function (format_json) {
-						pp_formatter = new Formatter(format_json.format);
-					});
+			//initialize ODDR and RTPPD
+			let oddr = new ODDR(host, port);
+			let rtppd = new RTPPD(oddr);
+			let ortdp = new ORTDP(oddr);
 
-					rtppd.getHitCountFormatString().then(function (format_json) {
-						hit_count_formatter = new Formatter(format_json.format);
-					});
+			//get pp format and hit count format
+			rtppd.getPerformancePointFormatString().then(function (format_json) {
+				pp_formatter = new Formatter(format_json.format);
+			});
 
-					//smooth function
-					function SmoothObject(previous, target) {
-						for (let prop in target) {
-							if (smoothers[prop] === undefined)
-								smoothers[prop] = new Smoother(st, dt);
-							previous[prop] = smoothers[prop].SmoothDamp(previous[prop], target[prop]);
-						}
-						return previous;
+			rtppd.getHitCountFormatString().then(function (format_json) {
+				hit_count_formatter = new Formatter(format_json.format);
+			});
+
+			//smooth function
+			function SmoothObject(previous, target) {
+				for (let prop in target) {
+					if (smoothers[prop] === undefined)
+						smoothers[prop] = new Smoother(st, dt);
+					previous[prop] = smoothers[prop].SmoothDamp(previous[prop], target[prop]);
+				}
+				return previous;
+			}
+
+			//display function
+			async function display_content() {
+				target_pp = await rtppd.getPerformancePointAt(0);
+				if (current_pp === null)
+					current_pp = target_pp;
+
+				hit_count = await rtppd.getHitCountAt(0);
+				beatmapTuple = await rtppd.getBeatmapTupleAt(0);
+				beatmapTuple.time = await ortdp.getPlayingTime();
+				const status = (await ortdp.getGameStatusAt()).status;
+
+				if (status == ortdp.STATUS_PLAYING) {
+					let tuple = Object.assign(current_pp, hit_count);
+					tuple = Object.assign(tuple, beatmapTuple);
+
+					if (current_pp !== null) {
+						current_pp = SmoothObject(current_pp, target_pp);
+						if (pp_formatter != null)
+							html_pp.textContent = pp_formatter.Format(tuple, digits);
 					}
 
-					//get pp and hit count data
-					async function get_data() {
-						target_pp = await rtppd.getPerformancePointAt(0);
-						if (current_pp === null)
-							current_pp = target_pp;
+					if (hit_count !== null)
+						if (hit_count_formatter != null)
+							html_hit_count.textContent = hit_count_formatter.Format(tuple, 0);
+				}
 
-						hit_count = await rtppd.getHitCountAt(0);
-						beatmapTuple = await rtppd.getBeatmapTupleAt(0);
-						beatmapTuple.time = await ortdp.getPlayingTime();
+				if(status != ortdp.STATUS_RANK && status != ortdp.STATUS_PLAYING){
+					html_pp.textContent = "";
+					html_hit_count.textContent = "";
+					if(pp_formatter!=null)
+						pp_formatter.resetVariable();
+					if(hit_count_formatter!=null)
+						hit_count_formatter.resetVariable();
+				}
+				setTimeout(display_content, render_interval);
+			}
 
-						playing = (await rtppd.getPlayingStatusAt(0)).playing;
+			display_content();
+		})();
+	</script>
+</body>
 
-						setTimeout(get_data, get_interval);
-					}
-
-					//display function
-					function display_content() {
-						if (playing === true) {
-							let tuple = Object.assign(current_pp,hit_count);
-							tuple = Object.assign(tuple,beatmapTuple);
-
-							if (current_pp !== null) {
-								current_pp = SmoothObject(current_pp, target_pp);
-								if (pp_formatter != null)
-									html_pp.textContent = pp_formatter.Format(tuple, digits);
-							}
-
-							if (hit_count !== null)
-								if (hit_count_formatter != null)
-									html_hit_count.textContent = hit_count_formatter.Format(tuple, 0);
-						}
-						else {
-							html_pp.textContent = "";
-							html_hit_count.textContent = "";
-						}
-						setTimeout(display_content, render_interval);
-					}
-
-					get_data();
-					display_content();
-				})();
-		</script>
-	</body>
 </html>
