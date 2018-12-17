@@ -83,7 +83,7 @@ class Formatter {
 						tuple.objectsCount,
 						tuple.time,
 						tuple.duration,
-						//funtion
+						//function
 						(name, val) => this._set(name, val)
 					);
 					break;
@@ -147,6 +147,7 @@ class Formatter {
 
 window["pi"] = Math.PI;
 window["e"] = Math.E;
+window["inf"] = Number.POSITIVE_INFINITY;
 
 window["sin"] = Math.sin;
 window["cos"] = Math.cos;
@@ -173,3 +174,5 @@ window["random"] = (a, b) => (a || 0) + Math.random() * ((b || 1) - (a || 0));
 window["getTime"] = () => new Date().getTime();
 window["mod"] = (a, b) => a % b;
 window["_if"] = (cond, a, b) => cond ? a : b;
+window["isnan"] = Number.isNaN;
+window["isinf"] = (a) => a == Number.NEGATIVE_INFINITY || a == Number.POSITIVE_INFINITY;
