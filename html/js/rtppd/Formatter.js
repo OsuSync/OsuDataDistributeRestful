@@ -123,7 +123,7 @@ class Formatter {
 					const regex = /(\w+) is not defined/;
 					if (regex.test(message)) {
 						let v = regex.exec(message)[1];
-						window[v] = 0;
+						this._set(v,0);
 						continue;
 					}
 					console.error(message);
