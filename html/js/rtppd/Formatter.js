@@ -1,9 +1,5 @@
 "use strict";
 
-String.prototype.splice = function(idx, rem, str) {
-    return this.slice(0, idx) + str + this.slice(idx + Math.abs(rem));
-};
-
 class Formatter {
 	constructor(format,digital = 2) {
 		var pattern = /\$\{(([A-Z]|[a-z]|[0-9]|_|\.|,|\(|\)|\^|\+|\-|\*|\/|\%|\<|\>|\=|\!|\||\&)+?)?(@\d+)?\}/g;
@@ -87,34 +83,7 @@ class Formatter {
 						tuple.objectsCount,
 						tuple.time,
 						tuple.duration,
-						Math.PI,
-						Math.E,
 						//funtion
-						Math.sin,
-						Math.cos,
-						Math.tan,
-						Math.asin,
-						Math.acos,
-						Math.atan,
-						Math.pow,
-						Math.sqrt,
-						Math.abs,
-						Math.max,
-						Math.min,
-						Math.exp,
-						Math.log,
-						Math.log10,
-						Math.floor,
-						Math.ceil,
-						Math.round,
-						Math.sign,
-						Math.trunc,
-						(a, min, max) => Math.max(Math.min(a, max), min),
-						(a, b, t) => (1 - t) * a + t * b,
-						(a, b) => (a || 0) + Math.random() * ((b || 1) - (a || 0)),
-						() => new Date().getTime(),
-						(a, b) => a % b,
-						(cond, a, b) => cond ? a : b,
 						(name, val) => this._set(name, val)
 					);
 					break;
@@ -169,36 +138,38 @@ class Formatter {
 			"objects_count",
 			"playtime",
 			"duration",
-			"pi",
-			"e",
 			//function
-			"sin",
-			"cos",
-			"tan",
-			"asin",
-			"acos",
-			"atan",
-			"pow",
-			"sqrt",
-			"abs",
-			"max",
-			"min",
-			"exp",
-			"log",
-			"log10",
-			"floor",
-			"ceil",
-			"round",
-			"sign",
-			"truncate",
-			"clamp",
-			"lerp",
-			"random",
-			"getTime",
-			"mod",
-			"_if",
 			"set",
 			`return ${expr};`
 		);
 	}
 }
+
+window["pi"] = Math.PI;
+window["e"] = Math.E;
+
+window["sin"] = Math.sin;
+window["cos"] = Math.cos;
+window["tan"] = Math.tan;
+window["asin"] = Math.asin;
+window["acos"] = Math.acos;
+window["atan"] = Math.atan;
+window["pow"] = Math.pow;
+window["sqrt"] = Math.sqrt;
+window["abs"] = Math.abs;
+window["max"] = Math.max;
+window["min"] = Math.min;
+window["exp"] = Math.exp;
+window["log"] = Math.log;
+window["log10"] = Math.log10;
+window["floor"] = Math.floor;
+window["ceil"] = Math.ceil;
+window["round"] = Math.round;
+window["sign"] = Math.sign;
+window["truncate"] = Math.trunc;
+window["clamp"] = (a, min, max) => Math.max(Math.min(a, max), min);
+window["lerp"] = (a, b, t) => (1 - t) * a + t * b;
+window["random"] = (a, b) => (a || 0) + Math.random() * ((b || 1) - (a || 0));
+window["getTime"] = () => new Date().getTime();
+window["mod"] = (a, b) => a % b;
+window["_if"] = (cond, a, b) => cond ? a : b;
