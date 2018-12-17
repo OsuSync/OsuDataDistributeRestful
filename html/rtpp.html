@@ -33,14 +33,6 @@
 	<pre id="hit-count-lable" class="text text-hit-count">0x100 0x50 0xMiss</pre>
 
 	<script>
-		window.onerror = function (message, source, lineno, colno, error) {
-			const regex = /(\w) is not defined/;
-			console.log(message)
-			if (regex.test(message)) {
-				let v = regex.exec(message)[1];
-				window[v] = 0;
-			}
-		};
 		(async function () {
 			let html_hit_count = document.querySelector("#hit-count-lable");
 			let html_pp = document.querySelector("#pp-lable");
@@ -137,9 +129,9 @@
 					html_pp.textContent = "";
 					html_hit_count.textContent = "";
 					if(pp_formatter!=null)
-						pp_formatter.resetVariable();
+						pp_formatter.resetVariables();
 					if(hit_count_formatter!=null)
-						hit_count_formatter.resetVariable();
+						hit_count_formatter.resetVariables();
 				}
 				setTimeout(display_content, render_interval);
 			}

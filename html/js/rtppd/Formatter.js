@@ -42,7 +42,7 @@ class Formatter {
 		return 0;
 	}
 
-	resetVariable(){
+	resetVariables(){
 		for(let name of this.varNames){
 			window[name]=0;
 		}
@@ -54,74 +54,80 @@ class Formatter {
 		for (let i = 0; i < this.args.length; ++i) {
 			let expr = this.args[i].expr;
 			let ret = 0;
-			try{
-				ret = expr(
-					tuple.realTimePP,
-					tuple.realTimeAccuracyPP,
-					tuple.realTimeAimPP,
-					tuple.realTimeSpeedPP,
-					tuple.maxPP,
-					tuple.maxAccuracyPP,
-					tuple.maxAimPP,
-					tuple.maxSpeedPP,
-					tuple.fullComboPP,
-					tuple.fullComboAccuracyPP,
-					tuple.fullComboAimPP,
-					tuple.fullComboSpeedPP,
-					tuple.count300,
-					tuple.countGeki,
-					tuple.countKatu,
-					tuple.count100,
-					tuple.count100,
-					tuple.count50,
-					tuple.countKatu,
-					tuple.countGeki,
-					tuple.countMiss,
-					tuple.currentMaxCombo,
-					tuple.currentMaxCombo,
-					tuple.playerMaxCombo,
-					tuple.playerMaxCombo,
-					tuple.fullCombo,
-					tuple.combo,
-					tuple.objectsCount,
-					tuple.time,
-					tuple.duration,
-					Math.PI,
-					Math.E,
-					//funtion
-					Math.sin,
-					Math.cos,
-					Math.tan,
-					Math.asin,
-					Math.acos,
-					Math.atan,
-					Math.pow,
-					Math.sqrt,
-					Math.abs,
-					Math.max,
-					Math.min,
-					Math.exp,
-					Math.log,
-					Math.log10,
-					Math.floor,
-					Math.ceil,
-					Math.round,
-					Math.sign,
-					Math.trunc,
-					(a, min, max) => Math.max(Math.min(a, max), min),
-					(a, b, t) => (1 - t) * a + t * b,
-					(a, b) => (a || 0) + Math.random() * ((b || 1) - (a || 0)),
-					() => new Date().getTime(),
-					(a, b) => a % b,
-					(cond, a, b) => cond ? a : b,
-					(name, val) => this._set(name, val)
-				);
-			}catch(e){
-				const message = e.message;
-				const regex = /(\w+) is not defined/;
-				if (regex.test(message)) {
-					let v = regex.exec(message)[1];
-					window[v] = 0;
+			while (true) {
+				try {
+					ret = expr(
+						tuple.realTimePP,
+						tuple.realTimeAccuracyPP,
+						tuple.realTimeAimPP,
+						tuple.realTimeSpeedPP,
+						tuple.maxPP,
+						tuple.maxAccuracyPP,
+						tuple.maxAimPP,
+						tuple.maxSpeedPP,
+						tuple.fullComboPP,
+						tuple.fullComboAccuracyPP,
+						tuple.fullComboAimPP,
+						tuple.fullComboSpeedPP,
+						tuple.count300,
+						tuple.countGeki,
+						tuple.countKatu,
+						tuple.count100,
+						tuple.count100,
+						tuple.count50,
+						tuple.countKatu,
+						tuple.countGeki,
+						tuple.countMiss,
+						tuple.currentMaxCombo,
+						tuple.currentMaxCombo,
+						tuple.playerMaxCombo,
+						tuple.playerMaxCombo,
+						tuple.fullCombo,
+						tuple.combo,
+						tuple.objectsCount,
+						tuple.time,
+						tuple.duration,
+						Math.PI,
+						Math.E,
+						//funtion
+						Math.sin,
+						Math.cos,
+						Math.tan,
+						Math.asin,
+						Math.acos,
+						Math.atan,
+						Math.pow,
+						Math.sqrt,
+						Math.abs,
+						Math.max,
+						Math.min,
+						Math.exp,
+						Math.log,
+						Math.log10,
+						Math.floor,
+						Math.ceil,
+						Math.round,
+						Math.sign,
+						Math.trunc,
+						(a, min, max) => Math.max(Math.min(a, max), min),
+						(a, b, t) => (1 - t) * a + t * b,
+						(a, b) => (a || 0) + Math.random() * ((b || 1) - (a || 0)),
+						() => new Date().getTime(),
+						(a, b) => a % b,
+						(cond, a, b) => cond ? a : b,
+						(name, val) => this._set(name, val)
+					);
+					break;
+				} catch (e) {
+					const message = e.message;
+					const regex = /(\w+) is not defined/;
+					if (regex.test(message)) {
+						let v = regex.exec(message)[1];
+						window[v] = 0;
+						continue;
+					}
+					console.error(message);
+					break;
 				}
 			}
 			let value = ret.toFixed(this.args[i].digital);
