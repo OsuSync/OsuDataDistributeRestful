@@ -71,6 +71,7 @@
 			let smoothers = {};
 			let pp_formatter = null;
 			let hit_count_formatter = null;
+			let status = 0;
 
 			//initialize ODDR and RTPPD
 			let oddr = new ODDR(host, port);
@@ -96,8 +97,8 @@
 				return previous;
 			}
 
-			//display function
-			async function display_content() {
+			//get pp and hit count data
+			async function get_data() {
 				target_pp = await rtppd.getPerformancePointAt(0);
 				if (current_pp === null)
 					current_pp = target_pp;
@@ -105,8 +106,22 @@
 				hit_count = await rtppd.getHitCountAt(0);
 				beatmapTuple = await rtppd.getBeatmapTupleAt(0);
 				beatmapTuple.time = (await ortdp.getPlayingTime()).time;
-				const status = (await ortdp.getGameStatusAt()).status;
+				status = (await ortdp.getGameStatusAt()).status;
 
+				if (status == ortdp.STATUS_PLAYING) {
+					let tuple = Object.assign(current_pp, hit_count);
+					tuple = Object.assign(tuple, beatmapTuple);
+
+					if (hit_count !== null)
+						if (hit_count_formatter != null)
+							html_hit_count.textContent = hit_count_formatter.Format(tuple);
+				}
+
+				setTimeout(get_data, get_interval);
+			}
+
+			//display function
+			async function display_content() {
 				if (status == ortdp.STATUS_PLAYING) {
 					let tuple = Object.assign(current_pp, hit_count);
 					tuple = Object.assign(tuple, beatmapTuple);
@@ -116,10 +131,6 @@
 						if (pp_formatter != null)
 							html_pp.textContent = pp_formatter.Format(tuple);
 					}
-
-					if (hit_count !== null)
-						if (hit_count_formatter != null)
-							html_hit_count.textContent = hit_count_formatter.Format(tuple);
 				}
 
 				if(status != ortdp.STATUS_RANK && status != ortdp.STATUS_PLAYING){
@@ -133,6 +144,7 @@
 				setTimeout(display_content, render_interval);
 			}
 
+			get_data();
 			display_content();
 		})();
 	</script>

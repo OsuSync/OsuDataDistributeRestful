@@ -17,7 +17,8 @@ class Formatter {
 			if (arg == null) break;
 			let rawExpr = arg[0].substring(2, arg[0].length - 1);
 			let breakdExpr = rawExpr.split("@");
-			digital = Number.parseInt(breakdExpr[1])||digital;
+			if(breakdExpr.length>=2)
+				digital = Number.parseInt(breakdExpr[1]);
 			this.args.push({
 				exprStr: rawExpr,
 				expr: this._CreateExprFunction(this.preprocessExpr(breakdExpr[0])),
