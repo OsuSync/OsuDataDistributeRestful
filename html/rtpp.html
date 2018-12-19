@@ -37,22 +37,19 @@
 			let html_hit_count = document.querySelector("#hit-count-lable");
 			let html_pp = document.querySelector("#pp-lable");
 
-			let _url = new URL(window.location.href);
-			let host = _url.searchParams.get('host');
-			let port = _url.searchParams.get('port');
-			let digits = _url.searchParams.get('digits');
+			const _url = new URL(window.location.href);
 
-			if (host === null) host = "localhost";
-			if (port === null) port = "10800";
-			if (digits === null) digits = "2";
-
-			digits = Number.parseInt(digits);
+			/// Args
+			const host = _url.searchParams.get('host') || "localhost";
+			const port = _url.searchParams.get('port') || "10800";
+			const digits = Number.parseInt(_url.searchParams.get('digits') || "2");
+			const fps = Number.parseInt(_url.searchParams.get('fps') || "30");
+			const get_interval = Number.parseInt(_url.searchParams.get('interval') || "200");
+			
 
 			const st = 0.2;
-			const fps = 30;
-			const dt = 1.0 / fps;;
+			const dt = 1.0 / fps;
 			const render_interval = dt * 1000;
-			const get_interval = 200;
 
 			let current_pp = null;
 			let target_pp = null;
