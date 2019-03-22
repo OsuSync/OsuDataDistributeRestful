@@ -79,7 +79,7 @@ namespace OsuDataDistributeRestful.Api
 
             if (File.Exists(filename))
             {
-                var fs = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
+                var fs = OpenFile(filename);
 
                 return new ActionResult(fs)
                 {
@@ -99,7 +99,7 @@ namespace OsuDataDistributeRestful.Api
 
             if (File.Exists(filename))
             {
-                var fs = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
+                var fs = OpenFile(filename);
                 string ext = Path.GetExtension(filename);
 
                 return new ActionResult(fs)
@@ -120,7 +120,7 @@ namespace OsuDataDistributeRestful.Api
 
             if (File.Exists(filename))
             {
-                var fs = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
+                var fs = OpenFile(filename);
                 string ext = Path.GetExtension(filename);
 
                 return new ActionResult(fs)
@@ -179,6 +179,11 @@ namespace OsuDataDistributeRestful.Api
         #endregion Playing
 
         #region tools
+
+        private Stream OpenFile(string filename)
+        {
+            return new MemoryStream(File.ReadAllBytes(filename));
+        }
 
         private object MakeProvideDatas(ProvideDataMask mask, Func<ProvideData, object> selector)
         {

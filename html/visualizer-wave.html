@@ -33,7 +33,7 @@
     <script src="js/ORTDP.js"></script>
     <script>
             (async function () {
-                const MAX_HEIGTH = 190;
+                const MAX_HEIGTH = window.innerHeight - 20;
                 let context = new AudioContext();
                 let play = false;
 
@@ -41,6 +41,7 @@
                 let has_sound = _url.searchParams.get('sound') || "false";
                 let host = _url.searchParams.get('host') || "localhost";
                 let port = _url.searchParams.get('port') || "10800";
+                let lineWidth = Number.parseInt(_url.searchParams.get('lineWidth') || "5");
 
                 let current_audio_buffer = null;
                 let src = context.createBufferSource();
@@ -123,51 +124,57 @@
                     canvas.height = window.innerHeight;
                     var ctx = canvas.getContext("2d");
 
-                    analyser.fftSize = 2048;
-
-                    var bufferLength = analyser.frequencyBinCount;
+                    analyser.fftSize = 16384;
+                    const SKIP = 64;
+                    var bufferLength = analyser.fftSize;
                     console.log(bufferLength);
+
 
                     var dataArray = new Uint8Array(bufferLength);
 
                     var WIDTH = canvas.width;
                     var HEIGHT = canvas.height;
+                    var STEP = WIDTH / bufferLength;
 
-                    var barWidth = (WIDTH / bufferLength) * 2.5 * 4;
                     var barHeight;
-                    var x = 0;
 
                     //render
                     function renderFrame() {
-                        x = 0;
+                        let x = 0;
 
-                        analyser.getByteFrequencyData(dataArray);
+                        analyser.getByteTimeDomainData(dataArray);
 
                         ctx.fillStyle = "#000";
                         ctx.fillRect(0, 0, WIDTH, HEIGHT);
+                        ctx.lineWidth = lineWidth;
 
-                        for (let i = 0; i < bufferLength; i+=4) {
-                            let val = 0
+                        ctx.strokeStyle = "#33aacc";
+                        ctx.beginPath();
+                        ctx.moveTo(0,dataArray[0] / 255.0 * MAX_HEIGTH);
+                        x += STEP;
 
-                            for(let j=0;j<4;j++){
-                                val += dataArray[i+j] / 255.0;
+                        for (let i = 1; i < bufferLength; i+=SKIP) {
+                            let val1 = 0;
+                            let val2 = 0;
+
+                            for(let j=0;j<SKIP/2;j++){
+                                val1 += dataArray[i+j] / 255.0;
                             }
-                            val /= 4;
-                            barHeight = val * val * val;
+                            for(let j=0;j<SKIP/2;j++){
+                                val2 += dataArray[i + SKIP/2 +j] / 255.0;
+                            }
+                            val1 /= (SKIP/2);
+                            val2 /= (SKIP/2);
 
                             let r = 128 + Math.round((128 * (i / bufferLength)));
-                            let g = Math.round(barHeight * 230 - (25 * (i / bufferLength)));
+                            let g = Math.round(val1 * val2 * 230 - (25 * (i / bufferLength)));
                             let b = 203;
 
-                            ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
+                            ctx.lineTo(x + STEP, val2 * MAX_HEIGTH);
 
-                            //target heigth
-                            barHeight = Math.round(barHeight * MAX_HEIGTH);
-
-                            ctx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
-
-                            x += barWidth;
+                            x += STEP * SKIP;
                         }
+                        ctx.stroke();
 
                         requestAnimationFrame(renderFrame);
                     }
