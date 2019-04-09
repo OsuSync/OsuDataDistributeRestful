@@ -34,13 +34,24 @@ class ODDR {
                         resolve(xhr.response);
                     }
                     else {
-                        resolve(this.errorObject);
+                        if(type == 'json'){
+                            if(xhr.response.reason!=undefined)
+                                console.error(xhr.response.reason);
+                            resolve(Object.apply(this.errorObject,
+                                {
+                                    code: xhr.status,
+                                    reason: xhr.response.reason
+                                }
+                            ));
+                        }else{
+                            resolve(xhr.response);
+                        }
                     }
                 }
             };
 
             xhr.onerror = function (e) {
-                resolve(this.errorObject);
+                resolve(Object.apply(e,this.errorObject));
             };
 
             xhr.open("GET", this.combineUri(uri), true);
