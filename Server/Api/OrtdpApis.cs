@@ -49,7 +49,7 @@ namespace OsuDataDistributeRestful.Api
         public object GetTourneyMode()
             => new { value = ortdp.TourneyListenerManagers != null };
 
-        [Route("/tournetModeListenCount")]
+        [Route("/tournetModeListenerCount")]
         public object GetTournetModeListenCount()
             => new { count = ortdp.TourneyListenerManagersCount };
 

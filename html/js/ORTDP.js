@@ -20,7 +20,7 @@ class ORTDP {
     }
 
     async getTournetModeListenCount(){
-        return await this._oddr.get(`api/ortdp/tournetModeListenCount`);
+        return await this._oddr.get(`api/ortdp/tournetModeListenerCount`);
     }
 
     async getBeatmapInfo(){
