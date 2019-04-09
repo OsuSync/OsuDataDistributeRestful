@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -96,6 +97,16 @@ namespace OsuDataDistributeRestful.Server
                     }
                 }
             }
+        }
+
+        protected void ReturnErrorCode(HttpListenerResponse response,ActionResult result)
+        {
+            response.StatusCode = result.Code;
+            using (var sw = new StreamWriter(response.OutputStream))
+                sw.Write(JsonConvert.SerializeObject(new {
+                    code = result.Code,
+                    reason = result.Reason
+                }));
         }
 
         protected void Return404(HttpListenerResponse response)

@@ -21,7 +21,9 @@ namespace OsuDataDistributeRestful.Api
         public ActionResult GetDictValue(string providable_data_name)
         {
             if (!olsp.EnumProvidableDataName().Any(p => p == providable_data_name))
-                return new ActionResult(new { code = 404 }, 404);
+            {
+                return new ActionResult(null, 400, $"Invalid argument. Parameters：{string.Join(", ",olsp.EnumProvidableDataName())}");
+            }
 
             var result = olsp.GetData(providable_data_name);
             return new ActionResult(new
@@ -47,7 +49,7 @@ namespace OsuDataDistributeRestful.Api
                     ContentType = GetContentType(ext)
                 };
             }
-            return new ActionResult(new { code = 404, message = "background image not found" }, 200);
+            return new ActionResult(null, 404, "No background image found");
         }
 
         [Route("/image/output")]
@@ -66,7 +68,7 @@ namespace OsuDataDistributeRestful.Api
                     ContentType = GetContentType(ext)
                 };
             }
-            return new ActionResult(new { code = 404, message = "output image not found" }, 200);
+            return new ActionResult(null, 404, "No output image found");
         }
 
         [Route("/image/mods")]
@@ -85,7 +87,7 @@ namespace OsuDataDistributeRestful.Api
                     ContentType = GetContentType(ext)
                 };
             }
-            return new ActionResult(new { code = 404, message = "mods image not found" }, 200);
+            return new ActionResult(null, 404, "No mods image found.");
         }
 
         private string GetContentType(string fileExtention)

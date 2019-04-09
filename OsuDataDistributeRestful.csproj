@@ -59,6 +59,7 @@
     <Compile Include="Server\RouteAttribute.cs" />
     <Compile Include="Server\Api\RtppdApis.cs" />
     <Compile Include="Server\ServerBase.cs" />
+    <Compile Include="Server\Api\ExtraApis.cs" />
     <Compile Include="Setting.cs" />
     <Compile Include="Server\FileServer.cs" />
   </ItemGroup>

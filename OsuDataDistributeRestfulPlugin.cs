@@ -54,46 +54,57 @@ namespace OsuDataDistributeRestful
 
         #region Initializtion
 
-        private void ORTDP_Initialize()
+        private Plugin ORTDP_Initialize()
         {
             var plugin = getHoster().EnumPluings().Where(p => p.Name == "OsuRTDataProvider").FirstOrDefault();
             if (plugin != null)
             {
                 ApiServer.RegisterResource(new OrtdpApis(plugin));
+                return plugin;
             }
-            else
-                IO.CurrentIO.WriteColor($"[ODDR]Not Found OsuRTDataProvider", ConsoleColor.Red);
+
+            IO.CurrentIO.WriteColor($"[ODDR]Not Found OsuRTDataProvider", ConsoleColor.Red);
+            return null;
         }
 
-        private void RTPPD_Initialize()
+        private Plugin RTPPD_Initialize()
         {
             var plugin = getHoster().EnumPluings().Where(p => p.Name == "RealTimePPDisplayer").FirstOrDefault();
             if (plugin != null)
             {
                 ApiServer.RegisterResource(new RtppdApis(plugin));
+                return plugin;
             }
-            else
-                IO.CurrentIO.WriteColor($"[ODDR]Not Found RealTimePPDisplayer", ConsoleColor.Red);
+
+            IO.CurrentIO.WriteColor($"[ODDR]Not Found RealTimePPDisplayer", ConsoleColor.Red);
+            return null;
         }
 
-        private void OLSP_Initialize()
+        private Plugin OLSP_Initialize()
         {
             var plugin = getHoster().EnumPluings().Where(p => p.Name == "OsuLiveStatusPanelPlugin").FirstOrDefault();
             if (plugin != null)
             {
                 ApiServer.RegisterResource(new OlspApis(plugin));
+                return plugin;
             }
-            else
-                IO.CurrentIO.WriteColor($"[ODDR]Not Found OsuLiveStatusPanel", ConsoleColor.Red);
+
+            IO.CurrentIO.WriteColor($"[ODDR]Not Found OsuLiveStatusPanel", ConsoleColor.Red);
+            return null;
         }
 
         #endregion Initializtion
 
         private void Initialize()
         {
-            ORTDP_Initialize();
-            RTPPD_Initialize();
-            OLSP_Initialize();
+            var ortdp = ORTDP_Initialize();
+            var rtppd = RTPPD_Initialize();
+            var olsp = OLSP_Initialize();
+
+            if(ortdp !=null && rtppd != null)
+            {
+                ApiServer.RegisterResource(new ExtraApis(ortdp,rtppd));
+            }
         }
 
         public override void OnEnable()

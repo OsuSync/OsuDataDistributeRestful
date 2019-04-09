@@ -1,8 +1,9 @@
-﻿using System.IO;
+﻿using Newtonsoft.Json;
+using System.IO;
 
 namespace OsuDataDistributeRestful.Server
 {
-    internal class ActionResult
+    public class ActionResult
     {
         /// <summary>
         /// MIME
@@ -11,13 +12,25 @@ namespace OsuDataDistributeRestful.Server
 
         public int Code { get; private set; } = 200;
 
+        public string Reason { get; private set; } = string.Empty;
+
         public object Data { get; private set; }
 
-        public ActionResult(object a, int code = 200)
+        public Formatting Formatting { get; set; } = Formatting.None;
+
+        public ActionResult(object a)
+        {
+            ContentType = "text/json; charset=UTF-8";
+            Data = a;
+            Code = 200;
+        }
+
+        public ActionResult(object a, int code, string reason)
         {
             ContentType = "text/json; charset=UTF-8";
             Data = a;
             Code = code;
+            Reason = reason;
         }
 
         public ActionResult(Stream s, int code = 200)

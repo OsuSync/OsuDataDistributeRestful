@@ -67,7 +67,7 @@ namespace OsuDataDistributeRestful.Api
             if (File.Exists(beatmap.FilenameFull))
                 return new ActionResult(File.OpenRead(beatmap.FilenameFull)) { ContentType = "text/plain; charset=utf-8" };
 
-            return new ActionResult(new { code = 404, message = "no found beatmap file" });
+            return new ActionResult(new { code = 404, message = "No beatmap found." });
         }
 
         [Route("/beatmap/audio")]
@@ -87,7 +87,7 @@ namespace OsuDataDistributeRestful.Api
                 };
             }
 
-            return new ActionResult(new { code = 404 }, 200);
+            return new ActionResult(null, 404,"No audio found.");
         }
 
         [Route("/beatmap/background")]
@@ -108,7 +108,7 @@ namespace OsuDataDistributeRestful.Api
                 };
             }
 
-            return new ActionResult(new { code = 404 }, 200);
+            return new ActionResult(null, 404, "No backgournd image found.");
         }
 
         [Route("/beatmap/video")]
@@ -129,7 +129,7 @@ namespace OsuDataDistributeRestful.Api
                 };
             }
 
-            return new ActionResult(new { code = 404 }, 200);
+            return new ActionResult(null, 404, "No video found.");
         }
 
         #endregion Beatmap

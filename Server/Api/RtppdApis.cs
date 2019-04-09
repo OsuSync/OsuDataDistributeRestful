@@ -2,6 +2,7 @@ using OsuDataDistributeRestful.Server;
 using OsuDataDistributeRestful.Server.Api;
 using RealTimePPDisplayer;
 using RealTimePPDisplayer.Displayer;
+using RealTimePPDisplayer.Formatter;
 using Sync.Plugins;
 using System.Collections.Generic;
 using System.Linq;
@@ -111,7 +112,7 @@ namespace OsuDataDistributeRestful.Api
         public object GetHitCountFormat()
             => new {format = StringFormatter.GetHitCountFormatter().Format };
 
-        [Route("/formated/pp")]
+        [Route("/formatted/pp")]
         public object GetFormatedPP()
         {
             List<RestfulDisplayer> displayers = EnumerateRestfulDisplayers();
@@ -123,21 +124,21 @@ namespace OsuDataDistributeRestful.Api
             };
         }
 
-        [Route("/formated/pp/{0}")]
+        [Route("/formatted/pp/{id}")]
         public object GetFormatedPP(int id)
         {
             RestfulDisplayer displayer = GetDisplayer(id);
             return displayer.FormatPp();
         }
 
-        [Route("/formated/hitCount/{0}")]
+        [Route("/formatted/hitCount/{id}")]
         public object GetFormatedHitCount(int id)
         {
             RestfulDisplayer displayer = GetDisplayer(id);
             return displayer.FormatHitCount();
         }
 
-        [Route("/formated/hitCount")]
+        [Route("/formatted/hitCount")]
         public object GetFormatedHitCount()
         {
             List<RestfulDisplayer> displayers = EnumerateRestfulDisplayers();

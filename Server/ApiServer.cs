@@ -19,7 +19,7 @@ namespace OsuDataDistributeRestful.Server
         private struct Method
         {
             public MethodInfo MethodInfo;
-            public object Instance;
+            public IApi Instance;
         }
 
         private class ParamCollection : Dictionary<string, string>
@@ -111,7 +111,17 @@ namespace OsuDataDistributeRestful.Server
             [Route("/api")]
             public object OutputAllApi()
             {
-                return m_apiServer.m_route_dict.Keys.Select(template => template.Template);
+                return new ActionResult(m_apiServer.m_route_dict
+                    .GroupBy(p => p.Value.Instance)
+                    .Select(g => new
+                    {
+                        name = g.Key.GetType().Name,
+                        apis = g.Select(p => p.Key.Template)
+                    })
+                )
+                {
+                    Formatting = Formatting.Indented
+                };
             }
         }
 
@@ -164,22 +174,29 @@ namespace OsuDataDistributeRestful.Server
                     var result = CallMethod(matched_route.Route.Value, matched_route.Params);
                     response.ContentType = result.ContentType;
 
-                    if (result.Data is Stream s)
+                    if (result.Code != 200)
                     {
-                        s.CopyTo(response.OutputStream);
-                        s.Dispose();
-                    }
-                    else if (result.Data != null)
-                    {
-                        var json = JsonConvert.SerializeObject(result.Data);
-                        response.StatusCode = result.Code;
-
-                        using (var sw = new StreamWriter(response.OutputStream))
-                            sw.Write(json);
+                        ReturnErrorCode(response, result);
                     }
                     else
                     {
-                        Return404(response);
+                        if (result.Data is Stream s)
+                        {
+                            s.CopyTo(response.OutputStream);
+                            s.Dispose();
+                        }
+                        else if (result.Data != null)
+                        {
+                            var json = JsonConvert.SerializeObject(result.Data, result.Formatting);
+                            response.StatusCode = result.Code;
+
+                            using (var sw = new StreamWriter(response.OutputStream))
+                                sw.Write(json);
+                        }
+                        else
+                        {
+                            Return404(response);
+                        }
                     }
                 }
                 catch (Exception e)
