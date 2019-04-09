@@ -37,7 +37,7 @@ class ODDR {
                         if(type == 'json'){
                             if(xhr.response.reason!=undefined)
                                 console.error(xhr.response.reason);
-                            resolve(Object.apply(this.errorObject,
+                            resolve(Object.assign(this.errorObject,
                                 {
                                     code: xhr.status,
                                     reason: xhr.response.reason
@@ -51,7 +51,7 @@ class ODDR {
             };
 
             xhr.onerror = function (e) {
-                resolve(Object.apply(e,this.errorObject));
+                resolve(Object.assign(e,this.errorObject));
             };
 
             xhr.open("GET", this.combineUri(uri), true);
