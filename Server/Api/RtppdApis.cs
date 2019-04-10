@@ -106,11 +106,11 @@ namespace OsuDataDistributeRestful.Api
 
         [Route("/ppFormat")]
         public object GetPPFormat()
-            => new {format = StringFormatter.GetPPFormatter().Format};
+            => new {format = RtppFormatter.GetPPFormatter().Format};
 
         [Route("/hitCountFormat")]
         public object GetHitCountFormat()
-            => new {format = StringFormatter.GetHitCountFormatter().Format };
+            => new {format = RtppFormatter.GetHitCountFormatter().Format };
 
         [Route("/formatted/pp")]
         public object GetFormatedPP()
