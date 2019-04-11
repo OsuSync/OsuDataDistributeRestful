@@ -17,6 +17,9 @@ namespace OsuDataDistributeRestful
         public const string PLUGIN_AUTHOR = "KedamavOvO";
         public const string VERSION = "0.4.0";
 
+        public static readonly Version MIN_ORTDP_VERSION = Version.Parse("1.4.3");
+        public static readonly Version MIN_RTPPD_VERSION = Version.Parse("1.7.0");
+
         public ApiServer ApiServer { get; private set; }
         private FileServer fileHttpServer;
 
@@ -32,6 +35,8 @@ namespace OsuDataDistributeRestful
             EventBus.BindEvent<PluginEvents.ProgramReadyEvent>(e => ApiServer.Start());
             if (Setting.AllowLAN)
                 EventBus.BindEvent<PluginEvents.ProgramReadyEvent>(e => PrintLanAddress());
+
+            EventBus.BindEvent<PluginEvents.LoadCompleteEvent>(e => Initialize());
 
             if (Setting.EnableFileHttpServer)
             {
@@ -59,11 +64,21 @@ namespace OsuDataDistributeRestful
             var plugin = getHoster().EnumPluings().Where(p => p.Name == "OsuRTDataProvider").FirstOrDefault();
             if (plugin != null)
             {
-                ApiServer.RegisterResource(new OrtdpApis(plugin));
-                return plugin;
+                if (plugin.GetType().Assembly.GetName().Version > MIN_ORTDP_VERSION)
+                {
+                    ApiServer.RegisterResource(new OrtdpApis(plugin));
+                    return plugin;
+                }
+                else
+                {
+                    IO.DefaultIO.WriteColor(string.Format(DefaultLanguage.MINIMUM_VERSION_HINT, "OsuRTDataProvider", MIN_ORTDP_VERSION), ConsoleColor.Yellow);
+                }
+            }
+            else
+            {
+                IO.CurrentIO.WriteColor($"[ODDR]Not Found OsuRTDataProvider", ConsoleColor.Red);
             }
 
-            IO.CurrentIO.WriteColor($"[ODDR]Not Found OsuRTDataProvider", ConsoleColor.Red);
             return null;
         }
 
@@ -72,11 +87,21 @@ namespace OsuDataDistributeRestful
             var plugin = getHoster().EnumPluings().Where(p => p.Name == "RealTimePPDisplayer").FirstOrDefault();
             if (plugin != null)
             {
-                ApiServer.RegisterResource(new RtppdApis(plugin));
-                return plugin;
+                if (plugin.GetType().Assembly.GetName().Version > MIN_RTPPD_VERSION)
+                {
+                    ApiServer.RegisterResource(new RtppdApis(plugin));
+                    return plugin;
+                }
+                else
+                {
+                    IO.DefaultIO.WriteColor(string.Format(DefaultLanguage.MINIMUM_VERSION_HINT, "RealTimePPDisplayer", MIN_RTPPD_VERSION), ConsoleColor.Yellow);
+                }
+            }
+            else
+            {
+                IO.CurrentIO.WriteColor($"[ODDR]Not Found RealTimePPDisplayer", ConsoleColor.Red);
             }
 
-            IO.CurrentIO.WriteColor($"[ODDR]Not Found RealTimePPDisplayer", ConsoleColor.Red);
             return null;
         }
 
@@ -110,7 +135,6 @@ namespace OsuDataDistributeRestful
         public override void OnEnable()
         {
             Sync.Tools.IO.CurrentIO.WriteColor(PLUGIN_NAME + " By " + PLUGIN_AUTHOR, ConsoleColor.DarkCyan);
-            Initialize();
         }
 
         public override void OnExit()
