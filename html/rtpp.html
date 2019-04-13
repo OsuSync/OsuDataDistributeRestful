@@ -40,15 +40,16 @@
 			const _url = new URL(window.location.href);
 
 			/// Args
-			const host = _url.searchParams.get('host') || "localhost";
-			const port = _url.searchParams.get('port') || "10800";
-			const digits = Number.parseInt(_url.searchParams.get('digits') || "2");
-			const fps = Number.parseInt(_url.searchParams.get('fps') || "30");
-			const get_interval = Number.parseInt(_url.searchParams.get('interval') || "200");
-			
+			const HOST = _url.searchParams.get('host') || "localhost";
+			const PORT = _url.searchParams.get('port') || "10800";
+			const DIGITS = Number.parseInt(_url.searchParams.get('digits') || "2");
+			const FPS = Number.parseInt(_url.searchParams.get('fps') || "30");
+			const GET_INTERVAL = Number.parseInt(_url.searchParams.get('interval') || "200");
+			const PP_FORMAT = _url.searchParams.get('pp_format');
+            const HIT_COUNT_FORMAT = _url.searchParams.get('hit_format');
 
 			const st = 0.2;
-			const dt = 1.0 / fps;
+			const dt = 1.0 / FPS;
 			const render_interval = dt * 1000;
 
 			let current_pp = null;
@@ -63,18 +64,26 @@
 			let status = 0;
 
 			//initialize ODDR and RTPPD
-			let oddr = new ODDR(host, port);
+			let oddr = new ODDR(HOST, PORT);
 			let rtppd = new RTPPD(oddr);
 			let ortdp = new ORTDP(oddr);
 
+            if(PP_FORMAT == null){
 			//get pp format and hit count format
-			rtppd.getPerformancePointFormatString().then(function (format_json) {
-				pp_formatter = new Formatter(format_json.format,digits);
-			});
+                rtppd.getPerformancePointFormatString().then(function (format_json) {
+                    pp_formatter = new Formatter(format_json.format,DIGITS);
+                });
+            }else{
+                pp_formatter = new Formatter(PP_FORMAT,DIGITS);
+            }
 
-			rtppd.getHitCountFormatString().then(function (format_json) {
-				hit_count_formatter = new Formatter(format_json.format,0);
-			});
+            if(HIT_COUNT_FORMAT == null){
+                rtppd.getHitCountFormatString().then(function (format_json) {
+                    hit_count_formatter = new Formatter(format_json.format,0);
+                });
+            }else{
+                hit_count_formatter = new Formatter(HIT_COUNT_FORMAT,0);
+            }
 
 			//smooth function
 			function SmoothObject(previous, target) {
@@ -106,7 +115,7 @@
 							html_hit_count.textContent = hit_count_formatter.Format(tuple);
 				}
 
-				setTimeout(get_data, get_interval);
+				setTimeout(get_data, GET_INTERVAL);
 			}
 
 			//display function
