@@ -74,7 +74,7 @@
                     pp_formatter = new Formatter(format_json.format,DIGITS);
                 });
             }else{
-                pp_formatter = new Formatter(PP_FORMAT,DIGITS);
+                pp_formatter = new Formatter(PP_FORMAT.replace(/\\n/g,'\n'),DIGITS);
             }
 
             if(HIT_COUNT_FORMAT == null){
@@ -82,7 +82,7 @@
                     hit_count_formatter = new Formatter(format_json.format,0);
                 });
             }else{
-                hit_count_formatter = new Formatter(HIT_COUNT_FORMAT,0);
+                hit_count_formatter = new Formatter(HIT_COUNT_FORMAT.replace(/\\n/g,'\n'),0);
             }
 
 			//smooth function
