@@ -6,6 +6,8 @@
 5. type **{your sync folder}/html/rtpp.html** or **http://oddr.kedamaovo.moe/rtpp.html** in Browser Source
 6. **If you want to let other devices display PP via LAN, please read [here](https://github.com/OsuSync/OsuDataDistributeRestful/wiki/How-to-display-realtime-to-my-other-devices%3F-(e.g-Phone)).**
 
+[Built-in HTML](https://github.com/OsuSync/OsuDataDistributeRestful/tree/master/html)
+
 
 # Config.ini
 | Setting Name | Default Value | Description |
