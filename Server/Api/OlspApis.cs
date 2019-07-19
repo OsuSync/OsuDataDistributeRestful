@@ -20,6 +20,20 @@ namespace OsuDataDistributeRestful.Api
         [Route("/{providable_data_name}")]
         public ActionResult GetDictValue(string providable_data_name)
         {
+            if (providable_data_name == "mapstats")
+            {
+                return new ActionResult(new
+                {
+                    stars = olsp.GetData("stars"),
+                    ar = olsp.GetData("ar"),
+                    od = olsp.GetData("od"),
+                    cs = olsp.GetData("cs"),
+                    hp = olsp.GetData("hp"),
+                    maxBpm = olsp.GetData("max_bpm"),
+                    minBpm = olsp.GetData("min_bpm"),
+                });
+            }
+
             if (!olsp.EnumProvidableDataName().Any(p => p == providable_data_name))
             {
                 return new ActionResult(null, 400, $"Invalid argument. Parameters：{string.Join(", ",olsp.EnumProvidableDataName())}");
