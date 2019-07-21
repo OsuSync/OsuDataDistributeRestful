@@ -59,6 +59,7 @@ namespace OsuDataDistributeRestful.Server
             if (_reader is null ||
                 _reader.OrtdpBeatmap.BeatmapID != _beatmap.BeatmapID)
             {
+                cal.ClearCache();
                 _reader = new BeatmapReader(_beatmap, (int)_mode);
             }
 

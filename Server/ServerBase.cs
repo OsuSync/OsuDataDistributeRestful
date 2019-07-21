@@ -74,7 +74,7 @@ namespace OsuDataDistributeRestful.Server
 
                         response.ContentEncoding = Encoding.UTF8;
 
-#pragma warning disable CS4014 // 由于此调用不会等待，因此在调用完成前将继续执行当前方法
+#pragma warning disable CS4014
                         Task.Run(() =>
                         {
                             if (request.HttpMethod == "GET")
@@ -89,7 +89,7 @@ namespace OsuDataDistributeRestful.Server
                             }
                             response.OutputStream.Close();
                         });
-#pragma warning restore CS4014 // 由于此调用不会等待，因此在调用完成前将继续执行当前方法
+#pragma warning restore CS4014
                     }
                     catch (HttpListenerException)
                     {
