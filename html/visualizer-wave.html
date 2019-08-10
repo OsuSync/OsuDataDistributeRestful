@@ -41,7 +41,7 @@
                 let has_sound = _url.searchParams.get('sound') || "false";
                 let host = _url.searchParams.get('host') || "localhost";
                 let port = _url.searchParams.get('port') || "10800";
-                let lineWidth = Number.parseInt(_url.searchParams.get('lineWidth') || "5");
+                let lineWidth = Number.parseInt(_url.searchParams.get('line_width') || "5");
 
                 let current_audio_buffer = null;
                 let src = context.createBufferSource();

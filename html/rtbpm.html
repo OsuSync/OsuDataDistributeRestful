@@ -27,9 +27,10 @@
     }
     </style>
 
-    <script src="js/ODDR.js"></script>
-    <script src="js/ORTDP.js"></script>
-    <script src="js/Beatmap.js"></script>
+    <script type="text/javascript" src="./js/lib/NoSleep.min.js"></script>
+    <script type="text/javascript" src="js/ODDR.js"></script>
+    <script type="text/javascript" src="js/ORTDP.js"></script>
+    <script type="text/javascript" src="js/Beatmap.js"></script>
     <script>
         window.onload=function(){
             let _url=new URL(window.location.href);
@@ -38,6 +39,17 @@
 
             let oddr = new ODDR(host,port);
             let ortdp = new ORTDP(oddr);
+
+            const mobilePlatforms = ["Android","IPhone","IPad"];
+            if (mobilePlatforms.map(p=>navigator.userAgent.indexOf(p)).filter(i=>i!=-1).length>0)
+            {
+                alert("Click on the screen to enable wake lock.")
+                document.addEventListener('click', function enableNoSleep() {
+                    document.removeEventListener('click', enableNoSleep, false);
+                    new NoSleep().enable();
+                    alert("Enabled wake lock.");
+                }, false);
+            }
             
             let lastBeatmapInfo={};
             let beatmap={};

@@ -3,12 +3,13 @@
 
 <head>
 	<meta charset="utf-8" />
-	<title>Displayer</title>
-	<script src="js/ODDR.js"></script>
-	<script src="js/rtppd/RTPPD.js"></script>
-	<script src="js/ORTDP.js"></script>
-	<script src="js/Smoother.js"></script>
-	<script src="js/rtppd/Formatter.js"></script>
+    <title>Displayer</title>
+    <script type="text/javascript" src="./js/lib/NoSleep.min.js"></script>
+	<script type="text/javascript" src="js/ODDR.js"></script>
+	<script type="text/javascript" src="js/rtppd/RTPPD.js"></script>
+	<script type="text/javascript" src="js/ORTDP.js"></script>
+	<script type="text/javascript" src="js/Smoother.js"></script>
+	<script type="text/javascript" src="js/rtppd/Formatter.js"></script>
 	<style type="text/css">
 		body {
 			background-color: #66CCFF;
@@ -67,6 +68,17 @@
 			let oddr = new ODDR(HOST, PORT);
 			let rtppd = new RTPPD(oddr);
 			let ortdp = new ORTDP(oddr);
+
+            const mobilePlatforms = ["Android","IPhone","IPad"];
+            if (mobilePlatforms.map(p=>navigator.userAgent.indexOf(p)).filter(i=>i!=-1).length>0)
+            {
+                alert("Click on the screen to enable wake lock.")
+                document.addEventListener('click', function enableNoSleep() {
+                    document.removeEventListener('click', enableNoSleep, false);
+                    new NoSleep().enable();
+                    alert("Enabled wake lock.");
+                }, false);
+            }
 
             if(PP_FORMAT == null){
 			//get pp format and hit count format
