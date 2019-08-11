@@ -46,7 +46,7 @@
             let xScale = d3.scaleLinear().range([0,width]);
             let yScale = d3.scaleLinear().range([0,height]);
             let area = d3.area().curve(d3.curveBasis)
-                        .x((d)=>xScale(d.x))
+                        .x((d)=>xScale(d.time))
                         .y0(0)
                         .y1((d)=>yScale(d.y))
 
@@ -65,6 +65,7 @@
             let lastBeatmapInfo = {};
             let lastMods = {};
             let diffData = [];
+            let isTransition = false;
 
             async function loop(){
                 setTimeout(loop,300);
@@ -82,47 +83,79 @@
                 let beatmapText = await ortdp.getBeatmap();
                 if (/no found beatmap file/.test(beatmapText))
                     return;
-                
-                let parser = new osu.parser().feed(beatmapText);
-                let diff = new osu.diff().calc({map:parser.map,mods:mods});
 
-                diffData = diff.objects.map((obj,i) => {
-                    let strains = 0;
-                    if(diffSpeed === '1')
-                        strains += obj.strains[0];
-                    if(diffAim === '1')
-                        strains += obj.strains[1];
+                isTransition = true;
+                strainsArea.datum(diffData.map(d=>({time:d.time,y:0})))
+                .transition()
+                .duration(1000)
+                .attr('d',area)
+                .on('end',function(){
+                    isTransition = false;
 
-                    return {
-                        x: obj.obj.time,
-                        y: strains,
-                    }
+                    let parser = new osu.parser().feed(beatmapText);
+                    let diff = new osu.diff().calc({map:parser.map,mods:mods});
+
+                    diffData = diff.objects.map((obj,i) => {
+                        let strains = 0;
+                        if(diffSpeed === '1')
+                            strains += obj.strains[0];
+                        if(diffAim === '1')
+                            strains += obj.strains[1];
+
+                        return {
+                            time: obj.obj.time,
+                            y: strains,
+                        }
+                    });
+                    xScale.domain([0,d3.max(diffData,d=>d.time)]);
+                    yScale.domain([0,d3.max(diffData,d=>d.y)]);
+                    
+                    strainsArea.datum(diffData.map(d=>({time:d.time,y:0}))).attr('d',area);
+                    strainsArea.datum(diffData)
+                    .transition()
+                    .duration(1000)
+                    .attr('d',area)
                 });
 
-                xScale.domain([0,d3.max(diffData,d=>d.x)]);
-                yScale.domain([0,d3.max(diffData,d=>d.y)]);
-
-                strainsArea.datum(diffData)
+                strainsOverlayArea.datum(diffData.map(d=>({time:d.time,y:0})))
                 .transition()
                 .attr('d',area)
-                .duration(1000);
+                .duration(1000)
+                .on('end',function(){
+                    strainsOverlayArea.datum(diffData.map(d=>({time:d.time,y:0}))).attr('d',area);
+                    strainsOverlayArea.datum(diffData)
+                    .transition()
+                    .duration(1000)
+                    .attr('d',area)
+                });
 
-                strainsOverlayArea.datum(diffData)
-                .transition()
-                .attr('d',area)
-                .duration(1000);
+                strainsArea.exit().remove();
+                strainsOverlayArea.exit().remove();
             }
 
-           async function playRender(){
-                setTimeout(playRender,100);
-                let time = (await ortdp.getPlayingTime()).time;
 
-                let p = time/diffData[diffData.length - 1].x;
+            let time = 0;
+            let targetTime = 0;
+            function playRender(){
+                setTimeout(playRender,33);
+
+                time = d3.interpolateNumber(time,targetTime)(0.1);
+                let p = time/(diffData[diffData.length - 1].time);
                 p = Math.max(0,p);
 
                 clipPath.attr('width',width * p);
             }
 
+            async function timeLoop(){
+                setTimeout(timeLoop,100);
+                if(isTransition){
+                    targetTime = 0;
+                }else{
+                    targetTime = (await ortdp.getPlayingTime()).time;
+                }
+            }
+
+            timeLoop();
             loop();
             playRender();
         }
