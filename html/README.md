@@ -53,12 +53,13 @@ Audio visualization of the current song
 ![](img/wave.gif)
 
 # [ppvisualizer.html](ppvisualizer.html)
-PP visualization of the beatmap
+PP visualization of the beatmap (std only)
 
 |Argument Name|Default Value|Note|
 |---|---|---|
 |host| localhost | ODDR API Server |
 |port|10800|ODDR API Server Port|
+|h|300|ppvisualizer's heigth|
 |diff_aim|1||
 |diff_speed|1||
 
