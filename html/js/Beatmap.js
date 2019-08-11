@@ -13,6 +13,7 @@ class Beatmap{
         this.metadata={};
         this.difficulty={};
         this.timingPoints=[];
+        this.events=[];
         
         if(str!=null)
             this._parse(str.split(/\r?\n/));
@@ -51,6 +52,8 @@ class Beatmap{
             }else if(block=="[TimingPoints]"){
                 let timing=this._parseTiming(line);
                 this.timingPoints.push(timing);
+            }else if(block=="[Events]"){
+                this.events.push(line.split(/,/));
             }
         }
         

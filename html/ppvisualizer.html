@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>PP Visualizer</title>
     <script type="text/javascript" src="./js/lib/NoSleep.min.js"></script>
+    <script type="text/javascript" src="./js/Beatmap.js"></script>
     <script type="text/javascript" src="./js/ODDR.js"></script>
     <script type="text/javascript" src="./js/ORTDP.js"></script>
     <script type="text/javascript" src="./js/lib/ojsama.min.js"></script>
@@ -84,10 +85,19 @@
                 if (/no found beatmap file/.test(beatmapText))
                     return;
 
+                let b = new Beatmap(beatmapText);
+
+                let break_periods = b.events.filter(e=>e[0]=='2').map(e=>{
+                    return {
+                        start: Number.parseInt(e[1]),
+                        end: Number.parseInt(e[2])
+                    }
+                });
+
                 isTransition = true;
                 strainsArea.datum(diffData.map(d=>({time:d.time,y:0})))
                 .transition()
-                .duration(1000)
+                .duration(500)
                 .attr('d',area)
                 .on('end',function(){
                     isTransition = false;
@@ -107,25 +117,38 @@
                             y: strains,
                         }
                     });
+                    for(let b of break_periods){
+                        diffData.push({
+                            time: b.start,
+                            y:0
+                         });
+                        diffData.push({
+                            time: b.end,
+                            y:0
+                        });
+                    }
+
+                    diffData.sort((a,b) => a.time - b.time);
+
                     xScale.domain([0,d3.max(diffData,d=>d.time)]);
                     yScale.domain([0,d3.max(diffData,d=>d.y)]);
                     
                     strainsArea.datum(diffData.map(d=>({time:d.time,y:0}))).attr('d',area);
                     strainsArea.datum(diffData)
                     .transition()
-                    .duration(1000)
+                    .duration(500)
                     .attr('d',area)
                 });
 
                 strainsOverlayArea.datum(diffData.map(d=>({time:d.time,y:0})))
                 .transition()
                 .attr('d',area)
-                .duration(1000)
+                .duration(500)
                 .on('end',function(){
                     strainsOverlayArea.datum(diffData.map(d=>({time:d.time,y:0}))).attr('d',area);
                     strainsOverlayArea.datum(diffData)
                     .transition()
-                    .duration(1000)
+                    .duration(500)
                     .attr('d',area)
                 });
 
@@ -133,13 +156,12 @@
                 strainsOverlayArea.exit().remove();
             }
 
-
             let time = 0;
             let targetTime = 0;
             function playRender(){
                 setTimeout(playRender,33);
 
-                time = d3.interpolateNumber(time,targetTime)(0.1);
+                time = d3.interpolateNumber(time,targetTime)(0.06);
                 let p = time/(diffData[diffData.length - 1].time);
                 p = Math.max(0,p);
 
