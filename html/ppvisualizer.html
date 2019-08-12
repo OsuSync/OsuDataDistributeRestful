@@ -19,6 +19,14 @@
     .overlayArea {
         fill: steelblue; 
     }
+    html,body{
+        height:100%;
+        width:100%;
+        margin: 0%;
+    }
+    svg{
+        position: fixed
+    }
     </style>
     <script>
         window.onload = async function(){
@@ -27,8 +35,8 @@
             let port = _url.searchParams.get('port')||"10800";
             let diffAim = _url.searchParams.get('diff_aim')||"1";
             let diffSpeed = _url.searchParams.get('diff_speed')||"1";
-            let width = _url.searchParams.get('w')||`${document.body.clientWidth}`;
-            let height = _url.searchParams.get('h')||"300";
+            let width = _url.searchParams.get('w')||`${window.innerWidth}`;
+            let height = _url.searchParams.get('h')||`${window.innerHeight}`;
 
             let svg = d3.select("body")
                         .append("svg")
@@ -68,13 +76,15 @@
             let diffData = [];
             let isTransition = false;
 
+            const CHANGE_DIFF_MODS = "HR,DT,NC,HT,EZ".split(/,/);
+
             async function loop(){
                 setTimeout(loop,300);
                 let beatmapInfo = await ortdp.getBeatmapInfo();
                 let mods = (await ortdp.getPlayingModsAt()).mods;
 
                 if(lastMods == mods){
-                    if (beatmapInfo.equals(lastBeatmapInfo))
+                    if (beatmapInfo.beatmapId == lastBeatmapInfo.beatmapId)
                         return;
                 }
 
@@ -120,11 +130,11 @@
                     for(let b of break_periods){
                         diffData.push({
                             time: b.start,
-                            y:0
+                            y: -50
                          });
                         diffData.push({
                             time: b.end,
-                            y:0
+                            y: -50
                         });
                     }
 
