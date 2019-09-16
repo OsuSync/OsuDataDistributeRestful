@@ -15,10 +15,10 @@ namespace OsuDataDistributeRestful
     {
         public const string PLUGIN_NAME = "OsuDataDistributeRestful";
         public const string PLUGIN_AUTHOR = "KedamavOvO";
-        public const string VERSION = "0.5.1";
+        public const string VERSION = "0.6.0";
 
-        public static readonly Version MIN_ORTDP_VERSION = Version.Parse("1.4.3");
-        public static readonly Version MIN_RTPPD_VERSION = Version.Parse("1.7.0");
+        public static readonly Version MIN_ORTDP_VERSION = Version.Parse("1.5.0");
+        public static readonly Version MIN_RTPPD_VERSION = Version.Parse("1.8.0");
 
         public ApiServer ApiServer { get; private set; }
         private FileServer fileHttpServer;
