@@ -154,7 +154,8 @@ namespace OsuDataDistributeRestful.Api
                 ProvideDataMask.HealthPoint |
                 ProvideDataMask.HitCount |
                 ProvideDataMask.Combo |
-                ProvideDataMask.Accuracy,
+                ProvideDataMask.Accuracy|
+                ProvideDataMask.ErrorStatistics,
                 (data) => MakePlayingInfo(data));
 
         [Route("/playing/mods/{id}")]
@@ -171,6 +172,21 @@ namespace OsuDataDistributeRestful.Api
         [Route("/playing/mods")]
         public object GetPlayingMods()
             => MakeProvideDatas(ProvideDataMask.Mods, data => MakeModsInfo(data.Mods));
+
+        [Route("/playing/players")]
+        public object GetPlayingPlayers()
+            => MakeProvideDatas(ProvideDataMask.Playername, data => new { playername = data.Playername });
+
+        [Route("/playing/players/{id}")]
+        public object GetPlayingPlayers(int id)
+        {
+            dynamic players = GetPlayingPlayers();
+
+            if (id < players.list.Count)
+                return players.list[id];
+            else
+                return null;
+        }
 
         [Route("/playing/time")]
         public object GetPlayingTime()
@@ -239,6 +255,12 @@ namespace OsuDataDistributeRestful.Api
                 healthPoint = info?.HealthPoint,
                 accuracy = info?.Accuracy,
                 score = info?.Score,
+                errorStatistics = new
+                {
+                    errorMin = info?.ErrorStatistics.ErrorMin,
+                    errorMax = info?.ErrorStatistics.ErrorMax,
+                    unstableRate = info?.ErrorStatistics.UnstableRate,
+                }
             };
         }
 
