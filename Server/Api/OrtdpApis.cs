@@ -225,7 +225,7 @@ namespace OsuDataDistributeRestful.Api
             };
         }
 
-        private object MakePlayingInfo(ProvideData? info)
+        private object MakePlayingInfo(ProvideData info)
         {
             return new
             {

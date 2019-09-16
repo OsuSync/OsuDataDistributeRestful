@@ -49,7 +49,7 @@ namespace OsuDataDistributeRestful.Api
         public object GetPP(int id)
         {
             RestfulDisplayer displayer = GetDisplayer(id);
-            return (displayer?.PPTuple == null) ? null : MakeTupleResult(displayer?.PPTuple);
+            return (displayer?.Pp == null) ? null : MakeTupleResult(displayer?.Pp);
         }
 
         [Route("/pp")]
@@ -60,7 +60,7 @@ namespace OsuDataDistributeRestful.Api
             return new
             {
                 count = displayers.Count,
-                list = displayers.Select(d => (d?.PPTuple == null) ? null : MakeTupleResult(d?.PPTuple))
+                list = displayers.Select(d => (d?.Pp == null) ? null : MakeTupleResult(d?.Pp))
             };
         }
 
@@ -69,7 +69,7 @@ namespace OsuDataDistributeRestful.Api
         {
             RestfulDisplayer displayer = GetDisplayer(id);
 
-            return (displayer?.HitCountTuple) == null ? null : MakeTupleResult(displayer?.HitCountTuple);
+            return (displayer?.HitCount) == null ? null : MakeTupleResult(displayer?.HitCount);
         }
 
         [Route("/hitCount")]
@@ -80,7 +80,7 @@ namespace OsuDataDistributeRestful.Api
             return new
             {
                 count = displayers.Count,
-                list = displayers.Select(d => (d?.HitCountTuple == null) ? null : MakeTupleResult(d?.HitCountTuple))
+                list = displayers.Select(d => (d?.HitCount == null) ? null : MakeTupleResult(d?.HitCount))
             };
         }
 
@@ -89,7 +89,7 @@ namespace OsuDataDistributeRestful.Api
         {
             RestfulDisplayer displayer = GetDisplayer(id);
 
-            return (displayer?.HitCountTuple) == null ? null : MakeTupleResult(displayer?.BeatmapTuple);
+            return (displayer?.HitCount) == null ? null : MakeTupleResult(displayer?.BeatmapTuple);
         }
 
         [Route("/beatmapTuple")]
@@ -100,7 +100,7 @@ namespace OsuDataDistributeRestful.Api
             return new
             {
                 count = displayers.Count,
-                list = displayers.Select(d => (d?.HitCountTuple == null) ? null : MakeTupleResult(d?.BeatmapTuple))
+                list = displayers.Select(d => (d?.HitCount == null) ? null : MakeTupleResult(d?.BeatmapTuple))
             };
         }
 
@@ -116,11 +116,11 @@ namespace OsuDataDistributeRestful.Api
         public object GetFormatedPP()
         {
             List<RestfulDisplayer> displayers = EnumerateRestfulDisplayers();
-
+            string format = FormatterBase.GetPPFormatter().Format;
             return new
             {
                 count = displayers.Count,
-                list = displayers.Select(d=>d.FormatPp())
+                list = displayers.Select(d=>format)
             };
         }
 
@@ -128,25 +128,26 @@ namespace OsuDataDistributeRestful.Api
         public object GetFormatedPP(int id)
         {
             RestfulDisplayer displayer = GetDisplayer(id);
-            return displayer.FormatPp();
+            return FormatterBase.GetPPFormatter().Format;
         }
 
         [Route("/formatted/hitCount/{id}")]
         public object GetFormatedHitCount(int id)
         {
             RestfulDisplayer displayer = GetDisplayer(id);
-            return displayer.FormatHitCount();
+            return FormatterBase.GetHitCountFormatter().Format;
         }
 
         [Route("/formatted/hitCount")]
         public object GetFormatedHitCount()
         {
             List<RestfulDisplayer> displayers = EnumerateRestfulDisplayers();
+            string format = FormatterBase.GetHitCountFormatter().Format;
 
             return new
             {
                 count = displayers.Count,
-                list = displayers.Select(d => d.FormatHitCount())
+                list = displayers.Select(d => format)
             };
         }
 
@@ -191,27 +192,20 @@ namespace OsuDataDistributeRestful.Api
         private class RestfulDisplayer : DisplayerBase
         {
             public bool IsPlay { get; private set; } = false;
-            public HitCountTuple HitCountTuple { get; private set; }
-            public PPTuple PPTuple { get; private set; }
 
-            public int ClientID { get; private set; }
-
-            public RestfulDisplayer(int? id)
+            public RestfulDisplayer(int? id):base(id)
             {
-                ClientID = id ?? 0;
             }
 
             public override void Clear()
             {
+                base.Clear();
                 IsPlay = false;
-                HitCountTuple = new HitCountTuple();
             }
 
             public override void Display()
             {
                 IsPlay = true;
-                PPTuple = Pp;
-                HitCountTuple = HitCount;
             }
         }
     }
