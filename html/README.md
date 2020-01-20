@@ -37,6 +37,7 @@ Fade Backgournd
 |---|---|---|
 |host| localhost | ODDR API Server |
 |port|10800|ODDR API Server Port|
+|fadeTime|350|Transition duration(ms)|
 
 ![](img/fade-bg.gif)
 
