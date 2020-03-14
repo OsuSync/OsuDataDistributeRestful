@@ -192,6 +192,22 @@ namespace OsuDataDistributeRestful.Api
         public object GetPlayingTime()
             => new { time = ortdp.ListenerManager.GetCurrentData(ProvideDataMask.Time).Time };
 
+        [Route("/playing/hitEvents")]
+        public object GetHitEvents()
+            => MakeProvideDatas(ProvideDataMask.HitEvent, data=>new { data.HitEvents });
+
+        [Route("/playing/hitEvents/{id}")]
+        public object GetHitEventsById(int id)
+        {
+            dynamic players = GetHitEvents();
+
+            if (id < players.list.Count)
+                return players.list[id];
+            else
+                return null;
+        }
+
+
         #endregion Playing
 
         #region tools
@@ -214,8 +230,9 @@ namespace OsuDataDistributeRestful.Api
 
             if (isTourney)
             {
-                foreach (var manager in ortdp.TourneyListenerManagers)
+                for (int i = 0; i < ortdp.TourneyListenerManagersCount; i++)
                 {
+                    var manager = ortdp.TourneyListenerManagers[i];
                     var data = manager.GetCurrentData(mask);
                     ret.list.Add(selector(data));
                 }

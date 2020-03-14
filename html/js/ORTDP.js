@@ -117,7 +117,15 @@ class ORTDP {
         return await this._oddr.get(`api/ortdp/playing/time`);
     }
 
-    async getGameStatusAt(id=0){
+    async getHitEventsAt(id = 0){
+        return await this._oddr.get(`api/ortdp/playing/hitEvents/${id}`);
+    }
+
+    async getHitEventsList(){
+        return await this._oddr.get(`api/ortdp/playing/hitEvents`);
+    }
+
+    async getGameStatusAt(id = 0){
         return await this._oddr.get(`api/ortdp/gameStatus/${id}`);
     }
 
@@ -125,7 +133,7 @@ class ORTDP {
         return await this._oddr.get(`api/ortdp/gameStatus`);
     }
 
-    async getGameModeAt(id=0){
+    async getGameModeAt(id = 0){
         return await this._oddr.get(`api/ortdp/gameMode/${id}`);
     }
 
