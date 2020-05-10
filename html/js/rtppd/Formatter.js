@@ -1,16 +1,39 @@
 "use strict";
 
+class Smoother{
+	constructor(smoothTime,dt)
+	{
+		this.speed=0;
+		this.smoothTime=smoothTime;
+		this.dt=dt;
+	}
+			
+	SmoothDamp(previousValue, targetValue)
+	{
+		let T1 = 0.36 * this.smoothTime;
+		let T2 = 0.64 * this.smoothTime;
+		let x = previousValue - targetValue;
+		let newSpeed = this.speed + this.dt * (-1.0 / (T1 * T2) * x - (T1 + T2) / (T1 * T2) * this.speed);
+		let newValue = x + this.dt * this.speed;
+		this.speed = newSpeed;
+		let result = targetValue + newValue;
+		this.speed = isNaN(this.speed) ? 0.0 : this.speed;
+		return isNaN(result)?0:result;
+	}
+}
+
 class Formatter {
 	constructor(format,digital = 2) {
-		var pattern = /\$\{(([A-Z]|[a-z]|[0-9]|_|\.|,|\(|\)|\^|\+|\-|\*|\/|\%|\<|\>|\=|\!|\||\&)+?)?(@\d+)?\}/g;
+        var pattern = /\$\{(([A-Z]|[a-z]|[0-9]|_|\.|,|\(|\)|\^|\+|\-|\*|\/|\%|\<|\>|\=|\!|\||\&|")+?)?(@\d+)?\}/g;
 
 		this.format = format;
 		this.args = [];
-		this.varNames = [];
+        this.varNames = [];
+        this.smoothValues = {};
 
 		while (true) {
-			let arg = pattern.exec(this.format);
-			if (arg == null) break;
+            let arg = pattern.exec(this.format);
+            if (arg == null) break;
 			let rawExpr = arg[0].substring(2, arg[0].length - 1);
 			let breakdExpr = rawExpr.split("@");
 			if(breakdExpr.length>=2)
@@ -25,7 +48,8 @@ class Formatter {
 
 	preprocessExpr(expr){
 		expr = expr.replace(/if/g,'_if');
-		expr = expr.replace(/set\(\s*(\w+)\s*,/g,"set('$1',");
+        expr = expr.replace(/set\(\s*(\w+)\s*,/g,"set('$1',");
+        expr = expr.replace(/smooth\((\w+)\)/g,"smooth('$1',$1)")
 		return expr;
 	}
 
@@ -36,12 +60,23 @@ class Formatter {
 		}
 		window[name]=val;
 		return 0;
-	}
+    }
+    
+    _smooth(name,val){ 
+        var previousValueName = `${name}_previous`;
+
+        if(this.smoothValues[name] === undefined){
+            this.smoothValues[previousValueName] = 0.0;
+            this.smoothValues[name] = new Smoother(window.smoothST,window.smoothDT);
+        }
+        return this.smoothValues[name].SmoothDamp(this.smoothValues[previousValueName],val);
+    }
 
 	resetVariables(){
 		for(let name of this.varNames){
 			window[name]=0;
-		}
+        }
+        this.smoothValues = {}
 	}
 
 	Format(tuple) {
@@ -82,9 +117,13 @@ class Formatter {
 						tuple.combo,
 						tuple.objectsCount,
 						tuple.time,
-						tuple.duration,
+                        tuple.duration,
+                        tuple.errorStatistics.UnstableRate,
+                        tuple.errorStatistics.ErrorMin,
+                        tuple.errorStatistics.ErrorMax,
 						//function
-						(name, val) => this._set(name, val)
+                        (name, val) => this._set(name, val),
+                        (name,val) => this._smooth(name,val)
 					);
 					break;
 				} catch (e) {
@@ -137,9 +176,13 @@ class Formatter {
 			"combo",
 			"objects_count",
 			"playtime",
-			"duration",
+            "duration",
+            "ur",
+            "error_min",
+            "error_max",
 			//function
-			"set",
+            "set",
+            "smooth",
 			`return ${expr};`
 		);
 	}

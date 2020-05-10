@@ -8,7 +8,6 @@
 	<script type="text/javascript" src="js/ODDR.js"></script>
 	<script type="text/javascript" src="js/rtppd/RTPPD.js"></script>
 	<script type="text/javascript" src="js/ORTDP.js"></script>
-	<script type="text/javascript" src="js/Smoother.js"></script>
 	<script type="text/javascript" src="js/rtppd/Formatter.js"></script>
 	<style type="text/css">
 		body {
@@ -49,17 +48,14 @@
 			const PP_FORMAT = _url.searchParams.get('pp_format');
             const HIT_COUNT_FORMAT = _url.searchParams.get('hit_format');
 
-			const st = 0.2;
-			const dt = 1.0 / FPS;
-			const render_interval = dt * 1000;
+			window.smoothST = 0.2;
+			window.smoothDT = 1.0 / FPS;
+			const render_interval = window.smoothDT * 1000;
 
-			let current_pp = null;
-			let target_pp = null;
-
+            let ppTuple = null;
 			let hit_count = null;
 			let beatmapTuple = null;
 
-			let smoothers = {};
 			let pp_formatter = null;
 			let hit_count_formatter = null;
 			let status = 0;
@@ -97,29 +93,17 @@
                 hit_count_formatter = new Formatter(HIT_COUNT_FORMAT.replace(/\\n/g,'\n'),0);
             }
 
-			//smooth function
-			function SmoothObject(previous, target) {
-				for (let prop in target) {
-					if (smoothers[prop] === undefined)
-						smoothers[prop] = new Smoother(st, dt);
-					previous[prop] = smoothers[prop].SmoothDamp(previous[prop], target[prop]);
-				}
-				return previous;
-			}
-
 			//get pp and hit count data
 			async function get_data() {
-				target_pp = await rtppd.getPerformancePointAt(0);
-				if (current_pp === null)
-					current_pp = target_pp;
-
+                ppTuple = await rtppd.getPerformancePointAt(0);
+                
 				hit_count = await rtppd.getHitCountAt(0);
 				beatmapTuple = await rtppd.getBeatmapTupleAt(0);
 				beatmapTuple.time = (await ortdp.getPlayingTime()).time;
 				status = (await ortdp.getGameStatusAt()).status;
 
 				if (status == ortdp.STATUS_PLAYING) {
-					let tuple = Object.assign(current_pp, hit_count);
+					let tuple = Object.assign(ppTuple, hit_count);
 					tuple = Object.assign(tuple, beatmapTuple);
 
 					if (hit_count !== null)
@@ -133,11 +117,10 @@
 			//display function
 			async function display_content() {
 				if (status == ortdp.STATUS_PLAYING) {
-					let tuple = Object.assign(current_pp, hit_count);
+					let tuple = Object.assign(ppTuple, hit_count);
 					tuple = Object.assign(tuple, beatmapTuple);
 
-					if (current_pp !== null) {
-						current_pp = SmoothObject(current_pp, target_pp);
+					if (ppTuple !== null) {
 						if (pp_formatter != null)
 							html_pp.textContent = pp_formatter.Format(tuple);
 					}
